@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3B82F6" />
+  <title>StudyDesk Lite</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <script src="js/theme.js"></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <i class="fa-solid fa-book-bookmark"></i> StudyDesk Lite
+    </a>
+    <div class="nav-links">
+      <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="tasks.html"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="exams.html"><i class="fa-solid fa-book-open"></i> Exams</a>
+      <a href="pomodoro.html"><i class="fa-solid fa-clock"></i> Pomodoro</a>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button id="resetAll" class="reset-btn" title="Reset all data">
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+      <button id="themeToggle" class="theme-btn"></button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="card hero">
+      <h1 id="greeting">Hello, Anuraj!</h1>
+      <p class="subtitle">Let's get productive.</p>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="date-str" id="date">Loading…</div>
+      <button class="clock-toggle" id="clockToggle"></button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="statPending">0</div>
+        <div class="stat-label">Pending Tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statCompleted">0</div>
+        <div class="stat-label">Done Tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statExam">—</div>
+        <div class="stat-label">Next Exam</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statSessions">0</div>
+        <div class="stat-label">Sessions Today</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2 class="section-title" style="margin:0">Pending Tasks</h2>
+        <a href="tasks.html" style="font-size:.82rem;color:var(--accent);text-decoration:none">View all <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div id="recentTasks"></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2 class="section-title" style="margin:0">Upcoming Exams</h2>
+        <a href="exams.html" style="font-size:.82rem;color:var(--accent);text-decoration:none">View all <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div id="upcomingExams"></div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><i class="fa-solid fa-house nav-icon"></i><span>Home</span></a>
+    <a href="tasks.html"><i class="fa-solid fa-list-check nav-icon"></i><span>Tasks</span></a>
+    <a href="exams.html"><i class="fa-solid fa-book-open nav-icon"></i><span>Exams</span></a>
+    <a href="pomodoro.html"><i class="fa-solid fa-clock nav-icon"></i><span>Pomodoro</span></a>
+  </nav>
+
+  <script src="js/storage.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
