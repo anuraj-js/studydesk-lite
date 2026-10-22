@@ -1,5 +1,10 @@
-const CACHE = 'sdl-v1';
+const CACHE = 'sdl-v2';
 const STATIC = [
+  './',
+  './index.html',
+  './html/tasks.html',
+  './html/exams.html',
+  './html/pomodoro.html',
   './css/style.css',
   './js/theme.js',
   './js/storage.js',
@@ -28,7 +33,6 @@ self.addEventListener('fetch', e => {
   const { request } = e;
   const url = new URL(request.url);
 
-  // HTML pages — always try network first, fall back to cache
   if (request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/') {
     e.respondWith(
       fetch(request)
@@ -42,7 +46,6 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // CSS / JS / assets — cache first, update in background
   e.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request).then(res => {
