@@ -33,7 +33,7 @@
   <div class="container">
 
     <div class="card hero">
-      <h1 id="greeting">Hello, Anuraj!</h1>
+      <h1 id="greeting">Hello!</h1>
       <p class="subtitle" id="studyMessage"></p>
       <div class="clock" id="clock">--:--:--</div>
       <div class="date-str" id="date">Loading…</div>
@@ -73,6 +73,31 @@
         <a href="html/exams.html" style="font-size:.82rem;color:var(--accent);text-decoration:none">View all <i class="fa-solid fa-arrow-right"></i></a>
       </div>
       <div id="upcomingExams"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Settings</h2>
+      <div class="form-group">
+        <label for="usernameInput">Display Name</label>
+        <div style="display:flex;gap:.5rem">
+          <input type="text" id="usernameInput" placeholder="Enter your name" />
+          <button class="btn btn-primary" id="saveUsername">
+            <i class="fa-solid fa-floppy-disk"></i> Save
+          </button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Data Backup</label>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-ghost" id="importBtn">
+            <i class="fa-solid fa-upload"></i> Import
+          </button>
+          <button class="btn btn-ghost" id="exportBtn">
+            <i class="fa-solid fa-download"></i> Export
+          </button>
+          <input type="file" id="importInput" accept=".json" style="display:none" />
+        </div>
+      </div>
     </div>
 
   </div>

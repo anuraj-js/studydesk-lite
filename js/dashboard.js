@@ -35,8 +35,41 @@ function getGreeting(h) {
 function updateGreeting() {
   const h        = new Date().getHours();
   const userName = localStorage.getItem('sdl-username') || 'Student';
-  document.getElementById('greeting').textContent    = `${getGreeting(h)}, ${userName}!`;
+  document.getElementById('greeting').textContent     = `${getGreeting(h)}, ${userName}!`;
   document.getElementById('studyMessage').textContent = getStudyMessage(h);
+}
+
+function exportData() {
+  const data = {};
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('sdl-'))
+    .forEach(k => data[k] = localStorage.getItem(k));
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const keys = Object.keys(data).filter(k => k.startsWith('sdl-'));
+      if (!keys.length) { alert('Invalid backup file.'); return; }
+      if (!confirm(`This will overwrite your current data. Continue?`)) return;
+      keys.forEach(k => localStorage.setItem(k, data[k]));
+      alert('Import successful!');
+      location.reload();
+    } catch {
+      alert('Invalid backup file.');
+    }
+  };
+  reader.readAsText(file);
 }
 
 function formatTime(d) {
@@ -167,4 +200,25 @@ document.addEventListener('DOMContentLoaded', () => {
   initStats();
   initRecentTasks();
   initUpcomingExams();
+
+  const usernameInput = document.getElementById('usernameInput');
+  usernameInput.value = localStorage.getItem('sdl-username') || '';
+  document.getElementById('saveUsername').addEventListener('click', () => {
+    const val = usernameInput.value.trim();
+    if (!val) return;
+    localStorage.setItem('sdl-username', val);
+    updateGreeting();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  
+  // Trigger the hidden file input when the Import button is clicked
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importInput').click();
+  });
+
+  // Handle the file selection
+  document.getElementById('importInput').addEventListener('change', e => {
+    if (e.target.files[0]) importData(e.target.files[0]);
+  });
 });
