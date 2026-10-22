@@ -17,14 +17,13 @@ function getCountdown(dateStr) {
   const mins  = Math.floor((totalSecs % 3600) / 60);
   const secs  = totalSecs % 60;
 
-  let text, cls = '';
-  if (days > 0) {
-    text = `${days}d ${hours}h ${mins}m left`;
-    if (days <= 2) cls = 'urgent';
-  } else {
-    text = `${hours}h ${mins}m ${secs}s left`;
-    cls = 'urgent';
-  }
+  let cls = '';
+  
+  // Set urgency color if less than 3 days
+  if (days < 3) cls = 'urgent';
+
+  // Format exactly as: 15d 13h 43m 48s left
+  const text = `${days}d ${hours}h ${mins}m ${secs}s left`;
 
   return { text, cls };
 }
