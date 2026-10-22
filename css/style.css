@@ -856,6 +856,56 @@ textarea {
   color: var(--text-muted);
 }
 
+/* ── Collapsible Cards (Accordion) ── */
+.collapsible-card {
+  padding: 0; /* Remove padding from the card so summary spans full width */
+  overflow: hidden;
+}
+
+.collapsible-card summary {
+  padding: 1.25rem;
+  cursor: pointer;
+  list-style: none; /* Hide default arrow */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  margin-bottom: 0 !important;
+  transition: background 0.2s;
+}
+
+/* Remove default arrow in WebKit browsers */
+.collapsible-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-card summary:hover {
+  background: var(--surface2);
+}
+
+/* Add a custom arrow icon that rotates */
+.collapsible-card summary::after {
+  content: '\f107'; /* FontAwesome chevron-down */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.collapsible-card[open] summary::after {
+  transform: rotate(180deg); /* Flip arrow up when open */
+}
+
+.collapsible-card[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+/* Add padding back to the inside content */
+.collapsible-card > form, 
+.collapsible-card > div {
+  padding: 1.25rem; /* Changed to add padding on ALL sides (top, right, bottom, left) */
+}
+
 /* Mobile adjustments for the full height */
 @media (max-width: 768px) {
   .notes-container {

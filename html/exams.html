@@ -20,7 +20,7 @@
     <div class="nav-links">
       <a href="../index.html"><i class="fa-solid fa-house"></i> Home</a>
       <a href="tasks.html"><i class="fa-solid fa-list-check"></i> Tasks</a>
-      <a href="exams.html"><i class="fa-solid fa-book-open"></i> Exams</a>
+      <a href="exams.html" class="active"><i class="fa-solid fa-book-open"></i> Exams</a>
       <a href="pomodoro.html"><i class="fa-solid fa-clock"></i> Pomodoro</a>
       <a href="notes.html"><i class="fa-solid fa-note-sticky"></i> Notes</a>
     </div>
@@ -34,8 +34,10 @@
 
   <div class="container">
 
-    <div class="card">
-      <h2 class="section-title">Add Exam</h2>
+    <details class="card collapsible-card">
+      <summary class="section-title">
+        <i class="fa-solid fa-plus-circle"></i> Add Exam
+      </summary>
       <form id="examForm">
         <div class="form-group">
           <label for="examName">Exam name <span class="required">*</span></label>
@@ -53,7 +55,7 @@
           <i class="fa-solid fa-plus"></i> Create exam plan
         </button>
       </form>
-    </div>
+    </details>
 
     <div id="examList"></div>
 
@@ -93,7 +95,7 @@
   <nav class="bottom-nav">
     <a href="../index.html"><i class="fa-solid fa-house nav-icon"></i><span>Home</span></a>
     <a href="tasks.html"><i class="fa-solid fa-list-check nav-icon"></i><span>Tasks</span></a>
-    <a href="exams.html"><i class="fa-solid fa-book-open nav-icon"></i><span>Exams</span></a>
+    <a href="exams.html" class="active"><i class="fa-solid fa-book-open nav-icon"></i><span>Exams</span></a>
     <a href="pomodoro.html"><i class="fa-solid fa-clock nav-icon"></i><span>Pomodoro</span></a>
     <a href="notes.html"><i class="fa-solid fa-note-sticky nav-icon"></i><span>Notes</span></a>
   </nav>
