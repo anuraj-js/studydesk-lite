@@ -151,8 +151,10 @@ function bindExamEvents() {
   // Delete topic
   document.querySelectorAll('.topic-delete').forEach(btn => {
     btn.addEventListener('click', () => {
-      Storage.deleteTopic(btn.dataset.examId, btn.dataset.topicId);
-      refreshTopics(btn.dataset.examId);
+      if (confirm('Remove this topic?')) {
+        Storage.deleteTopic(btn.dataset.examId, btn.dataset.topicId);
+        refreshTopics(btn.dataset.examId);
+      }
     });
   });
 

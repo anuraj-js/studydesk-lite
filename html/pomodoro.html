@@ -36,6 +36,9 @@
       <div class="mode-label" id="modeLabel">Focus Time</div>
       <div class="timer-display" id="timerDisplay">25:00</div>
       <div class="session-info" id="sessionInfo">Session 1 · 0 completed today</div>
+      <button class="btn btn-ghost btn-sm" id="resetSessions" style="margin-bottom:1rem;font-size:0.75rem">
+        <i class="fa-solid fa-rotate-left"></i> Reset Sessions
+      </button>
       <div class="timer-controls">
         <button class="btn btn-ghost" id="resetBtn">
           <i class="fa-solid fa-rotate-left"></i> Reset
@@ -55,16 +58,31 @@
     <div class="card">
       <h2 class="section-title">Settings</h2>
       <div class="settings-row">
-        <label>Focus (min)</label>
-        <input type="number" id="setWork" min="1" max="90" />
+        <label>Focus</label>
+        <div class="settings-time-inputs">
+          <input type="number" id="setWork" min="0" max="90" />
+          <span class="settings-time-sep">min</span>
+          <input type="number" id="setWorkSec" min="0" max="59" />
+          <span class="settings-time-sep">sec</span>
+        </div>
       </div>
       <div class="settings-row">
-        <label>Short Break (min)</label>
-        <input type="number" id="setShort" min="1" max="30" />
+        <label>Short Break</label>
+        <div class="settings-time-inputs">
+          <input type="number" id="setShort" min="0" max="30" />
+          <span class="settings-time-sep">min</span>
+          <input type="number" id="setShortSec" min="0" max="59" />
+          <span class="settings-time-sep">sec</span>
+        </div>
       </div>
       <div class="settings-row">
-        <label>Long Break (min)</label>
-        <input type="number" id="setLong" min="1" max="60" />
+        <label>Long Break</label>
+        <div class="settings-time-inputs">
+          <input type="number" id="setLong" min="0" max="60" />
+          <span class="settings-time-sep">min</span>
+          <input type="number" id="setLongSec" min="0" max="59" />
+          <span class="settings-time-sep">sec</span>
+        </div>
       </div>
       <div class="settings-row">
         <label>Long Break After (sessions)</label>

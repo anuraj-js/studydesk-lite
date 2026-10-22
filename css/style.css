@@ -295,7 +295,7 @@ textarea {
   color: var(--danger);
   border: 1px solid var(--danger);
 }
-.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: rgba(239,68,68,.15); color: var(--danger); }
 
 .btn-full { width: 100%; }
 
@@ -496,6 +496,22 @@ textarea {
   text-align: center;
 }
 
+.settings-time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.settings-time-inputs input {
+  width: 58px;
+  text-align: center;
+}
+
+.settings-time-sep {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 /* ── Utility ── */
 .empty-state {
   text-align: center;
@@ -587,7 +603,7 @@ textarea {
   line-height: 1;
   transition: color 0.2s;
 }
-.edit-btn:hover { color: var(--accent); }
+.edit-btn:hover { background: rgba(59,130,246,.15); color: var(--accent); }
 
 /* ── Exam card (new) ── */
 .exam-card { padding: 1.1rem 1.25rem; }
@@ -674,10 +690,8 @@ textarea {
   font-size: 0.75rem;
   padding: 0.1rem 0.25rem;
   border-radius: 3px;
-  opacity: 0;
-  transition: opacity 0.2s, color 0.2s;
+  transition: color 0.2s;
 }
-.topic-item:hover .topic-delete { opacity: 1; }
 .topic-delete:hover { color: var(--danger); }
 
 .topic-input-row {
@@ -702,6 +716,11 @@ textarea {
   margin-left: 0.25rem;
   vertical-align: middle;
   line-height: 1.4;
+}
+
+/* Dark theme */
+[data-theme="dark"] ::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 
 /* ── Responsive ── */

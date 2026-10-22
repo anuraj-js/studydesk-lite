@@ -1,14 +1,20 @@
 let cfg      = Storage.getPomodoroSettings();
 let mode     = 'work';
-let total    = cfg.work * 60;
+let total    = cfg.work * 60 + (cfg.workSec || 0);
 let left     = total;
 let running  = false;
 let tick     = null;
 let doneWork = 0;
 let sessionN = 1;
 
-function modeLabel()   { return { work:'Focus Time', short:'Short Break', long:'Long Break' }[mode]; }
-function modeSecs()    { return { work: cfg.work*60, short: cfg.shortBreak*60, long: cfg.longBreak*60 }[mode]; }
+function modeLabel() { return { work:'Focus Time', short:'Short Break', long:'Long Break' }[mode]; }
+function modeSecs()  {
+  return {
+    work:  cfg.work  * 60 + (cfg.workSec  || 0),
+    short: cfg.shortBreak * 60 + (cfg.shortSec || 0),
+    long:  cfg.longBreak  * 60 + (cfg.longSec  || 0)
+  }[mode];
+}
 
 function fmt(s) {
   return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
@@ -20,8 +26,7 @@ function render() {
   document.getElementById('sessionInfo').textContent  =
     'Session ' + sessionN + ' · ' + Storage.getTodaySessions() + ' completed today';
 
-  const isRunning = running;
-  document.getElementById('startBtn').innerHTML = isRunning
+  document.getElementById('startBtn').innerHTML = running
     ? '<i class="fa-solid fa-pause"></i> Pause'
     : '<i class="fa-solid fa-play"></i> Start';
 
@@ -30,9 +35,27 @@ function render() {
   document.title = fmt(left) + ' · StudyDesk Lite';
 }
 
+function beep() {
+  try {
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.6, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 1.2);
+  } catch (e) {}
+}
+
 function notify(msg) {
+  beep();
+  if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
   if (Notification.permission === 'granted') {
-    new Notification('StudyDesk Lite', { body: msg });
+    new Notification('StudyDesk Lite', { body: msg, icon: 'icon-192.png' });
   }
 }
 
@@ -88,9 +111,12 @@ function skip() {
 }
 
 function applySettings() {
-  cfg.work           = parseInt(document.getElementById('setWork').value)      || 25;
-  cfg.shortBreak     = parseInt(document.getElementById('setShort').value)     || 5;
-  cfg.longBreak      = parseInt(document.getElementById('setLong').value)      || 15;
+  cfg.work           = parseInt(document.getElementById('setWork').value)      || 0;
+  cfg.workSec        = parseInt(document.getElementById('setWorkSec').value)   || 0;
+  cfg.shortBreak     = parseInt(document.getElementById('setShort').value)     || 0;
+  cfg.shortSec       = parseInt(document.getElementById('setShortSec').value)  || 0;
+  cfg.longBreak      = parseInt(document.getElementById('setLong').value)      || 0;
+  cfg.longSec        = parseInt(document.getElementById('setLongSec').value)   || 0;
   cfg.longBreakAfter = parseInt(document.getElementById('setLongAfter').value) || 4;
   Storage.savePomodoroSettings(cfg);
   if (!running) { total = modeSecs(); left = total; render(); }
@@ -101,10 +127,25 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('resetBtn').addEventListener('click', reset);
   document.getElementById('skipBtn').addEventListener('click', skip);
 
-  const ids  = ['setWork','setShort','setLong','setLongAfter'];
-  const vals = [cfg.work, cfg.shortBreak, cfg.longBreak, cfg.longBreakAfter];
-  ids.forEach((id, i) => {
-    document.getElementById(id).value = vals[i];
+  document.getElementById('setWork').value      = cfg.work;
+  document.getElementById('setWorkSec').value   = cfg.workSec  || 0;
+  document.getElementById('setShort').value     = cfg.shortBreak;
+  document.getElementById('setShortSec').value  = cfg.shortSec || 0;
+  document.getElementById('setLong').value      = cfg.longBreak;
+  document.getElementById('setLongSec').value   = cfg.longSec  || 0;
+  document.getElementById('setLongAfter').value = cfg.longBreakAfter;
+
+  document.getElementById('resetSessions').addEventListener('click', () => {
+    if (confirm('Reset today\'s session count?')) {
+      localStorage.removeItem('sdl-pomo-date');
+      localStorage.removeItem('sdl-pomo-count');
+      doneWork = 0;
+      sessionN = 1;
+      render();
+    }
+  });
+
+  ['setWork','setWorkSec','setShort','setShortSec','setLong','setLongSec','setLongAfter'].forEach(id => {
     document.getElementById(id).addEventListener('change', applySettings);
   });
 

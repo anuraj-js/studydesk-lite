@@ -32,7 +32,7 @@ function initReset() {
       Object.keys(localStorage)
         .filter(k => k.startsWith('sdl-'))
         .forEach(k => localStorage.removeItem(k));
-      location.href = 'index.html';
+      location.href = '/index.html';
     }
   });
 }

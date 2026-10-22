@@ -4,12 +4,39 @@ function esc(s) {
 
 let use24 = localStorage.getItem('sdl-clock-24') === '1';
 
-function getGreeting() {
-  const h = new Date().getHours();
+const studyMessages = {
+  lateNight:    ["Still awake?","Night owl mode.","Still grinding?","Late-night session?","You're still here?","Midnight study mode."],
+  earlyMorning: ["Early bird mode.","Up early today?","Fresh day, fresh start.","Morning grind begins.","Coffee first?","Early start. Nice."],
+  morning:      ["Let's get productive.","Time to lock in.","Brain: online.","Ready to cook?","Let's make progress.","Study mode: ON."],
+  afternoon:    ["Still got time.","Keep it rolling.","Back to the grind.","Don't lose momentum.","Time to lock in.","Let's get it done."],
+  evening:      ["Evening grind?","Let's finish strong.","Time to lock in.","One more session?","Study mode: ON.","Let's get this done."],
+  lateEvening:  ["Still grinding?","Night mode activated.","One last push?","Almost there.","Keep going.","Lock in mode."],
+  veryLate:     ["Bro, it's late.","Still here? Respect.","Night owl spotted.","Still studying?","One last session?","Don't forget to sleep."]
+};
+
+function getStudyMessage(h) {
+  let msgs;
+  if      (h >= 0  && h < 5)  msgs = studyMessages.lateNight;
+  else if (h >= 5  && h < 8)  msgs = studyMessages.earlyMorning;
+  else if (h >= 8  && h < 12) msgs = studyMessages.morning;
+  else if (h >= 12 && h < 17) msgs = studyMessages.afternoon;
+  else if (h >= 17 && h < 20) msgs = studyMessages.evening;
+  else if (h >= 20 && h < 23) msgs = studyMessages.lateEvening;
+  else                         msgs = studyMessages.veryLate;
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function getGreeting(h) {
   if (h < 12) return 'Good Morning';
   if (h < 17) return 'Good Afternoon';
-  if (h < 21) return 'Good Evening';
-  return 'Good Night';
+  return 'Good Evening';
+}
+
+function updateGreeting() {
+  const h        = new Date().getHours();
+  const userName = localStorage.getItem('sdl-username') || 'Student';
+  document.getElementById('greeting').textContent    = `${getGreeting(h)}, ${userName}!`;
+  document.getElementById('studyMessage').textContent = getStudyMessage(h);
 }
 
 function formatTime(d) {
@@ -129,7 +156,13 @@ function initUpcomingExams() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('greeting').textContent = getGreeting() + ', Anuraj!';
+  let userName = localStorage.getItem('sdl-username');
+  if (!userName) {
+    userName = prompt('What should we call you?') || 'Student';
+    localStorage.setItem('sdl-username', userName);
+  }
+
+  updateGreeting();
   initClock();
   initStats();
   initRecentTasks();
