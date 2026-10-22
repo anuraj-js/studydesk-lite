@@ -13,7 +13,6 @@ function renderNotesList() {
     return;
   }
 
-  // Sort by most recently updated
   notes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   listEl.innerHTML = notes.map(n => {
@@ -42,7 +41,10 @@ function openNote(id) {
   if (!note) return;
 
   activeNoteId = id;
-  renderNotesList(); 
+  
+  // Switch Views
+  document.getElementById('notesSidebar').classList.add('hidden-view');
+  document.getElementById('notesEditor').classList.add('active-view');
 
   document.getElementById('emptyEditor').style.display = 'none';
   document.getElementById('noteEditor').style.display = 'flex';
@@ -55,8 +57,14 @@ function openNote(id) {
 
 function closeNote() {
   activeNoteId = null;
+  
+  // Switch Views Back
+  document.getElementById('notesSidebar').classList.remove('hidden-view');
+  document.getElementById('notesEditor').classList.remove('active-view');
+
   document.getElementById('emptyEditor').style.display = 'flex';
   document.getElementById('noteEditor').style.display = 'none';
+
   renderNotesList();
 }
 
@@ -65,7 +73,6 @@ function updateSaveStatus(dateStr) {
   document.getElementById('saveStatus').textContent = `Saved at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
 }
 
-// Auto-save logic
 let saveTimeout;
 function triggerAutoSave() {
   if (!activeNoteId) return;
@@ -81,6 +88,7 @@ function triggerAutoSave() {
     const now = new Date().toISOString();
     updateSaveStatus(now);
     
+    // Silently update list item
     const listEl = document.getElementById('notesList');
     const activeItem = listEl.querySelector(`[data-id="${activeNoteId}"]`);
     if (activeItem) {
@@ -90,14 +98,13 @@ function triggerAutoSave() {
   }, 600);
 }
 
-// --- Toolbar & Interactive Logic (Runs inside DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
 
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');
     openNote(newNote.id);
-    document.getElementById('editNoteTitle').focus();
+    setTimeout(() => document.getElementById('editNoteTitle').focus(), 100);
   });
 
   document.getElementById('deleteNoteBtn').addEventListener('click', () => {
@@ -107,87 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  document.getElementById('backToListBtn').addEventListener('click', closeNote);
+
   document.getElementById('editNoteTitle').addEventListener('input', triggerAutoSave);
-  
-  const textarea = document.getElementById('editNoteBody');
-
-  // 1. Auto-Format Logic (Typing triggers)
-  textarea.addEventListener('input', (e) => {
-    // We still trigger autosave for every keystroke
-    triggerAutoSave(); 
-
-    // Only run formatting if a space was just typed
-    if (e.data !== ' ') return; 
-
-    const cursorPos = textarea.selectionStart;
-    const textBeforeCursor = textarea.value.substring(0, cursorPos);
-    const lastLine = textBeforeCursor.split('\n').pop();
-
-    let replacement = null;
-
-    if (lastLine === '* ') {
-      replacement = '• ';
-    } else if (lastLine === '/check ') {
-      replacement = '☐ ';
-    }
-
-    if (replacement) {
-      textarea.setRangeText(replacement, cursorPos - lastLine.length, cursorPos, 'end');
-      triggerAutoSave(); // Save the replacement
-    }
-  });
-
-  // 2. Clickable Checkbox Logic
-  textarea.addEventListener('click', (e) => {
-    const clickX = e.clientX;
-    const clickY = e.clientY;
-    let clickedIndex = -1;
-
-    if (document.caretPositionFromPoint) {
-      const pos = document.caretPositionFromPoint(clickX, clickY);
-      if (pos && pos.offsetNode === textarea) clickedIndex = pos.offset;
-    } else if (document.caretRangeFromPoint) {
-      const range = document.caretRangeFromPoint(clickX, clickY);
-      if (range && range.startContainer === textarea) clickedIndex = range.startOffset;
-    }
-
-    if (clickedIndex !== -1) {
-      const char = textarea.value[clickedIndex];
-      if (char === '☐') {
-        textarea.setRangeText('☑', clickedIndex, clickedIndex + 1, 'end');
-        triggerAutoSave();
-      } else if (char === '☑') {
-        textarea.setRangeText('☐', clickedIndex, clickedIndex + 1, 'end');
-        triggerAutoSave();
-      }
-    }
-  });
-
-  // 3. Cursor Pointer on Hover
-  textarea.addEventListener('mousemove', (e) => {
-    const clickX = e.clientX;
-    const clickY = e.clientY;
-    let hoveredIndex = -1;
-
-    if (document.caretPositionFromPoint) {
-      const pos = document.caretPositionFromPoint(clickX, clickY);
-      if (pos && pos.offsetNode === textarea) hoveredIndex = pos.offset;
-    } else if (document.caretRangeFromPoint) {
-      const range = document.caretRangeFromPoint(clickX, clickY);
-      if (range && range.startContainer === textarea) hoveredIndex = range.startOffset;
-    }
-
-    if (hoveredIndex !== -1) {
-      const char = textarea.value[hoveredIndex];
-      if (char === '☐' || char === '☑') {
-        textarea.style.cursor = 'pointer';
-        return;
-      }
-    }
-    textarea.style.cursor = 'text'; 
-  });
-
-  textarea.addEventListener('mouseleave', () => {
-    textarea.style.cursor = 'text';
-  });
+  document.getElementById('editNoteBody').addEventListener('input', triggerAutoSave);
 });
