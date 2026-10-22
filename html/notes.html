@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3B82F6" />
+  <title>Notes · StudyDesk Lite</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" href="data:,">
+  <script src="../js/theme.js"></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="nav-brand">
+      <i class="fa-solid fa-book-bookmark"></i> StudyDesk Lite
+    </a>
+    <div class="nav-links">
+      <a href="../index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="tasks.html"><i class="fa-solid fa-list-check"></i> Tasks</a>
+      <a href="exams.html"><i class="fa-solid fa-book-open"></i> Exams</a>
+      <a href="pomodoro.html"><i class="fa-solid fa-clock"></i> Pomodoro</a>
+      <a href="notes.html" class="active"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <button id="resetAll" class="reset-btn" title="Reset all data">
+        <i class="fa-solid fa-rotate-left"></i>
+      </button>
+      <button id="themeToggle" class="theme-btn"></button>
+    </div>
+  </nav>
+
+  <div class="container notes-container">
+    
+    <!-- Left Sidebar: Note List -->
+    <div class="notes-sidebar card">
+      <div class="notes-sidebar-header">
+        <h2 class="section-title" style="margin:0">My Notes</h2>
+        <button class="btn btn-primary btn-sm" id="newNoteBtn">
+          <i class="fa-solid fa-plus"></i> New
+        </button>
+      </div>
+      <div id="notesList" class="notes-list">
+        <!-- Notes injected here -->
+      </div>
+    </div>
+
+    <!-- Right Side: Editor -->
+    <div class="notes-editor card">
+      
+      <!-- Placeholder when no note is selected -->
+      <div id="emptyEditor" class="empty-editor-state">
+        <i class="fa-regular fa-file-lines" style="font-size:3rem; color:var(--border); margin-bottom:1rem;"></i>
+        <p>Select a note to view or edit</p>
+      </div>
+
+      <!-- The Editor -->
+      <div id="noteEditor" style="display:none; flex-direction:column; height:100%;">
+        <div class="editor-header">
+          <input type="text" id="editNoteTitle" placeholder="Note Title" class="editor-title-input" />
+          <button class="btn btn-danger btn-sm" id="deleteNoteBtn" title="Delete Note">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+
+        <p style="font-size:0.75rem; color:var(--text-muted); padding: 0 1rem; margin-top:0.5rem;">
+          Tip: Type <code>* </code> for a bullet, or <code>/check </code> for a checkbox.
+        </p>
+        
+        <!-- Plain Textarea -->
+        <textarea id="editNoteBody" placeholder="Start typing your notes here..." class="editor-body-input"></textarea>
+        
+        <div class="editor-footer">
+          <span id="saveStatus" class="save-status">Saved</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="../index.html"><i class="fa-solid fa-house nav-icon"></i><span>Home</span></a>
+    <a href="tasks.html"><i class="fa-solid fa-list-check nav-icon"></i><span>Tasks</span></a>
+    <a href="exams.html"><i class="fa-solid fa-book-open nav-icon"></i><span>Exams</span></a>
+    <a href="pomodoro.html"><i class="fa-solid fa-clock nav-icon"></i><span>Pomodoro</span></a>
+    <a href="notes.html" class="active"><i class="fa-solid fa-note-sticky nav-icon"></i><span>Notes</span></a>
+  </nav>
+
+  <script src="../js/storage.js"></script>
+  <script src="../js/notes.js"></script>
+</body>
+</html>

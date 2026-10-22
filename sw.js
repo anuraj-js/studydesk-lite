@@ -1,10 +1,11 @@
-const CACHE = 'sdl-v3'; // Bumped version to force update
+const CACHE = 'sdl-v6';
 const STATIC = [
   './',
   './index.html',
   './html/tasks.html',
   './html/exams.html',
   './html/pomodoro.html',
+  './html/notes.html',       
   './css/style.css',
   './js/theme.js',
   './js/storage.js',
@@ -12,6 +13,7 @@ const STATIC = [
   './js/tasks.js',
   './js/exams.js',
   './js/pomodoro.js',
+  './js/notes.js',          
   './manifest.json'
 ];
 

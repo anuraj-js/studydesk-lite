@@ -113,5 +113,38 @@ const Storage = {
     const n = this.getTodaySessions() + 1;
     localStorage.setItem('sdl-pomo-count', n.toString());
     return n;
+  },
+  // ── Notes ──────────────────────────────────────
+  getNotes() {
+    return JSON.parse(localStorage.getItem('sdl-notes') || '[]');
+  },
+  _saveNotes(notes) {
+    localStorage.setItem('sdl-notes', JSON.stringify(notes));
+  },
+  addNote(title, body) {
+    const notes = this.getNotes();
+    const note = {
+      id: Date.now().toString(),
+      title: title || 'Untitled Note',
+      body: body || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    notes.unshift(note);
+    this._saveNotes(notes);
+    return note;
+  },
+  updateNote(id, title, body) {
+    const notes = this.getNotes();
+    const idx = notes.findIndex(n => n.id === id);
+    if (idx !== -1) {
+      notes[idx].title = title || 'Untitled Note';
+      notes[idx].body = body;
+      notes[idx].updatedAt = new Date().toISOString();
+      this._saveNotes(notes);
+    }
+  },
+  deleteNote(id) {
+    this._saveNotes(this.getNotes().filter(n => n.id !== id));
   }
 };
