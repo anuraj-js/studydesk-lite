@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v2';
+const CACHE = 'sdl-v3'; // Bumped version to force update
 const STATIC = [
   './',
   './index.html',

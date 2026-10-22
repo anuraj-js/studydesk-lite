@@ -32,7 +32,10 @@ function initReset() {
       Object.keys(localStorage)
         .filter(k => k.startsWith('sdl-'))
         .forEach(k => localStorage.removeItem(k));
-      location.href = '/index.html';
+      
+      // FIXED: Dynamically redirect to index.html whether you are in the root or the /html/ folder
+      const isSubfolder = window.location.pathname.includes('/html/');
+      location.href = isSubfolder ? '../index.html' : './index.html';
     }
   });
 }
@@ -46,7 +49,13 @@ function setActiveNav() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    // FIXED: Dynamically find sw.js whether you are on index.html or tasks.html
+    const isSubfolder = window.location.pathname.includes('/html/');
+    const swPath = isSubfolder ? '../sw.js' : './sw.js';
+    
+    navigator.serviceWorker.register(swPath).catch((err) => {
+      console.log('ServiceWorker registration failed: ', err);
+    });
   });
 }
 
