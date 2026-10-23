@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :root, [data-theme="dark"] {
@@ -158,7 +159,7 @@ body {
 
 .hero .subtitle {
   color: var(--accent);
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   margin-bottom: 1.1rem;
 }
 
@@ -906,8 +907,24 @@ textarea {
   padding: 1.25rem; /* Changed to add padding on ALL sides (top, right, bottom, left) */
 }
 
+/* ── Notes Search Bar ── */
+.notes-search-wrap {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.notes-search-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+}
+
 /* Mobile adjustments for the full height */
 @media (max-width: 768px) {
+  .hero .subtitle {
+    font-size: 1.1rem;
+  }
   .notes-container {
     height: calc(100vh - 130px); 
     padding: 0;
@@ -929,4 +946,12 @@ textarea {
   .clock { font-size: 2.25rem; }
 
   .timer-controls .btn { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+
+  .task-meta .btn-sm {
+    padding: 0.32rem 0.5rem; /* Make buttons smaller */
+    font-size: 0.75rem;
+  }
+  .task-meta .btn-sm i {
+    font-size: 0.75rem; 
+  }
 }

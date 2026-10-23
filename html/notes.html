@@ -42,6 +42,12 @@
           <i class="fa-solid fa-plus"></i> New
         </button>
       </div>
+      
+      <!-- SEARCH BAR -->
+      <div class="notes-search-wrap">
+        <input type="text" id="searchNotes" placeholder="Search notes..." class="notes-search-input" />
+      </div>
+
       <div id="notesList" class="notes-list">
         <!-- Notes injected here -->
       </div>
@@ -50,7 +56,6 @@
     <!-- View 2: The Editor -->
     <div class="notes-editor card" id="notesEditor">
       
-      <!-- Placeholder (Should never show if we auto-open the editor, but kept for safety) -->
       <div id="emptyEditor" class="empty-editor-state">
         <i class="fa-regular fa-file-lines" style="font-size:3rem; color:var(--border); margin-bottom:1rem;"></i>
         <p>Select a note to view or edit</p>
@@ -59,7 +64,6 @@
       <!-- The Editor Content -->
       <div id="noteEditor" style="display:none; flex-direction:column; height:100%;">
         <div class="editor-header">
-          <!-- Back Button (Now visible everywhere) -->
           <button class="btn btn-ghost btn-sm" id="backToListBtn" title="Back to list">
             <i class="fa-solid fa-arrow-left"></i>
           </button>

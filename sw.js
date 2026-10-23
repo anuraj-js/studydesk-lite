@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v9';
+const CACHE = 'sdl-v10';
 const STATIC = [
   './',
   './index.html',

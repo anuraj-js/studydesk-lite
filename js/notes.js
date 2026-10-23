@@ -3,19 +3,29 @@ function esc(s) {
 }
 
 let activeNoteId = null;
+let searchQuery = "";
 
 function renderNotesList() {
   const notes = Storage.getNotes();
   const listEl = document.getElementById('notesList');
 
-  if (!notes.length) {
-    listEl.innerHTML = '<div class="empty-state" style="padding:2rem 1rem;">No notes yet.<br>Create one to get started.</div>';
+  // Filter by search query
+  const filteredNotes = notes.filter(n => {
+    const title = (n.title || '').toLowerCase();
+    const body = (n.body || '').toLowerCase();
+    const q = searchQuery.toLowerCase();
+    return title.includes(q) || body.includes(q);
+  });
+
+  if (!filteredNotes.length) {
+    listEl.innerHTML = `<div class="empty-state" style="padding:2rem 1rem;">${searchQuery ? 'No notes match your search.' : 'No notes yet.<br>Create one to get started.'}</div>`;
     return;
   }
 
-  notes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  // Sort by most recently updated
+  filteredNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-  listEl.innerHTML = notes.map(n => {
+  listEl.innerHTML = filteredNotes.map(n => {
     const date = new Date(n.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const preview = n.body ? n.body.substring(0, 40).replace(/\n/g, ' ') + (n.body.length > 40 ? '...' : '') : 'Empty note';
     const isActive = n.id === activeNoteId ? 'active-note' : '';
@@ -42,7 +52,6 @@ function openNote(id) {
 
   activeNoteId = id;
   
-  // Switch Views
   document.getElementById('notesSidebar').classList.add('hidden-view');
   document.getElementById('notesEditor').classList.add('active-view');
 
@@ -58,7 +67,6 @@ function openNote(id) {
 function closeNote() {
   activeNoteId = null;
   
-  // Switch Views Back
   document.getElementById('notesSidebar').classList.remove('hidden-view');
   document.getElementById('notesEditor').classList.remove('active-view');
 
@@ -100,6 +108,12 @@ function triggerAutoSave() {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
+
+  // Search Bar Logic
+  document.getElementById('searchNotes').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderNotesList();
+  });
 
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');

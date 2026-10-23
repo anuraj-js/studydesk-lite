@@ -30,6 +30,16 @@ const Storage = {
   deleteTask(id) {
     this._saveTasks(this.getTasks().filter(t => t.id !== id));
   },
+  updateTask(id, { title, priority, dueDate }) {
+    const tasks = this.getTasks();
+    const idx = tasks.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      tasks[idx].title = title;
+      tasks[idx].priority = priority;
+      tasks[idx].dueDate = dueDate;
+      this._saveTasks(tasks);
+    }
+  },
 
   // ── Exams ──────────────────────────────────────
   getExams() {
@@ -114,6 +124,7 @@ const Storage = {
     localStorage.setItem('sdl-pomo-count', n.toString());
     return n;
   },
+  
   // ── Notes ──────────────────────────────────────
   getNotes() {
     return JSON.parse(localStorage.getItem('sdl-notes') || '[]');

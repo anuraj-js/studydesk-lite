@@ -49,14 +49,20 @@ function renderTasks() {
         </div>
         <div class="task-meta">
           <span class="badge badge-${t.priority}">${t.priority}</span>
-          <button class="delete-btn" data-id="${t.id}" title="Delete">
-            <i class="fa-solid fa-trash"></i>
+          
+          <button class="btn btn-ghost btn-sm edit-btn" data-id="${t.id}">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          
+          <button class="btn btn-danger btn-sm delete-btn" data-id="${t.id}">
+            <i class="fa-solid fa-trash"></i> Delete
           </button>
         </div>
       </div>
     `;
   }).join('');
 
+  // Attach Event Listeners
   el.querySelectorAll('.task-checkbox').forEach(cb => {
     cb.addEventListener('change', () => {
       Storage.toggleTask(cb.dataset.id);
@@ -72,9 +78,32 @@ function renderTasks() {
       }
     });
   });
+
+  el.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => openEditTaskModal(btn.dataset.id));
+  });
+}
+
+// ── Edit Task Modal Logic ──
+function openEditTaskModal(id) {
+  const task = Storage.getTasks().find(t => t.id === id);
+  if (!task) return;
+  
+  document.getElementById('editTaskId').value = task.id;
+  document.getElementById('editTaskTitle').value = task.title;
+  document.getElementById('editTaskPriority').value = task.priority || 'medium';
+  document.getElementById('editTaskDue').value = task.dueDate || '';
+  
+  document.getElementById('editTaskModal').style.display = 'flex';
+}
+
+function closeEditTaskModal() {
+  document.getElementById('editTaskModal').style.display = 'none';
+  document.getElementById('editTaskForm').reset();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Add Task Form
   document.getElementById('taskForm').addEventListener('submit', e => {
     e.preventDefault();
     const title = document.getElementById('taskTitle').value.trim();
@@ -85,9 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
       dueDate:  document.getElementById('taskDue').value
     });
     e.target.reset();
+    
+    // Automatically close the accordion after adding
+    const details = document.querySelector('.collapsible-card');
+    if (details) details.removeAttribute('open');
+    
     renderTasks();
   });
 
+  // Filter Tabs
   document.querySelectorAll('.filter-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       activeFilter = tab.dataset.filter;
@@ -95,6 +130,27 @@ document.addEventListener('DOMContentLoaded', () => {
       tab.classList.add('active');
       renderTasks();
     });
+  });
+
+  // Edit Task Form
+  document.getElementById('editTaskForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const id = document.getElementById('editTaskId').value;
+    const title = document.getElementById('editTaskTitle').value.trim();
+    const priority = document.getElementById('editTaskPriority').value;
+    const dueDate = document.getElementById('editTaskDue').value;
+    
+    if (!title) return;
+    Storage.updateTask(id, { title, priority, dueDate });
+    closeEditTaskModal();
+    renderTasks();
+  });
+
+  // Modal Close Buttons
+  document.getElementById('editTaskModalClose').addEventListener('click', closeEditTaskModal);
+  document.getElementById('editTaskModalCancel').addEventListener('click', closeEditTaskModal);
+  document.getElementById('editTaskModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('editTaskModal')) closeEditTaskModal();
   });
 
   renderTasks();
