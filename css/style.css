@@ -49,7 +49,6 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
   transition: background 0.25s, color 0.25s;
-  padding-bottom: 72px;
 }
 
 /* ── Navbar ── */
@@ -63,14 +62,12 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  position: relative; /* Added for absolute centering of links */
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
   text-decoration: none;
-  margin-left: 20px;
 }
 
 .nav-brand img {
@@ -78,12 +75,29 @@ body {
   width: auto;
 }
 
+/* Hamburger Button (Hidden on desktop by default) */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 102;
+}
+
+/* The Menu Container */
+.nav-menu {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
 .nav-links {
   display: flex;
   gap: 0.25rem;
-  position: absolute; /* Added to perfectly center */
-  left: 50%;
-  transform: translateX(-50%);
+  margin: 0 auto; /* Centers the links perfectly */
 }
 
 .nav-links a {
@@ -101,6 +115,12 @@ body {
   background: var(--surface2);
 }
 
+.nav-right-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .theme-btn {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -114,36 +134,6 @@ body {
 }
 
 .theme-btn:hover { border-color: var(--accent); }
-
-/* ── Bottom nav (mobile) ── */
-.bottom-nav {
-  display: none;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  z-index: 100;
-  padding: 0.25rem 0;
-}
-
-.bottom-nav a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  font-size: 0.65rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 8px;
-  flex: 1;
-  transition: color 0.2s;
-}
-
-.bottom-nav a.active { color: var(--accent); }
-.bottom-nav a .nav-icon { font-size: 1.25rem; }
 
 /* ── Container ── */
 .container {
@@ -348,7 +338,6 @@ textarea {
   flex-shrink: 0;
 }
 
-/* Container for task edit/delete buttons */
 .task-actions {
   display: flex;
   gap: 0.3rem;
@@ -538,10 +527,8 @@ textarea {
   gap: 0.75rem;
 }
 
-/* ── Required field marker ── */
 .required { color: var(--danger); margin-left: 2px; }
 
-/* ── Reset button ── */
 .reset-btn {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -592,9 +579,6 @@ textarea {
   transition: color 0.2s;
 }
 .modal-close:hover { color: var(--text); }
-
-/* ── Nav icon sizing (FA) ── */
-.bottom-nav a .nav-icon { font-size: 1.15rem; }
 
 /* ── Exam card (new) ── */
 .exam-card { padding: 1.1rem 1.25rem; }
@@ -773,7 +757,6 @@ textarea {
   color: var(--accent);
 }
 
-/* Editor Area */
 .notes-editor {
   width: 100%;
   height: 100%;
@@ -902,38 +885,4 @@ textarea {
   padding: 0.5rem 0.75rem;
   font-size: 0.85rem;
   border-radius: 6px;
-}
-
-/* ── Mobile Responsive ── */
-@media (max-width: 768px) {
-  .hero .subtitle {
-    font-size: 1.1rem;
-  }
-  .nav-brand {
-    margin-left: 0;
-  }
-  .notes-container {
-    height: calc(100vh - 130px); 
-    padding: 0;
-  }
-  .notes-sidebar, .notes-editor {
-    border: none;
-    border-radius: 0;
-    margin-bottom: 0;
-  }
-}
-
-@media (max-width: 600px) {
-  .nav-links { display: none; }
-  .bottom-nav { display: flex; }
-
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .timer-display { font-size: 4.25rem; }
-  .clock { font-size: 2.25rem; }
-  .timer-controls .btn { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
-
-  /* Hide the text on task buttons but keep the icons */
-  .task-actions .btn-text {
-    display: none;
-  }
 }

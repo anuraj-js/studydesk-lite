@@ -1,0 +1,148 @@
+/* ── Large desktops (max-width: 1400px) ── */
+@media (max-width: 1400px) {
+  .container { max-width: 900px; }
+}
+
+/* ── Regular desktops (max-width: 1200px) ── */
+@media (max-width: 1200px) {
+  .container { max-width: 800px; }
+}
+
+/* ── Tablets landscape / small desktops (max-width: 992px) ── */
+@media (max-width: 992px) {
+  .nav-links { gap: 0.1rem; }
+  .nav-links a {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* ── Tablets portrait (max-width: 768px) ── */
+@media (max-width: 768px) {
+  
+  /* 1. NAVIGATION: Switch to Sidebar Hamburger Menu */
+  .hamburger {
+    display: block;
+    position: relative;
+    z-index: 102; /* Keeps the X button above the sidebar */
+  }
+
+  /* 
+   * The menu becomes a 75% width sidebar sliding from the right.
+   */
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 75vw; 
+    height: 100dvh; 
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 5rem 0 2rem 0; 
+    gap: 1rem;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 101;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .nav-menu.open {
+    transform: translateX(0);
+  }
+
+  /* Ensure the X button is inside the sidebar when open */
+  .hamburger.fa-xmark {
+    position: fixed;
+    top: 1.25rem;
+    right: 12.5vw; 
+    transition: right 0.3s ease;
+  }
+
+  /* The dark overlay behind the sidebar */
+  .nav-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100; /* Just below the nav-menu (101) */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .nav-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+    width: 100%;
+    padding: 0 1.5rem;
+  }
+
+  .nav-links a {
+    font-size: 1.1rem;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 8px;
+  }
+
+  /* Push actions to the bottom securely */
+  .nav-right-actions {
+    margin-top: auto; 
+    margin-bottom: 1rem;
+    padding: 0 1.5rem;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .nav-right-actions .reset-btn,
+  .nav-right-actions .theme-btn {
+    font-size: 1.1rem;
+    padding: 0.6rem 1rem;
+  }
+
+  /* 2. NOTES SIDEBAR */
+  .notes-container {
+    height: calc(100dvh - 70px); 
+    padding: 0;
+  }
+  .notes-sidebar, .notes-editor {
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* 3. HERO TEXT */
+  .hero .subtitle { font-size: 1.1rem; }
+}
+
+/* ── Large phones (max-width: 576px) ── */
+@media (max-width: 576px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .timer-display { font-size: 4.25rem; }
+  .clock { font-size: 2.25rem; }
+  .timer-controls .btn { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
+  .task-actions .btn-text { display: none; }
+  .card { padding: 1rem; }
+}
+
+/* ── Small phones (max-width: 480px) ── */
+@media (max-width: 480px) {
+  .clock { font-size: 2rem; }
+  .date-str { font-size: 0.75rem; }
+  .grid-2 { grid-template-columns: 1fr; gap: 0; }
+  .settings-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}

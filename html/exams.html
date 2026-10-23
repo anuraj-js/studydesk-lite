@@ -7,6 +7,7 @@
   <title>Exams · StudyDesk Lite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="icon" href="data:,">
   <script src="../js/theme.js"></script>
@@ -17,19 +18,28 @@
     <a href="../index.html" class="nav-brand">
       <img src="../studydesk_lite_logo.svg" alt="StudyDesk Lite" />
     </a>
-    <div class="nav-links">
-      <a href="../index.html"><i class="fa-solid fa-house"></i> Home</a>
-      <a href="tasks.html"><i class="fa-solid fa-list-check"></i> Tasks</a>
-      <a href="exams.html" class="active"><i class="fa-solid fa-book-open"></i> Exams</a>
-      <a href="pomodoro.html"><i class="fa-solid fa-clock"></i> Pomodoro</a>
-      <a href="notes.html"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+
+    <button class="hamburger" id="hamburgerBtn">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <div class="nav-menu" id="navMenu">
+      <div class="nav-links">
+        <a href="../index.html"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="tasks.html"><i class="fa-solid fa-list-check"></i> Tasks</a>
+        <a href="exams.html" class="active"><i class="fa-solid fa-book-open"></i> Exams</a>
+        <a href="pomodoro.html"><i class="fa-solid fa-clock"></i> Pomodoro</a>
+        <a href="notes.html"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+      </div>
+      <div class="nav-right-actions">
+        <button id="resetAll" class="reset-btn" title="Reset all data">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button id="themeToggle" class="theme-btn"></button>
+      </div>
     </div>
-    <div class="nav-right-actions" style="margin-left: auto;">
-      <button id="resetAll" class="reset-btn" title="Reset all data">
-        <i class="fa-solid fa-rotate-left"></i>
-      </button>
-      <button id="themeToggle" class="theme-btn"></button>
-    </div>
+    <!-- Backdrop for mobile menu -->
+    <div class="nav-backdrop" id="navBackdrop"></div>
   </nav>
 
   <div class="container">
@@ -92,15 +102,8 @@
     </div>
   </div>
 
-  <nav class="bottom-nav">
-    <a href="../index.html"><i class="fa-solid fa-house nav-icon"></i><span>Home</span></a>
-    <a href="tasks.html"><i class="fa-solid fa-list-check nav-icon"></i><span>Tasks</span></a>
-    <a href="exams.html" class="active"><i class="fa-solid fa-book-open nav-icon"></i><span>Exams</span></a>
-    <a href="pomodoro.html"><i class="fa-solid fa-clock nav-icon"></i><span>Pomodoro</span></a>
-    <a href="notes.html"><i class="fa-solid fa-note-sticky nav-icon"></i><span>Notes</span></a>
-  </nav>
-
   <script src="../js/storage.js"></script>
   <script src="../js/exams.js"></script>
+  <script src="../js/nav.js"></script>
 </body>
 </html>

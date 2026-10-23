@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v11';
+const CACHE = 'sdl-v12';
 const STATIC = [
   './',
   './index.html',
@@ -7,7 +7,9 @@ const STATIC = [
   './html/pomodoro.html',
   './html/notes.html',       
   './css/style.css',
+  './css/responsive.css',
   './js/theme.js',
+  './js/nav.js',
   './js/storage.js',
   './js/dashboard.js',
   './js/tasks.js',
