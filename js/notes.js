@@ -78,7 +78,12 @@ function closeNote() {
 
 function updateSaveStatus(dateStr) {
   const date = new Date(dateStr);
-  document.getElementById('saveStatus').textContent = `Saved at ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+  const timeString = date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  document.getElementById('saveStatus').textContent = `Saved at ${timeString}`;
 }
 
 let saveTimeout;
