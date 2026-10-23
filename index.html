@@ -15,7 +15,7 @@
 
   <nav class="navbar">
     <a href="index.html" class="nav-brand">
-      <i class="fa-solid fa-book-bookmark"></i> StudyDesk Lite
+      <img src="studydesk_lite_logo.svg" alt="StudyDesk Lite" />
     </a>
     <div class="nav-links">
       <a href="index.html" class="active"><i class="fa-solid fa-house"></i> Home</a>
@@ -24,7 +24,7 @@
       <a href="html/pomodoro.html"><i class="fa-solid fa-clock"></i> Pomodoro</a>
       <a href="html/notes.html"><i class="fa-solid fa-note-sticky"></i> Notes</a>
     </div>
-    <div style="display:flex;gap:.5rem;align-items:center">
+    <div class="nav-right-actions" style="margin-left: auto;">
       <button id="resetAll" class="reset-btn" title="Reset all data">
         <i class="fa-solid fa-rotate-left"></i>
       </button>
@@ -77,12 +77,11 @@
       <div id="upcomingExams"></div>
     </div>
 
-    <!-- Settings converted to collapsible dropdown -->
     <details class="card collapsible-card">
       <summary class="section-title">
         <i class="fa-solid fa-gear"></i> Settings
       </summary>
-      <div style="margin-top: 1rem;">
+      <div>
         <div class="form-group">
           <label for="usernameInput">Display Name</label>
           <div style="display:flex;gap:.5rem">

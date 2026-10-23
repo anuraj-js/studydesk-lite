@@ -33,6 +33,16 @@
   --warning: #f59e0b;
 }
 
+/* ── Invisible but functional scrollbar ── */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -53,21 +63,27 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  position: relative; /* Added for absolute centering of links */
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--accent);
   text-decoration: none;
+  margin-left: 20px;
+}
+
+.nav-brand img {
+  height: 35px;
+  width: auto;
 }
 
 .nav-links {
   display: flex;
   gap: 0.25rem;
+  position: absolute; /* Added to perfectly center */
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .nav-links a {
@@ -284,21 +300,17 @@ textarea {
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-hover); }
 
-.btn-ghost {
+.btn-ghost,
+.btn-danger {
   background: var(--surface2);
   color: var(--text);
   border: 1px solid var(--border);
 }
 .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-
-.btn-danger {
-  background: transparent;
-  color: var(--danger);
-  border: 1px solid var(--danger);
-}
-.btn-danger:hover { background: rgba(239,68,68,.15); color: var(--danger); }
+.btn-danger:hover { background: rgba(239,68,68,.15); color: var(--danger); border-color: var(--danger);}
 
 .btn-full { width: 100%; }
+.btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
 
 /* ── Task items ── */
 .task-item {
@@ -332,8 +344,14 @@ textarea {
 .task-meta {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   flex-shrink: 0;
+}
+
+/* Container for task edit/delete buttons */
+.task-actions {
+  display: flex;
+  gap: 0.3rem;
 }
 
 /* ── Badges ── */
@@ -349,20 +367,6 @@ textarea {
 .badge-high   { background: rgba(239,68,68,.15);  color: #ef4444; }
 .badge-medium { background: rgba(245,158,11,.15); color: #f59e0b; }
 .badge-low    { background: rgba(34,197,94,.15);  color: #22c55e; }
-
-.delete-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.2rem 0.3rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  line-height: 1;
-  transition: color 0.2s;
-}
-
-.delete-btn:hover { color: var(--danger); }
 
 /* ── Filter tabs ── */
 .filter-tabs {
@@ -592,20 +596,6 @@ textarea {
 /* ── Nav icon sizing (FA) ── */
 .bottom-nav a .nav-icon { font-size: 1.15rem; }
 
-/* ── Edit button ── */
-.edit-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.2rem 0.3rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  line-height: 1;
-  transition: color 0.2s;
-}
-.edit-btn:hover { background: rgba(59,130,246,.15); color: var(--accent); }
-
 /* ── Exam card (new) ── */
 .exam-card { padding: 1.1rem 1.25rem; }
 
@@ -620,8 +610,6 @@ textarea {
 .exam-subject-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem; }
 
 .exam-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
-
-.btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
 
 .exam-countdown-live {
   font-size: 1.1rem;
@@ -790,12 +778,11 @@ textarea {
   width: 100%;
   height: 100%;
   padding: 0;
-  display: none; /* Hidden by default */
+  display: none;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Classes toggled by JS */
 .notes-editor.active-view { display: flex; }
 .notes-sidebar.hidden-view { display: none; }
 
@@ -859,14 +846,14 @@ textarea {
 
 /* ── Collapsible Cards (Accordion) ── */
 .collapsible-card {
-  padding: 0; /* Remove padding from the card so summary spans full width */
+  padding: 0;
   overflow: hidden;
 }
 
 .collapsible-card summary {
   padding: 1.25rem;
   cursor: pointer;
-  list-style: none; /* Hide default arrow */
+  list-style: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -875,7 +862,6 @@ textarea {
   transition: background 0.2s;
 }
 
-/* Remove default arrow in WebKit browsers */
 .collapsible-card summary::-webkit-details-marker {
   display: none;
 }
@@ -884,9 +870,8 @@ textarea {
   background: var(--surface2);
 }
 
-/* Add a custom arrow icon that rotates */
 .collapsible-card summary::after {
-  content: '\f107'; /* FontAwesome chevron-down */
+  content: '\f107';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
   margin-left: auto;
@@ -894,17 +879,16 @@ textarea {
 }
 
 .collapsible-card[open] summary::after {
-  transform: rotate(180deg); /* Flip arrow up when open */
+  transform: rotate(180deg);
 }
 
 .collapsible-card[open] summary {
   border-bottom: 1px solid var(--border);
 }
 
-/* Add padding back to the inside content */
 .collapsible-card > form, 
 .collapsible-card > div {
-  padding: 1.25rem; /* Changed to add padding on ALL sides (top, right, bottom, left) */
+  padding: 1.25rem;
 }
 
 /* ── Notes Search Bar ── */
@@ -920,10 +904,13 @@ textarea {
   border-radius: 6px;
 }
 
-/* Mobile adjustments for the full height */
+/* ── Mobile Responsive ── */
 @media (max-width: 768px) {
   .hero .subtitle {
     font-size: 1.1rem;
+  }
+  .nav-brand {
+    margin-left: 0;
   }
   .notes-container {
     height: calc(100vh - 130px); 
@@ -936,7 +923,6 @@ textarea {
   }
 }
 
-/* ── General Responsive (Navbars) ── */
 @media (max-width: 600px) {
   .nav-links { display: none; }
   .bottom-nav { display: flex; }
@@ -944,14 +930,10 @@ textarea {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .timer-display { font-size: 4.25rem; }
   .clock { font-size: 2.25rem; }
-
   .timer-controls .btn { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
 
-  .task-meta .btn-sm {
-    padding: 0.32rem 0.5rem; /* Make buttons smaller */
-    font-size: 0.75rem;
-  }
-  .task-meta .btn-sm i {
-    font-size: 0.75rem; 
+  /* Hide the text on task buttons but keep the icons */
+  .task-actions .btn-text {
+    display: none;
   }
 }
