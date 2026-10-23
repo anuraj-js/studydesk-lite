@@ -179,8 +179,9 @@ function initUpcomingExams() {
     return `
       <div class="exam-item">
         <div>
-          <div class="exam-subject">${esc(e.name)}</div>
-          <div class="exam-date">${esc(e.subject)} &middot; ${new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+          <!-- SWAPPED: Subject is main, Name is secondary -->
+          <div class="exam-subject">${esc(e.subject)}</div>
+          <div class="exam-date">${esc(e.name)} &middot; ${new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
         </div>
         <div class="exam-countdown ${urgent ? 'urgent' : ''}">${label}</div>
       </div>

@@ -84,8 +84,8 @@ function renderExams() {
       <div class="card exam-card" data-exam-id="${exam.id}">
         <div class="exam-card-header">
           <div>
-            <div class="exam-name">${esc(exam.name)}</div>
-            <div class="exam-subject-label">${esc(exam.subject)} &middot; ${dateFormatted}</div>
+            <div class="exam-subject-title">${esc(exam.subject)}</div>
+            <div class="exam-name-label">${esc(exam.name)} &middot; ${dateFormatted}</div>
           </div>
           <div class="exam-actions">
             <button class="btn btn-ghost btn-sm edit-btn" data-id="${exam.id}">

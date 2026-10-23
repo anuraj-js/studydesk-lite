@@ -33,14 +33,13 @@
   --warning: #f59e0b;
 }
 
-/* ── Invisible but functional scrollbar ── */
 html {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 html::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
+  display: none;
 }
 
 body {
@@ -75,7 +74,6 @@ body {
   width: auto;
 }
 
-/* Hamburger Button (Hidden on desktop by default) */
 .hamburger {
   display: none;
   background: none;
@@ -87,7 +85,6 @@ body {
   z-index: 102;
 }
 
-/* The Menu Container */
 .nav-menu {
   display: flex;
   align-items: center;
@@ -97,7 +94,7 @@ body {
 .nav-links {
   display: flex;
   gap: 0.25rem;
-  margin: 0 auto; /* Centers the links perfectly */
+  margin: 0 auto;
 }
 
 .nav-links a {
@@ -590,8 +587,9 @@ textarea {
   margin-bottom: 0.85rem;
 }
 
-.exam-name { font-size: 1.05rem; font-weight: 700; }
-.exam-subject-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem; }
+/* Subject is main, Name is secondary */
+.exam-subject-title { font-size: 1.05rem; font-weight: 700; }
+.exam-name-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem; }
 
 .exam-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
 
