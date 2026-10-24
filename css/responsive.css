@@ -52,8 +52,9 @@
     transform: translateX(0);
   }
 
-  /* Ensure the X button is inside the sidebar when open */
-  .hamburger.fa-xmark {
+  /* FIX: Ensure the X button is inside the sidebar when open. 
+     Changed from .fa-xmark to .open to prevent Font Awesome from generating a duplicate icon box */
+  .hamburger.open {
     position: fixed;
     top: 1.25rem;
     right: 12.5vw; 
