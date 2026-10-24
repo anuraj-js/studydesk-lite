@@ -51,7 +51,10 @@ function exportData() {
   a.href     = url;
   a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  URL.revokeObjectURL(url);
+  // a.click() is async — the download hasn't actually started yet
+  // when the next line runs. Delay the revoke so the browser has time to
+  // initiate the download before the object URL is torn down.
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
 function importData(file) {
@@ -110,7 +113,7 @@ function initClock() {
     use24 = !use24;
     localStorage.setItem('sdl-clock-24', use24 ? '1' : '0');
     syncToggleLabel();
-    update(); // immediately update the clock display instead of waiting up to 1 second
+    update();
   });
 }
 
@@ -124,7 +127,10 @@ function initStats() {
 
   const next = exams.find(e => new Date(e.date + 'T00:00:00') >= today);
   if (next) {
-    const diff = Math.ceil((new Date(next.date + 'T00:00:00') - today) / 864e5);
+    // use Math.round instead of Math.ceil — DST transitions can make
+    // the difference a non-integer (e.g. 0.958 days), causing Math.ceil to
+    // return 1 when the correct answer is 0 (today), or 2 when it should be 1.
+    const diff = Math.round((new Date(next.date + 'T00:00:00') - today) / 864e5);
     document.getElementById('statExam').textContent = diff === 0 ? 'Today' : diff + 'd';
   } else {
     document.getElementById('statExam').textContent = '—';
@@ -175,7 +181,8 @@ function initUpcomingExams() {
   }
 
   el.innerHTML = exams.map(e => {
-    const diff   = Math.ceil((new Date(e.date + 'T00:00:00') - today) / 864e5);
+    // Math.round here too, same reason as initStats
+    const diff   = Math.round((new Date(e.date + 'T00:00:00') - today) / 864e5);
     const urgent = diff <= 3;
     const label  = diff === 0 ? 'Today!' : diff + ' days';
     return `

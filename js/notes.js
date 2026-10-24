@@ -4,12 +4,14 @@ function esc(s) {
 
 let activeNoteId = null;
 let searchQuery = "";
+// track whether the current note was just created (unsaved/empty)
+// so we can delete it if the user hits back without typing
+let isNewUnsavedNote = false;
 
 function renderNotesList() {
   const notes = Storage.getNotes();
   const listEl = document.getElementById('notesList');
 
-  // Filter by search query
   const filteredNotes = notes.filter(n => {
     const title = (n.title || '').toLowerCase();
     const body = (n.body || '').toLowerCase();
@@ -22,14 +24,13 @@ function renderNotesList() {
     return;
   }
 
-  // Sort by most recently updated
   filteredNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   listEl.innerHTML = filteredNotes.map(n => {
     const date = new Date(n.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const preview = n.body ? n.body.substring(0, 40).replace(/\n/g, ' ') + (n.body.length > 40 ? '...' : '') : 'Empty note';
     const isActive = n.id === activeNoteId ? 'active-note' : '';
-    
+
     return `
       <div class="note-list-item ${isActive}" data-id="${n.id}">
         <div class="note-list-title">${esc(n.title || 'Untitled Note')}</div>
@@ -51,7 +52,8 @@ function openNote(id) {
   if (!note) return;
 
   activeNoteId = id;
-  
+  isNewUnsavedNote = false;
+
   document.getElementById('notesSidebar').classList.add('hidden-view');
   document.getElementById('notesEditor').classList.add('active-view');
 
@@ -60,13 +62,26 @@ function openNote(id) {
 
   document.getElementById('editNoteTitle').value = note.title || 'Untitled Note';
   document.getElementById('editNoteBody').value = note.body || '';
-  
+
   updateSaveStatus(note.updatedAt || new Date().toISOString());
 }
 
 function closeNote() {
+  // if the user created a new note but never typed anything,
+  // delete it instead of leaving a permanent "Untitled Note" in the list
+  if (isNewUnsavedNote && activeNoteId) {
+    const title = document.getElementById('editNoteTitle').value.trim();
+    const body  = document.getElementById('editNoteBody').value.trim();
+    if (!title || title === 'Untitled Note') {
+      if (!body) {
+        Storage.deleteNote(activeNoteId);
+      }
+    }
+  }
+
   activeNoteId = null;
-  
+  isNewUnsavedNote = false;
+
   document.getElementById('notesSidebar').classList.remove('hidden-view');
   document.getElementById('notesEditor').classList.remove('active-view');
 
@@ -78,10 +93,10 @@ function closeNote() {
 
 function updateSaveStatus(dateStr) {
   const date = new Date(dateStr);
-  const timeString = date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
+  const timeString = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   });
   document.getElementById('saveStatus').textContent = `Saved at ${timeString}`;
 }
@@ -89,19 +104,21 @@ function updateSaveStatus(dateStr) {
 let saveTimeout;
 function triggerAutoSave() {
   if (!activeNoteId) return;
-  
+
   document.getElementById('saveStatus').textContent = 'Saving...';
-  
+
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     const title = document.getElementById('editNoteTitle').value.trim();
-    const body = document.getElementById('editNoteBody').value;
+    const body  = document.getElementById('editNoteBody').value;
     Storage.updateNote(activeNoteId, title, body);
-    
+
+    // Once the user has actually typed something, it's no longer "unsaved new"
+    isNewUnsavedNote = false;
+
     const now = new Date().toISOString();
     updateSaveStatus(now);
-    
-    // Silently update list item
+
     const listEl = document.getElementById('notesList');
     const activeItem = listEl.querySelector(`[data-id="${activeNoteId}"]`);
     if (activeItem) {
@@ -114,7 +131,6 @@ function triggerAutoSave() {
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
 
-  // Search Bar Logic
   document.getElementById('searchNotes').addEventListener('input', (e) => {
     searchQuery = e.target.value;
     renderNotesList();
@@ -122,13 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');
+    // mark this note as new and unsaved so closeNote can clean it up
+    isNewUnsavedNote = true;
     openNote(newNote.id);
+    // Clear the default "Untitled Note" title so the placeholder shows instead
+    document.getElementById('editNoteTitle').value = '';
     setTimeout(() => document.getElementById('editNoteTitle').focus(), 100);
   });
 
   document.getElementById('deleteNoteBtn').addEventListener('click', () => {
     if (activeNoteId && confirm('Delete this note permanently?')) {
       Storage.deleteNote(activeNoteId);
+      isNewUnsavedNote = false;
       closeNote();
     }
   });

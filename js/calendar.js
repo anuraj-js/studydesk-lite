@@ -102,9 +102,6 @@ function openDayModal(dateStr) {
         <div class="event-item">
           <i class="fa-solid fa-book-open" style="color:var(--accent);"></i>
           <div>
-            <!-- FIX #2: escape exam subject and name to prevent XSS.
-                 Previously these were raw interpolations; a crafted exam name
-                 like <img src=x onerror=alert(1)> would execute as HTML. -->
             <div style="font-weight:600;">${esc(e.subject)}</div>
             <div style="font-size:0.75rem; color:var(--text-muted);">${esc(e.name)}</div>
           </div>
@@ -136,24 +133,29 @@ function closeDayModal() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const prevBtn = document.getElementById('prevMonth');
-  const nextBtn = document.getElementById('nextMonth');
-  const todayBtn = document.getElementById('todayBtn');
+  const prevBtn   = document.getElementById('prevMonth');
+  const nextBtn   = document.getElementById('nextMonth');
+  const todayBtn  = document.getElementById('todayBtn');
   const modalClose = document.getElementById('dayModalClose');
 
-  if (prevBtn) {
-    prevBtn.addEventListener('click', prevMonth);
-    nextBtn.addEventListener('click', nextMonth);
-    todayBtn.addEventListener('click', goToToday);
+  // guard each button individually — previously all three were
+  // attached inside a single `if (prevBtn)` block, so a missing nextBtn
+  // or todayBtn would throw a silent TypeError on .addEventListener
+  if (prevBtn)  prevBtn.addEventListener('click', prevMonth);
+  if (nextBtn)  nextBtn.addEventListener('click', nextMonth);
+  if (todayBtn) todayBtn.addEventListener('click', goToToday);
 
-    if (modalClose) modalClose.addEventListener('click', closeDayModal);
-    const modalOverlay = document.getElementById('dayModal');
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeDayModal();
-      });
-    }
+  if (modalClose) modalClose.addEventListener('click', closeDayModal);
 
+  const modalOverlay = document.getElementById('dayModal');
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeDayModal();
+    });
+  }
+
+  // Only render if the calendar grid actually exists on this page
+  if (document.getElementById('calendarGrid')) {
     renderCalendar();
   }
 });

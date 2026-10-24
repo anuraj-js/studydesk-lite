@@ -69,6 +69,7 @@ const Storage = {
     const exams = this.getExams();
     const idx = exams.findIndex(e => e.id === id);
     if (idx === -1) return;
+    // Spread existing first so topics and other fields are preserved
     exams[idx] = { ...exams[idx], name, subject, date };
     exams.sort((a, b) => new Date(a.date) - new Date(b.date));
     this._saveExams(exams);
@@ -106,10 +107,22 @@ const Storage = {
   // ── Pomodoro ───────────────────────────────────
   getPomodoroSettings() {
     try {
-      const defaults = { work: 25, shortBreak: 5, longBreak: 15, longBreakAfter: 4 };
+      // added workSec, shortSec, longSec to defaults so they are
+      // never undefined when accessed without the || 0 fallback
+      const defaults = {
+        work: 25, workSec: 0,
+        shortBreak: 5, shortSec: 0,
+        longBreak: 15, longSec: 0,
+        longBreakAfter: 4
+      };
       return Object.assign(defaults, JSON.parse(localStorage.getItem('sdl-pomo-settings') || '{}'));
     } catch {
-      return { work: 25, shortBreak: 5, longBreak: 15, longBreakAfter: 4 };
+      return {
+        work: 25, workSec: 0,
+        shortBreak: 5, shortSec: 0,
+        longBreak: 15, longSec: 0,
+        longBreakAfter: 4
+      };
     }
   },
   savePomodoroSettings(s) {

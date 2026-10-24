@@ -63,9 +63,7 @@ function notify(msg) {
 }
 
 function onComplete() {
-  running = false;
-  clearInterval(tick);
-
+  // NOTE: running and tick are already cleared by the caller before this runs
   if (mode === 'work') {
     doneWork++;
     sessionN++;
@@ -94,8 +92,15 @@ function startPause() {
     if (Notification.permission === 'default') Notification.requestPermission();
     running = true;
     tick = setInterval(() => {
-      if (left <= 0) { onComplete(); return; }
       left--;
+      // clear the interval HERE before calling onComplete, so it
+      // cannot fire again even if the browser batches ticks while backgrounded
+      if (left <= 0) {
+        clearInterval(tick);
+        running = false;
+        onComplete();
+        return;
+      }
       render();
     }, 1000);
   }
