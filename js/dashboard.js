@@ -1,6 +1,6 @@
 // NOTE: esc() is defined in storage.js (loaded before this file)
 
-let use24 = localStorage.getItem('sdl-clock-24') === '1';
+let use24 = false; // initialised inside DOMContentLoaded from localStorage
 
 const studyMessages = {
   lateNight:    ['Still awake?','Night owl mode.','Still grinding?','Late-night session?','You\'re still here?','Midnight study mode.'],
@@ -49,8 +49,6 @@ function exportData() {
   a.href     = url;
   a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  // a.click() is async — delay the revoke so the browser has time to
-  // initiate the download before the object URL is torn down.
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
@@ -124,9 +122,6 @@ function initStats() {
 
   const next = exams.find(e => new Date(e.date + 'T00:00:00') >= today);
   if (next) {
-    // Math.round instead of Math.ceil — DST transitions can make the difference
-    // a non-integer (e.g. 0.958 days), causing Math.ceil to return 1 when the
-    // correct answer is 0 (today).
     const diff = Math.round((new Date(next.date + 'T00:00:00') - today) / 864e5);
     document.getElementById('statExam').textContent = diff === 0 ? 'Today' : diff + 'd';
   } else {
@@ -159,9 +154,6 @@ function initRecentTasks() {
   el.querySelectorAll('.task-checkbox').forEach(cb => {
     cb.addEventListener('change', () => {
       Storage.toggleTask(cb.dataset.id);
-      // FIX: Replace location.reload() with targeted re-renders. The full-page
-      // reload was slow, reset scroll position, and caused a visible flash.
-      // Re-rendering only the affected widgets is instant and seamless.
       initStats();
       initRecentTasks();
     });
@@ -182,7 +174,6 @@ function initUpcomingExams() {
   }
 
   el.innerHTML = exams.map(e => {
-    // Math.round here too, same reason as initStats
     const diff   = Math.round((new Date(e.date + 'T00:00:00') - today) / 864e5);
     const urgent = diff <= 3;
     const label  = diff === 0 ? 'Today!' : diff + ' days';
@@ -199,10 +190,12 @@ function initUpcomingExams() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  let userName = localStorage.getItem('sdl-username');
-  if (!userName) {
-    userName = prompt('What should we call you?') || 'Student';
-    localStorage.setItem('sdl-username', userName);
+  // Read use24 from localStorage here (not at parse time)
+  use24 = localStorage.getItem('sdl-clock-24') === '1';
+
+  // First-time setup: use the Settings input instead of a blocking prompt()
+  if (!localStorage.getItem('sdl-username')) {
+    localStorage.setItem('sdl-username', 'Student');
   }
 
   updateGreeting();
@@ -212,13 +205,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initUpcomingExams();
 
   const usernameInput = document.getElementById('usernameInput');
-  usernameInput.value = localStorage.getItem('sdl-username') || '';
-  document.getElementById('saveUsername').addEventListener('click', () => {
-    const val = usernameInput.value.trim();
-    if (!val) return;
-    localStorage.setItem('sdl-username', val);
-    updateGreeting();
-  });
+  if (usernameInput) {
+    usernameInput.value = localStorage.getItem('sdl-username') || '';
+    document.getElementById('saveUsername').addEventListener('click', () => {
+      const val = usernameInput.value.trim();
+      if (!val) return;
+      localStorage.setItem('sdl-username', val);
+      updateGreeting();
+    });
+  }
 
   document.getElementById('exportBtn').addEventListener('click', exportData);
 

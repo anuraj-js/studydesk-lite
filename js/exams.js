@@ -15,7 +15,7 @@ function getCountdown(dateStr) {
   const mins  = Math.floor((totalSecs % 3600) / 60);
   const secs  = totalSecs % 60;
 
-  const cls  = days < 3 ? 'urgent' : '';
+  const cls  = days <= 3 ? 'urgent' : '';
   const text = `${days}d ${hours}h ${mins}m ${secs}s left`;
   return { text, cls };
 }
@@ -160,7 +160,6 @@ function closeEditModal() {
 
 // ── Init ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Add exam form
   document.getElementById('examForm').addEventListener('submit', e => {
     e.preventDefault();
     const name    = document.getElementById('examName').value.trim();
@@ -169,13 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name || !subject || !date) return;
     Storage.addExam({ name, subject, date });
     e.target.reset();
-    // close the accordion after adding
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
     renderExams();
   });
 
-  // Edit form
   document.getElementById('editExamForm').addEventListener('submit', e => {
     e.preventDefault();
     const id      = document.getElementById('editExamId').value;
@@ -196,11 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderExams();
 
-  // Single delegated listener on #examList handles ALL card interactions
   const examList = document.getElementById('examList');
 
   examList.addEventListener('click', e => {
-    // Delete exam
     const deleteBtn = e.target.closest('.delete-btn');
     if (deleteBtn) {
       if (confirm('Delete this exam and all its topics?')) {
@@ -210,14 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Edit exam
     const editBtn = e.target.closest('.edit-btn');
     if (editBtn) {
       openEditModal(editBtn.dataset.id);
       return;
     }
 
-    // Delete topic
     const topicDeleteBtn = e.target.closest('.topic-delete');
     if (topicDeleteBtn) {
       if (confirm('Remove this topic?')) {
@@ -227,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Add topic via button
     const addTopicBtn = e.target.closest('.add-topic-btn');
     if (addTopicBtn) {
       addTopicFromInput(addTopicBtn.dataset.examId);
@@ -235,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Topic checkbox (change event — needs its own delegated listener)
   examList.addEventListener('change', e => {
     const cb = e.target.closest('.topic-check');
     if (cb) {
@@ -244,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Add topic via Enter key
   examList.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       const input = e.target.closest('.topic-input');
@@ -255,6 +245,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Live countdown every second
   setInterval(tickCountdowns, 1000);
 });

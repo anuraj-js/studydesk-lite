@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v21';
+const CACHE = 'sdl-v22';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -27,7 +27,6 @@ const STATIC = [
   './images/studydesk_lite_logo.svg',
   './images/icon-192.png',
   './images/icon-512.png',
-  // Font Awesome stylesheet + all four webfont formats
   `${FA_BASE}/css/all.min.css`,
   `${FA_BASE}/webfonts/fa-solid-900.woff2`,
   `${FA_BASE}/webfonts/fa-regular-400.woff2`,
@@ -60,10 +59,14 @@ self.addEventListener('fetch', e => {
       fetch(request)
         .then(res => {
           const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(request, clone));
-          return res;
+          // Await the cache write so failures are not silently swallowed
+          return caches.open(CACHE).then(c => c.put(request, clone)).then(() => res);
         })
-        .catch(() => caches.match(request))
+        .catch(() =>
+          // Fall back to cache; if nothing cached, return a proper network-error
+          // response instead of undefined (which would crash respondWith)
+          caches.match(request).then(r => r || Response.error())
+        )
     );
     return;
   }
@@ -72,8 +75,8 @@ self.addEventListener('fetch', e => {
     caches.match(request).then(cached => {
       const network = fetch(request).then(res => {
         const clone = res.clone();
-        caches.open(CACHE).then(c => c.put(request, clone));
-        return res;
+        // Await the cache write so quota errors surface rather than silently failing
+        return caches.open(CACHE).then(c => c.put(request, clone)).then(() => res);
       });
       return cached || network;
     })

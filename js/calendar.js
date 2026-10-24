@@ -1,4 +1,6 @@
 let currentDate = new Date();
+// Normalise to the 1st so setMonth() never overflows (e.g. Jan 31 → Feb 31 → Mar 3)
+currentDate.setDate(1);
 
 // ── Helper: Format date to YYYY-MM-DD for comparison ──
 function toYMD(date) {
@@ -62,17 +64,20 @@ function renderCalendar() {
 }
 
 function prevMonth() {
+  currentDate.setDate(1);
   currentDate.setMonth(currentDate.getMonth() - 1);
   renderCalendar();
 }
 
 function nextMonth() {
+  currentDate.setDate(1);
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
 }
 
 function goToToday() {
   currentDate = new Date();
+  currentDate.setDate(1);
   renderCalendar();
 }
 
@@ -138,9 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const todayBtn  = document.getElementById('todayBtn');
   const modalClose = document.getElementById('dayModalClose');
 
-  // guard each button individually — previously all three were
-  // attached inside a single `if (prevBtn)` block, so a missing nextBtn
-  // or todayBtn would throw a silent TypeError on .addEventListener
   if (prevBtn)  prevBtn.addEventListener('click', prevMonth);
   if (nextBtn)  nextBtn.addEventListener('click', nextMonth);
   if (todayBtn) todayBtn.addEventListener('click', goToToday);
@@ -154,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Only render if the calendar grid actually exists on this page
   if (document.getElementById('calendarGrid')) {
     renderCalendar();
   }
