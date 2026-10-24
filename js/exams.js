@@ -173,6 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name || !subject || !date) return;
     Storage.addExam({ name, subject, date });
     e.target.reset();
+    // close the accordion after adding, same as tasks page
+    const details = document.querySelector('.collapsible-card');
+    if (details) details.removeAttribute('open');
     renderExams();
   });
 
@@ -198,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderExams();
 
   // Single delegated listener on #examList handles ALL card interactions.
-  // This fires once per click regardless of how many times topics have been toggled.
   const examList = document.getElementById('examList');
 
   examList.addEventListener('click', e => {

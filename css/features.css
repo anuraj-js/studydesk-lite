@@ -379,7 +379,9 @@
 
 /* ── Notes (Master-Detail Layout) ── */
 .notes-container {
-  height: calc(100vh - 140px);
+  /* use dvh instead of vh so the notes editor isn't clipped by the
+     browser chrome (address bar) on mobile Safari */
+  height: calc(100dvh - 140px);
   position: relative;
 }
 
