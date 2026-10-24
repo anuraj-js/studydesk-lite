@@ -1,5 +1,4 @@
 // ── Shared utility ─────────────────────────────
-// Single definition used by every page (previously duplicated in 4 files)
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -57,27 +56,29 @@ const Storage = {
   _saveExams(exams) {
     localStorage.setItem('sdl-exams', JSON.stringify(exams));
   },
-  addExam({ name, subject, date }) {
+  addExam({ name, subject, date, time }) {
     const exams = this.getExams();
     const exam = {
       id: Date.now().toString(),
       name,
       subject,
       date,
+      time, 
       topics: []
     };
     exams.push(exam);
-    exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Sort by date AND time
+    exams.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
     this._saveExams(exams);
     return exam;
   },
-  updateExam(id, { name, subject, date }) {
+  updateExam(id, { name, subject, date, time }) {
     const exams = this.getExams();
     const idx = exams.findIndex(e => e.id === id);
     if (idx === -1) return;
-    // Spread existing first so topics and other fields are preserved
-    exams[idx] = { ...exams[idx], name, subject, date };
-    exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Spread existing first so topics are preserved, add time
+    exams[idx] = { ...exams[idx], name, subject, date, time }; 
+    exams.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
     this._saveExams(exams);
     return exams[idx];
   },

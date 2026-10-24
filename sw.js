@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v25';
+const CACHE = 'sdl-v26';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -47,11 +47,6 @@ self.addEventListener('activate', e => {
   );
 });
 
-// FIX (cache quota errors): cache.put() can reject if the origin's
-// storage quota is exceeded. Previously that rejection propagated up through
-// the fetch handler and turned a perfectly valid network response into a
-// network error to the page. Now the put is best-effort: if it fails, we
-// still return the network response.
 function cachePut(request, response) {
   return caches.open(CACHE)
     .then(c => c.put(request, response))

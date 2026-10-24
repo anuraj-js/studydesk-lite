@@ -1,13 +1,13 @@
 // NOTE: esc() is defined in storage.js (loaded before this file)
 
 // ── Countdown helpers ──────────────────────────
-function getCountdown(dateStr) {
+function getCountdown(dateStr, timeStr) {
   const now     = new Date();
-  const examEnd = new Date(dateStr + 'T00:00:00');
-  examEnd.setHours(23, 59, 59, 999);
+  // FIX: Combine date and time into one precise local date object
+  const examEnd = new Date(dateStr + 'T' + (timeStr || '23:59'));
   const diff = examEnd - now;
 
-  if (diff <= 0) return { text: 'Past', cls: 'past' };
+  if (diff <= 0) return { text: 'Exam time has ended.', cls: 'past' };
 
   const totalSecs = Math.floor(diff / 1000);
   const days  = Math.floor(totalSecs / 86400);
@@ -25,7 +25,7 @@ function tickCountdowns() {
   Storage.getExams().forEach(e => {
     const el = document.getElementById('countdown-' + e.id);
     if (!el) return;
-    const { text, cls } = getCountdown(e.date);
+    const { text, cls } = getCountdown(e.date, e.time); // <-- Pass time
     el.textContent = text;
     el.className   = 'exam-countdown-live ' + cls;
   });
@@ -66,18 +66,25 @@ function renderExams() {
   }
 
   el.innerHTML = exams.map(exam => {
-    const { text, cls }                    = getCountdown(exam.date);
+    const { text, cls }                    = getCountdown(exam.date, exam.time);
     const { topicsHtml, pct, done, total } = renderTopics(exam);
+    
+    // Format date
     const dateFormatted = new Date(exam.date + 'T00:00:00').toLocaleDateString('en-US', {
       weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
     });
+
+    // Format time to 12-hour local format for the display label
+    const timeFormatted = exam.time 
+      ? new Date(exam.date + 'T' + exam.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+      : '';
 
     return `
       <div class="card exam-card" data-exam-id="${exam.id}">
         <div class="exam-card-header">
           <div>
             <div class="exam-subject-title">${esc(exam.subject)}</div>
-            <div class="exam-name-label">${esc(exam.name)} &middot; ${dateFormatted}</div>
+            <div class="exam-name-label">${esc(exam.name)} &middot; ${dateFormatted} ${timeFormatted ? 'at ' + timeFormatted : ''}</div>
           </div>
           <div class="exam-actions">
             <button class="btn btn-ghost btn-sm edit-btn" data-id="${exam.id}">
@@ -150,6 +157,7 @@ function openEditModal(id) {
   document.getElementById('editExamName').value    = exam.name;
   document.getElementById('editExamSubject').value = exam.subject;
   document.getElementById('editExamDate').value    = exam.date;
+  document.getElementById('editExamTime').value    = exam.time || '09:00'; // <-- Added time
   document.getElementById('editModal').style.display = 'flex';
 }
 
@@ -165,8 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const name    = document.getElementById('examName').value.trim();
     const subject = document.getElementById('examSubject').value.trim();
     const date    = document.getElementById('examDate').value;
-    if (!name || !subject || !date) return;
-    Storage.addExam({ name, subject, date });
+    const time    = document.getElementById('examTime').value; // <-- Added
+    if (!name || !subject || !date || !time) return;
+    Storage.addExam({ name, subject, date, time }); // <-- Added time
     e.target.reset();
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
@@ -179,8 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const name    = document.getElementById('editExamName').value.trim();
     const subject = document.getElementById('editExamSubject').value.trim();
     const date    = document.getElementById('editExamDate').value;
-    if (!name || !subject || !date) return;
-    Storage.updateExam(id, { name, subject, date });
+    const time    = document.getElementById('editExamTime').value; // <-- Added
+    if (!name || !subject || !date || !time) return;
+    Storage.updateExam(id, { name, subject, date, time }); // <-- Added time
     closeEditModal();
     renderExams();
   });

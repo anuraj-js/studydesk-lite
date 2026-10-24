@@ -205,7 +205,7 @@
   margin-bottom: 0.65rem;
 }
 .exam-countdown-live.urgent { color: var(--danger); }
-.exam-countdown-live.past   { color: var(--text-muted); font-weight: 400; font-size: 0.875rem; }
+.exam-countdown-live.past   { color: var(--danger); font-weight: 600; font-size: 0.85rem; }
 
 .topics-meta {
   font-size: 0.78rem;
