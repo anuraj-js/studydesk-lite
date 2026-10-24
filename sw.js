@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v14';
+const CACHE = 'sdl-v15';
 const STATIC = [
   './',
   './index.html',
@@ -15,7 +15,8 @@ const STATIC = [
   './js/tasks.js',
   './js/exams.js',
   './js/pomodoro.js',
-  './js/notes.js',          
+  './js/notes.js',
+  './js/calendar.js',  
   './manifest.json',
   './studydesk_lite_logo.svg' 
 ];

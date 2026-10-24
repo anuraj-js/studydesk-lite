@@ -71,6 +71,32 @@
       </div>
     </div>
 
+    <!-- Calendar Widget -->
+    <div class="card calendar-card">
+      <div class="calendar-header">
+        <h2 class="section-title" style="margin:0"><i class="fa-solid fa-calendar-days" style="color:var(--accent); margin-right:0.5rem;"></i> Calendar</h2>
+      </div>
+
+      <div class="calendar-controls">
+        <div class="cal-month-title">
+          <div id="calMonthYear" style="font-size:1.2rem; font-weight:700;">Loading...</div>
+        </div>
+        <div class="cal-nav">
+          <button class="btn btn-ghost btn-sm" id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="btn btn-primary btn-sm" id="todayBtn">Today</button>
+          <button class="btn btn-ghost btn-sm" id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="calendar-days-header">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- JavaScript will inject the days here -->
+      </div>
+    </div>
+
     <div class="card">
       <div class="row">
         <h2 class="section-title" style="margin:0">Pending Tasks</h2>
@@ -118,8 +144,22 @@
 
   </div>
 
+  <!-- Day Events Modal -->
+  <div class="modal-overlay" id="dayModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="dayModalTitle">Date</h3>
+        <button class="modal-close" id="dayModalClose"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="dayModalBody" style="padding: 0.5rem 0; max-height: 60vh; overflow-y: auto;">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </div>
+
   <script src="js/storage.js"></script>
   <script src="js/dashboard.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/calendar.js"></script>
 </body>
 </html>
