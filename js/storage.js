@@ -1,8 +1,9 @@
 const Storage = {
-
   // ── Tasks ──────────────────────────────────────
   getTasks() {
-    return JSON.parse(localStorage.getItem('sdl-tasks') || '[]');
+    try {
+      return JSON.parse(localStorage.getItem('sdl-tasks') || '[]');
+    } catch { return []; }
   },
   _saveTasks(tasks) {
     localStorage.setItem('sdl-tasks', JSON.stringify(tasks));
@@ -43,7 +44,9 @@ const Storage = {
 
   // ── Exams ──────────────────────────────────────
   getExams() {
-    return JSON.parse(localStorage.getItem('sdl-exams') || '[]');
+    try {
+      return JSON.parse(localStorage.getItem('sdl-exams') || '[]');
+    } catch { return []; }
   },
   _saveExams(exams) {
     localStorage.setItem('sdl-exams', JSON.stringify(exams));
@@ -102,8 +105,12 @@ const Storage = {
 
   // ── Pomodoro ───────────────────────────────────
   getPomodoroSettings() {
-    const defaults = { work: 25, shortBreak: 5, longBreak: 15, longBreakAfter: 4 };
-    return Object.assign(defaults, JSON.parse(localStorage.getItem('sdl-pomo-settings') || '{}'));
+    try {
+      const defaults = { work: 25, shortBreak: 5, longBreak: 15, longBreakAfter: 4 };
+      return Object.assign(defaults, JSON.parse(localStorage.getItem('sdl-pomo-settings') || '{}'));
+    } catch {
+      return { work: 25, shortBreak: 5, longBreak: 15, longBreakAfter: 4 };
+    }
   },
   savePomodoroSettings(s) {
     localStorage.setItem('sdl-pomo-settings', JSON.stringify(s));
@@ -124,10 +131,12 @@ const Storage = {
     localStorage.setItem('sdl-pomo-count', n.toString());
     return n;
   },
-  
+
   // ── Notes ──────────────────────────────────────
   getNotes() {
-    return JSON.parse(localStorage.getItem('sdl-notes') || '[]');
+    try {
+      return JSON.parse(localStorage.getItem('sdl-notes') || '[]');
+    } catch { return []; }
   },
   _saveNotes(notes) {
     localStorage.setItem('sdl-notes', JSON.stringify(notes));

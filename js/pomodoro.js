@@ -55,7 +55,10 @@ function notify(msg) {
   beep();
   if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
   if (Notification.permission === 'granted') {
-    new Notification('StudyDesk Lite', { body: msg, icon: 'images/icon-192.png' });
+    const iconPath = location.pathname.includes('/html/')
+      ? '../images/icon-192.png'
+      : 'images/icon-192.png';
+    new Notification('StudyDesk Lite', { body: msg, icon: iconPath });
   }
 }
 
@@ -84,6 +87,10 @@ function startPause() {
     clearInterval(tick);
     running = false;
   } else {
+    if (total === 0) {
+      alert('Please set a duration greater than 0 seconds before starting.');
+      return;
+    }
     if (Notification.permission === 'default') Notification.requestPermission();
     running = true;
     tick = setInterval(() => {

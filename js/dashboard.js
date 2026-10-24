@@ -110,6 +110,7 @@ function initClock() {
     use24 = !use24;
     localStorage.setItem('sdl-clock-24', use24 ? '1' : '0');
     syncToggleLabel();
+    update(); // immediately update the clock display instead of waiting up to 1 second
   });
 }
 
@@ -121,9 +122,9 @@ function initStats() {
   document.getElementById('statPending').textContent   = tasks.filter(t => !t.completed).length;
   document.getElementById('statCompleted').textContent = tasks.filter(t =>  t.completed).length;
 
-  const next = exams.find(e => new Date(e.date) >= today);
+  const next = exams.find(e => new Date(e.date + 'T00:00:00') >= today);
   if (next) {
-    const diff = Math.ceil((new Date(next.date) - today) / 864e5);
+    const diff = Math.ceil((new Date(next.date + 'T00:00:00') - today) / 864e5);
     document.getElementById('statExam').textContent = diff === 0 ? 'Today' : diff + 'd';
   } else {
     document.getElementById('statExam').textContent = '—';
@@ -163,8 +164,9 @@ function initRecentTasks() {
 function initUpcomingExams() {
   const el    = document.getElementById('upcomingExams');
   const today = new Date(); today.setHours(0,0,0,0);
+
   const exams = Storage.getExams()
-    .filter(e => new Date(e.date) >= today)
+    .filter(e => new Date(e.date + 'T00:00:00') >= today)
     .slice(0, 4);
 
   if (!exams.length) {
@@ -173,15 +175,14 @@ function initUpcomingExams() {
   }
 
   el.innerHTML = exams.map(e => {
-    const diff   = Math.ceil((new Date(e.date) - today) / 864e5);
+    const diff   = Math.ceil((new Date(e.date + 'T00:00:00') - today) / 864e5);
     const urgent = diff <= 3;
     const label  = diff === 0 ? 'Today!' : diff + ' days';
     return `
       <div class="exam-item">
         <div>
-          <!-- SWAPPED: Subject is main, Name is secondary -->
           <div class="exam-subject">${esc(e.subject)}</div>
-          <div class="exam-date">${esc(e.name)} &middot; ${new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+          <div class="exam-date">${esc(e.name)} &middot; ${new Date(e.date + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
         </div>
         <div class="exam-countdown ${urgent ? 'urgent' : ''}">${label}</div>
       </div>
@@ -212,13 +213,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('exportBtn').addEventListener('click', exportData);
-  
-  // Trigger the hidden file input when the Import button is clicked
+
   document.getElementById('importBtn').addEventListener('click', () => {
     document.getElementById('importInput').click();
   });
 
-  // Handle the file selection
   document.getElementById('importInput').addEventListener('change', e => {
     if (e.target.files[0]) importData(e.target.files[0]);
   });

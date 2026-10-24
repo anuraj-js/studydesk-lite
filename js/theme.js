@@ -32,27 +32,18 @@ function initReset() {
       Object.keys(localStorage)
         .filter(k => k.startsWith('sdl-'))
         .forEach(k => localStorage.removeItem(k));
-      
-      // FIXED: Dynamically redirect to index.html whether you are in the root or the /html/ folder
+
       const isSubfolder = window.location.pathname.includes('/html/');
       location.href = isSubfolder ? '../index.html' : './index.html';
     }
   });
 }
 
-function setActiveNav() {
-  const page = location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav-links a, .bottom-nav a').forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === page);
-  });
-}
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // FIXED: Dynamically find sw.js whether you are on index.html or tasks.html
     const isSubfolder = window.location.pathname.includes('/html/');
     const swPath = isSubfolder ? '../sw.js' : './sw.js';
-    
+
     navigator.serviceWorker.register(swPath).catch((err) => {
       console.log('ServiceWorker registration failed: ', err);
     });
@@ -62,5 +53,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initReset();
-  setActiveNav();
 });

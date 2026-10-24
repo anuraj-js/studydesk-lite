@@ -5,7 +5,7 @@ function esc(s) {
 // ── Countdown helpers ──────────────────────────
 function getCountdown(dateStr) {
   const now     = new Date();
-  const examEnd = new Date(dateStr);
+  const examEnd = new Date(dateStr + 'T00:00:00'); 
   examEnd.setHours(23, 59, 59, 999);
   const diff = examEnd - now;
 
@@ -18,13 +18,9 @@ function getCountdown(dateStr) {
   const secs  = totalSecs % 60;
 
   let cls = '';
-  
-  // Set urgency color if less than 3 days
   if (days < 3) cls = 'urgent';
 
-  // Format exactly as: 15d 13h 43m 48s left
   const text = `${days}d ${hours}h ${mins}m ${secs}s left`;
-
   return { text, cls };
 }
 
@@ -76,7 +72,7 @@ function renderExams() {
   el.innerHTML = exams.map(exam => {
     const { text, cls }         = getCountdown(exam.date);
     const { topicsHtml, pct, done, total } = renderTopics(exam);
-    const dateFormatted = new Date(exam.date).toLocaleDateString('en-US', {
+    const dateFormatted = new Date(exam.date + 'T00:00:00').toLocaleDateString('en-US', {
       weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
     });
 
@@ -118,66 +114,6 @@ function renderExams() {
       </div>
     `;
   }).join('');
-
-  bindExamEvents();
-}
-
-// ── Bind events on rendered cards ─────────────
-function bindExamEvents() {
-  // Delete exam
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (confirm('Delete this exam and all its topics?')) {
-        Storage.deleteExam(btn.dataset.id);
-        renderExams();
-      }
-    });
-  });
-
-  // Edit exam
-  document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => openEditModal(btn.dataset.id));
-  });
-
-  // Toggle topic
-  document.querySelectorAll('.topic-check').forEach(cb => {
-    cb.addEventListener('change', () => {
-      Storage.toggleTopic(cb.dataset.examId, cb.dataset.topicId);
-      refreshTopics(cb.dataset.examId);
-    });
-  });
-
-  // Delete topic
-  document.querySelectorAll('.topic-delete').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (confirm('Remove this topic?')) {
-        Storage.deleteTopic(btn.dataset.examId, btn.dataset.topicId);
-        refreshTopics(btn.dataset.examId);
-      }
-    });
-  });
-
-  // Add topic via button
-  document.querySelectorAll('.add-topic-btn').forEach(btn => {
-    btn.addEventListener('click', () => addTopicFromInput(btn.dataset.examId));
-  });
-
-  // Add topic via Enter key
-  document.querySelectorAll('.topic-input').forEach(input => {
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); addTopicFromInput(input.dataset.examId); }
-    });
-  });
-}
-
-function addTopicFromInput(examId) {
-  const input = document.querySelector(`.topic-input[data-exam-id="${examId}"]`);
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text) return;
-  Storage.addTopic(examId, text);
-  input.value = '';
-  refreshTopics(examId);
 }
 
 // ── Refresh topics section without full re-render ──
@@ -189,19 +125,25 @@ function refreshTopics(examId) {
   const topicsEl = document.getElementById('topics-' + examId);
   if (topicsEl) topicsEl.innerHTML = topicsHtml;
 
-  // update progress
   const card = document.querySelector(`[data-exam-id="${examId}"]`);
   if (card) {
-    const meta = card.querySelector('.topics-meta');
-    const bar  = card.querySelector('.topic-bar');
+    const meta  = card.querySelector('.topics-meta');
+    const bar   = card.querySelector('.topic-bar');
     const pctEl = card.querySelector('.topic-bar-pct');
     if (meta)  meta.textContent  = `${pct}% topics done · ${done} of ${total} completed`;
     if (bar)   bar.style.width   = pct + '%';
     if (pctEl) pctEl.textContent = pct + '%';
   }
+}
 
-  // re-bind events for the refreshed section
-  bindExamEvents();
+function addTopicFromInput(examId) {
+  const input = document.querySelector(`.topic-input[data-exam-id="${examId}"]`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  Storage.addTopic(examId, text);
+  input.value = '';
+  refreshTopics(examId);
 }
 
 // ── Edit Modal ─────────────────────────────────
@@ -254,6 +196,66 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderExams();
+
+  // Single delegated listener on #examList handles ALL card interactions.
+  // This fires once per click regardless of how many times topics have been toggled.
+  const examList = document.getElementById('examList');
+
+  examList.addEventListener('click', e => {
+    // Delete exam
+    const deleteBtn = e.target.closest('.delete-btn');
+    if (deleteBtn) {
+      if (confirm('Delete this exam and all its topics?')) {
+        Storage.deleteExam(deleteBtn.dataset.id);
+        renderExams();
+      }
+      return;
+    }
+
+    // Edit exam
+    const editBtn = e.target.closest('.edit-btn');
+    if (editBtn) {
+      openEditModal(editBtn.dataset.id);
+      return;
+    }
+
+    // Delete topic
+    const topicDeleteBtn = e.target.closest('.topic-delete');
+    if (topicDeleteBtn) {
+      if (confirm('Remove this topic?')) {
+        Storage.deleteTopic(topicDeleteBtn.dataset.examId, topicDeleteBtn.dataset.topicId);
+        refreshTopics(topicDeleteBtn.dataset.examId);
+      }
+      return;
+    }
+
+    // Add topic via button
+    const addTopicBtn = e.target.closest('.add-topic-btn');
+    if (addTopicBtn) {
+      addTopicFromInput(addTopicBtn.dataset.examId);
+      return;
+    }
+  });
+
+  // Topic checkbox (change event — needs its own delegated listener)
+  examList.addEventListener('change', e => {
+    const cb = e.target.closest('.topic-check');
+    if (cb) {
+      Storage.toggleTopic(cb.dataset.examId, cb.dataset.topicId);
+      refreshTopics(cb.dataset.examId);
+    }
+  });
+
+  // Add topic via Enter key
+  examList.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const input = e.target.closest('.topic-input');
+      if (input) {
+        e.preventDefault();
+        addTopicFromInput(input.dataset.examId);
+      }
+    }
+  });
 
   // Live countdown every second
   setInterval(tickCountdowns, 1000);

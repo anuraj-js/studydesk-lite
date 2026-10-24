@@ -11,7 +11,7 @@ function toYMD(date) {
 function renderCalendar() {
   const grid = document.getElementById('calendarGrid');
   const monthYear = document.getElementById('calMonthYear');
-  
+
   if (!grid) return;
 
   const year = currentDate.getFullYear();
@@ -21,31 +21,26 @@ function renderCalendar() {
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
+
   const today = new Date();
   const todayStr = toYMD(today);
 
-  // Fetch all tasks and exams
   const tasks = Storage.getTasks();
   const exams = Storage.getExams();
 
   let html = '';
 
-  // Empty slots
   for (let i = 0; i < firstDay; i++) {
     html += `<div class="cal-day empty"></div>`;
   }
 
-  // Days of the month
   for (let d = 1; d <= daysInMonth; d++) {
     const thisDate = new Date(year, month, d);
     const thisDateStr = toYMD(thisDate);
-    
-    // Check if today
+
     const isToday = thisDateStr === todayStr;
     const todayClass = isToday ? 'today' : '';
 
-    // Check for events (tasks or exams on this day)
     const dayTasks = tasks.filter(t => t.dueDate === thisDateStr);
     const dayExams = exams.filter(e => e.date === thisDateStr);
     const hasEvents = dayTasks.length > 0 || dayExams.length > 0;
@@ -61,7 +56,6 @@ function renderCalendar() {
 
   grid.innerHTML = html;
 
-  // Attach click listeners to non-empty days
   grid.querySelectorAll('.cal-day:not(.empty)').forEach(dayEl => {
     dayEl.addEventListener('click', () => openDayModal(dayEl.dataset.date));
   });
@@ -90,12 +84,10 @@ function openDayModal(dateStr) {
 
   if (!modal || !modalTitle || !modalBody) return;
 
-  // Format date for display (e.g., "Friday, Nov 15")
-  const dateObj = new Date(dateStr + 'T00:00:00'); // Force local time
+  const dateObj = new Date(dateStr + 'T00:00:00');
   const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   modalTitle.textContent = formatted;
 
-  // Get events
   const tasks = Storage.getTasks().filter(t => t.dueDate === dateStr);
   const exams = Storage.getExams().filter(e => e.date === dateStr);
 
@@ -110,8 +102,11 @@ function openDayModal(dateStr) {
         <div class="event-item">
           <i class="fa-solid fa-book-open" style="color:var(--accent);"></i>
           <div>
-            <div style="font-weight:600;">${e.subject}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">${e.name}</div>
+            <!-- FIX #2: escape exam subject and name to prevent XSS.
+                 Previously these were raw interpolations; a crafted exam name
+                 like <img src=x onerror=alert(1)> would execute as HTML. -->
+            <div style="font-weight:600;">${esc(e.subject)}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${esc(e.name)}</div>
           </div>
         </div>
       `).join('');
@@ -150,10 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
     prevBtn.addEventListener('click', prevMonth);
     nextBtn.addEventListener('click', nextMonth);
     todayBtn.addEventListener('click', goToToday);
-    
-    // Close modal on click
+
     if (modalClose) modalClose.addEventListener('click', closeDayModal);
-    // Close modal when clicking outside
     const modalOverlay = document.getElementById('dayModal');
     if (modalOverlay) {
       modalOverlay.addEventListener('click', (e) => {

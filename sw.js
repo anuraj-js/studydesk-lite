@@ -1,11 +1,14 @@
-const CACHE = 'sdl-v17';
+const CACHE = 'sdl-v18'; 
+
+const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
+
 const STATIC = [
   './',
   './index.html',
   './html/tasks.html',
   './html/exams.html',
   './html/pomodoro.html',
-  './html/notes.html',       
+  './html/notes.html',
   './css/variables.css',
   './css/layout.css',
   './css/components.css',
@@ -19,11 +22,19 @@ const STATIC = [
   './js/exams.js',
   './js/pomodoro.js',
   './js/notes.js',
-  './js/calendar.js',  
+  './js/calendar.js',
   './manifest.json',
   './images/studydesk_lite_logo.svg',
   './images/icon-192.png',
-  './images/icon-512.png' 
+  './images/icon-512.png',
+  // Font Awesome stylesheet + all four webfont formats
+  `${FA_BASE}/css/all.min.css`,
+  `${FA_BASE}/webfonts/fa-solid-900.woff2`,
+  `${FA_BASE}/webfonts/fa-regular-400.woff2`,
+  `${FA_BASE}/webfonts/fa-brands-400.woff2`,
+  `${FA_BASE}/webfonts/fa-solid-900.ttf`,
+  `${FA_BASE}/webfonts/fa-regular-400.ttf`,
+  `${FA_BASE}/webfonts/fa-brands-400.ttf`
 ];
 
 self.addEventListener('install', e => {
