@@ -1,0 +1,178 @@
+/* ── Forms ── */
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  appearance: auto;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 75px;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-ghost,
+.btn-danger {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-danger:hover { background: rgba(239,68,68,.15); color: var(--danger); border-color: var(--danger);}
+
+.btn-full { width: 100%; }
+.btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
+
+/* ── Reset button ── */
+.reset-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  transition: all 0.2s;
+}
+.reset-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Badges ── */
+.badge {
+  padding: 0.18rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-high   { background: rgba(239,68,68,.15);  color: #ef4444; }
+.badge-medium { background: rgba(245,158,11,.15); color: #f59e0b; }
+.badge-low    { background: rgba(34,197,94,.15);  color: #22c55e; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: 480px;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.modal-header h3 { font-size: 1rem; font-weight: 600; margin: 0; }
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text); }
+
+/* ── Collapsible Cards (Accordion) ── */
+.collapsible-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.collapsible-card summary {
+  padding: 1.25rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  user-select: none;
+  margin-bottom: 0 !important;
+  transition: background 0.2s;
+}
+
+.collapsible-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.collapsible-card summary:hover {
+  background: var(--surface2);
+}
+
+.collapsible-card summary::after {
+  content: '\f107';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.collapsible-card[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.collapsible-card[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.collapsible-card > form, 
+.collapsible-card > div {
+  padding: 1.25rem;
+}

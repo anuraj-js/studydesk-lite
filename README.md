@@ -35,28 +35,34 @@ All data lives in `localStorage` under `sdl-*` keys. An import/export system is 
 
 ```
 studydesk-lite/
-├── index.html          # Dashboard
+├── index.html              # Dashboard
 ├── html/
 │   ├── tasks.html
 │   ├── exams.html
 │   ├── notes.html
 │   └── pomodoro.html
 ├── css/
-│   └── style.css
+│   ├── variables.css       # CSS custom properties (colours, spacing, etc.)
+│   ├── layout.css          # Page shell, sidebar, main-content grid
+│   ├── components.css      # Reusable UI components (cards, buttons, modals…)
+│   ├── features.css        # Page-specific feature styles
+│   └── responsive.css      # Breakpoints and mobile overrides
 ├── js/
-│   ├── theme.js        # Theme toggle, reset, nav active state
-│   ├── storage.js      # All localStorage read/write
+│   ├── theme.js            # Theme toggle and persistence
+│   ├── nav.js              # Active nav-link highlighting
+│   ├── storage.js          # All localStorage read/write
+│   ├── calendar.js         # Calendar logic
 │   ├── dashboard.js
 │   ├── tasks.js
 │   ├── exams.js
 │   ├── notes.js
 │   └── pomodoro.js
 ├── images/
-│   ├── icon-192.png              
-│   ├── icon-512.png              
-│   └── studydesk_lite_logo.svg 
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── studydesk_lite_logo.svg
 ├── manifest.json
-└──  sw.js   
+└── sw.js
 ```
 
 ## Deployment
