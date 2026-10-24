@@ -18,11 +18,10 @@ function renderNotesList() {
   });
 
   if (!filteredNotes.length) {
-    // Using textContent-safe approach: the only dynamic part is a boolean switch
-    // between two hardcoded strings, so innerHTML is safe here.
-    listEl.innerHTML = `<div class="empty-state" style="padding:2rem 1rem;">${
-      searchQuery ? 'No notes match your search.' : 'No notes yet.<br>Create one to get started.'
-    }</div>`;
+    const msg = searchQuery
+      ? 'No notes match your search.'
+      : 'No notes yet.<br>Create one to get started.';
+    listEl.innerHTML = `<div class="empty-state" style="padding:2rem 1rem;">${msg}</div>`;
     return;
   }
 
@@ -130,6 +129,10 @@ function triggerAutoSave() {
 
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
+
+  // FIX: Clear the pending autosave timer if the user navigates away mid-debounce,
+  // preventing a stale save from firing after the page has begun unloading.
+  window.addEventListener('beforeunload', () => clearTimeout(saveTimeout));
 
   document.getElementById('searchNotes').addEventListener('input', e => {
     searchQuery = e.target.value;

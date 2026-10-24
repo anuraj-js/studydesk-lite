@@ -33,6 +33,14 @@ textarea {
   min-height: 75px;
 }
 
+/* ── Empty State (shown when lists have no items) ── */
+.empty-state {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
 /* ── Buttons ── */
 .btn {
   display: inline-flex;

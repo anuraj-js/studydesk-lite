@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v22';
+const CACHE = 'sdl-v23';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -30,10 +30,7 @@ const STATIC = [
   `${FA_BASE}/css/all.min.css`,
   `${FA_BASE}/webfonts/fa-solid-900.woff2`,
   `${FA_BASE}/webfonts/fa-regular-400.woff2`,
-  `${FA_BASE}/webfonts/fa-brands-400.woff2`,
-  `${FA_BASE}/webfonts/fa-solid-900.ttf`,
-  `${FA_BASE}/webfonts/fa-regular-400.ttf`,
-  `${FA_BASE}/webfonts/fa-brands-400.ttf`
+  `${FA_BASE}/webfonts/fa-brands-400.woff2`
 ];
 
 self.addEventListener('install', e => {

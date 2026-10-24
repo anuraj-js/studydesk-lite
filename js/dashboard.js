@@ -70,23 +70,23 @@ function importData(file) {
   reader.readAsText(file);
 }
 
-function formatTime(d) {
-  return d.toLocaleTimeString('en-US', {
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: !use24
-  });
-}
-
-function formatDate(d) {
-  return d.toLocaleDateString('en-US', {
-    weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
-  });
-}
-
 function initClock() {
   const clockEl   = document.getElementById('clock');
   const dateEl    = document.getElementById('date');
   const toggleBtn = document.getElementById('clockToggle');
+
+  function formatTime(d) {
+    return d.toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: !use24
+    });
+  }
+
+  function formatDate(d) {
+    return d.toLocaleDateString('en-US', {
+      weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
+    });
+  }
 
   function update() {
     const now = new Date();
