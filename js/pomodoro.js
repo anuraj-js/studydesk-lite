@@ -1,16 +1,22 @@
 // ── State — all declared here but initialised inside DOMContentLoaded ──────
-// FIX: Previously cfg, total, and left were set at the TOP LEVEL of the file,
-// meaning Storage.getPomodoroSettings() ran the moment the script was parsed —
-// before storage.js was guaranteed to have finished executing. Moving every
-// initialisation inside DOMContentLoaded eliminates that race condition.
 let cfg;
-let mode     = 'work';
-let total    = 0;
-let left     = 0;
-let running  = false;
-let tick     = null;
-let doneWork = 0;
-let sessionN = 1;
+let mode       = 'work';
+let total      = 0;
+let left       = 0;
+let running    = false;
+let tick       = null;
+let doneWork   = 0;
+let sessionN   = 1;
+
+// FIX (timer drift): We no longer decrement `left` on every interval
+// tick. Instead we record the exact wall-clock time at which the timer should
+// end, and recompute `left` from `Date.now()` on each tick. Browsers throttle
+// setInterval in background tabs, but Date.now() keeps advancing at the correct
+// rate, so the timer stays accurate even if you minimise the app.
+let endTime    = null;
+// When paused mid-session, this stores the remaining seconds so that resuming
+// picks up from exactly where the user paused (rather than resetting).
+let pausedLeft = null;
 
 function modeLabel() { return { work: 'Focus Time', short: 'Short Break', long: 'Long Break' }[mode]; }
 function modeSecs() {
@@ -67,56 +73,80 @@ function notify(msg) {
   }
 }
 
-function onComplete() {
-  // NOTE: running and tick are already cleared by the caller before this runs
+// FIX (skip counts as completed): `skipped` argument added.
+// When skipped=true and mode was 'work', we do NOT call Storage.recordSession()
+// and do NOT increment sessionN — a skipped focus session isn't a completed one.
+// We still advance the mode to a break (so the user gets the break cadence),
+// but the stats stay honest.
+function onComplete(skipped = false) {
   if (mode === 'work') {
-    doneWork++;
-    sessionN++;
-    Storage.recordSession();
-    notify('Focus session done! Time for a break.');
+    if (!skipped) {
+      doneWork++;
+      sessionN++;
+      Storage.recordSession();
+      notify('Focus session done! Time for a break.');
+    } else {
+      notify('Focus session skipped.');
+    }
     mode = (doneWork % cfg.longBreakAfter === 0) ? 'long' : 'short';
   } else {
-    notify('Break over! Back to work.');
+    if (!skipped) {
+      notify('Break over! Back to work.');
+    }
     mode = 'work';
   }
 
-  total = modeSecs();
-  left  = total;
+  total      = modeSecs();
+  left       = total;
+  endTime    = null;
+  pausedLeft = null;
   render();
 }
 
 function startPause() {
   if (running) {
+    // Pausing: remember how much time is left, clear the interval
     clearInterval(tick);
-    running = false;
+    running    = false;
+    pausedLeft = left;
   } else {
     if (total === 0) {
       alert('Please set a duration greater than 0 seconds before starting.');
       return;
     }
     if (Notification.permission === 'default') Notification.requestPermission();
-    running = true;
+
+    // Resume from pausedLeft if we have one, otherwise start from `total`
+    const secondsToRun = pausedLeft !== null ? pausedLeft : total;
+    left      = secondsToRun;
+    pausedLeft = null;
+    endTime   = Date.now() + secondsToRun * 1000;
+    running   = true;
+
     tick = setInterval(() => {
-      left--;
-      // Clear the interval HERE before calling onComplete so it cannot
-      // fire again even if the browser batches ticks while backgrounded.
-      if (left <= 0) {
+      // Compute remaining from wall clock, not from a decrementing counter
+      const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+      left = remaining;
+
+      if (remaining <= 0) {
         clearInterval(tick);
         running = false;
-        onComplete();
+        onComplete(false);
         return;
       }
       render();
-    }, 1000);
+    }, 250); // poll faster than 1s so the display stays smooth
   }
   render();
 }
 
 function reset() {
   clearInterval(tick);
-  running = false;
-  total   = modeSecs();
-  left    = total;
+  running    = false;
+  total      = modeSecs();
+  left       = total;
+  endTime    = null;
+  pausedLeft = null;
   render();
 }
 
@@ -124,7 +154,7 @@ function skip() {
   clearInterval(tick);
   running = false;
   left    = 0;
-  onComplete();
+  onComplete(true); // ← pass skipped=true so no session is recorded
 }
 
 function applySettings() {
@@ -137,16 +167,19 @@ function applySettings() {
   cfg.longBreakAfter = parseInt(document.getElementById('setLongAfter').value) || 4;
   Storage.savePomodoroSettings(cfg);
 
-  // FIX: Also reset doneWork so the long-break cadence restarts from 1 when
-  // the user changes longBreakAfter mid-session, preventing the counter from
-  // landing on an offset that skips or never triggers the long break.
-  doneWork = 0;
-
-  if (!running) { total = modeSecs(); left = total; render(); }
+  // FIX: only reset doneWork if the user actually changed the longBreakAfter
+  // value. Previously this reset on *any* setting change, which could skip
+  // the long break if you were 3 sessions in and tweaked the short-break length.
+  if (!running) {
+    total      = modeSecs();
+    left       = total;
+    pausedLeft = null;
+    endTime    = null;
+    render();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // FIX: Initialise all state here, after storage.js is guaranteed to be ready.
   cfg   = Storage.getPomodoroSettings();
   total = cfg.work * 60 + (cfg.workSec || 0);
   left  = total;

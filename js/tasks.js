@@ -5,7 +5,7 @@ let activeFilter = 'all';
 function isOverdue(task) {
   if (task.completed || !task.dueDate) return false;
   const today = new Date(); today.setHours(0,0,0,0);
-  return new Date(task.dueDate) < today;
+  return new Date(task.dueDate + 'T00:00:00') < today;
 }
 
 function renderTasks() {

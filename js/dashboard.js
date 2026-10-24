@@ -1,6 +1,6 @@
 // NOTE: esc() is defined in storage.js (loaded before this file)
 
-let use24 = false; // initialised inside DOMContentLoaded from localStorage
+let use24 = false;
 
 const studyMessages = {
   lateNight:    ['Still awake?','Night owl mode.','Still grinding?','Late-night session?','You\'re still here?','Midnight study mode.'],
@@ -48,7 +48,16 @@ function exportData() {
   const a    = document.createElement('a');
   a.href     = url;
   a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
+
+  // FIX (Firefox download): Firefox does not reliably trigger a
+  // download on a detached <a> element. Appending it to the DOM before
+  // clicking and removing it after makes the click count as a real user
+  // navigation, so the download starts reliably across all browsers.
+  a.style.display = 'none';
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
+
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
@@ -190,10 +199,8 @@ function initUpcomingExams() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Read use24 from localStorage here (not at parse time)
   use24 = localStorage.getItem('sdl-clock-24') === '1';
 
-  // First-time setup: use the Settings input instead of a blocking prompt()
   if (!localStorage.getItem('sdl-username')) {
     localStorage.setItem('sdl-username', 'Student');
   }

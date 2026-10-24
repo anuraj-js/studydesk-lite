@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v23';
+const CACHE = 'sdl-v24';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -47,6 +47,17 @@ self.addEventListener('activate', e => {
   );
 });
 
+// FIX (cache quota errors): cache.put() can reject if the origin's
+// storage quota is exceeded. Previously that rejection propagated up through
+// the fetch handler and turned a perfectly valid network response into a
+// network error to the page. Now the put is best-effort: if it fails, we
+// still return the network response.
+function cachePut(request, response) {
+  return caches.open(CACHE)
+    .then(c => c.put(request, response))
+    .catch(() => { /* quota exceeded or cache unavailable — ignore */ });
+}
+
 self.addEventListener('fetch', e => {
   const { request } = e;
   const url = new URL(request.url);
@@ -55,13 +66,10 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       fetch(request)
         .then(res => {
-          const clone = res.clone();
-          // Await the cache write so failures are not silently swallowed
-          return caches.open(CACHE).then(c => c.put(request, clone)).then(() => res);
+          cachePut(request, res.clone());
+          return res;
         })
         .catch(() =>
-          // Fall back to cache; if nothing cached, return a proper network-error
-          // response instead of undefined (which would crash respondWith)
           caches.match(request).then(r => r || Response.error())
         )
     );
@@ -71,9 +79,8 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request).then(res => {
-        const clone = res.clone();
-        // Await the cache write so quota errors surface rather than silently failing
-        return caches.open(CACHE).then(c => c.put(request, clone)).then(() => res);
+        cachePut(request, res.clone());
+        return res;
       });
       return cached || network;
     })
