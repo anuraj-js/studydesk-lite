@@ -15,7 +15,7 @@ Live at: https://anuraj-js.github.io/studydesk-lite
 - **Dashboard** — Live clock with 12/24-hour toggle, daily stats summary, quick view of pending tasks and upcoming exams
 - **Task Manager** — Add tasks with priority and due date, filter by All / Active / Completed / Overdue, edit and delete, overdue highlighting
 - **Exam Planner** — Per-exam topic tracking with progress bar, live countdown timer, full CRUD
-- **Notes** — Clean Master-Detail interface (list view -> full editor) with real-time search and auto-save
+- **Notes** — Clean Master-Detail interface (list view → full editor) with real-time search and auto-save
 - **Pomodoro Timer** — Configurable focus/break intervals, session counter, browser notifications
 - **Themes** — Dark and light mode, persisted across pages
 - **PWA** — Installable on phone via home screen, works offline
@@ -43,25 +43,26 @@ studydesk-lite/
 │   └── pomodoro.html
 ├── css/
 │   ├── variables.css       # CSS custom properties (colours, spacing, etc.)
-│   ├── layout.css          # Page shell, sidebar, main-content grid
-│   ├── components.css      # Reusable UI components (cards, buttons, modals…)
-│   ├── features.css        # Page-specific feature styles
+│   ├── layout.css          # Page shell, navbar, container and card layout
+│   ├── components.css      # Reusable UI components (forms, buttons, badges, modals…)
+│   ├── features.css        # Page-specific feature styles (tasks, exams, pomodoro, notes, calendar)
 │   └── responsive.css      # Breakpoints and mobile overrides
 ├── js/
-│   ├── theme.js            # Theme toggle and persistence
-│   ├── nav.js              # Active nav-link highlighting
-│   ├── storage.js          # All localStorage read/write
-│   ├── calendar.js         # Calendar logic
-│   ├── dashboard.js
-│   ├── tasks.js
-│   ├── exams.js
-│   ├── notes.js
-│   └── pomodoro.js
+│   ├── theme.js            # Theme toggle (dark/light) and persistence
+│   ├── nav.js              # Mobile hamburger menu (open/close, backdrop, icon toggle)
+│   ├── storage.js          # All localStorage read/write, shared esc() utility
+│   ├── calendar.js         # Calendar widget and day-events modal
+│   ├── dashboard.js        # Dashboard clock, stats, recent tasks, upcoming exams
+│   ├── tasks.js            # Task list, filters, add/edit/delete
+│   ├── exams.js            # Exam cards, topic tracking, live countdown
+│   ├── notes.js            # Notes list, editor, auto-save, search
+│   └── pomodoro.js         # Pomodoro timer, settings, session tracking
 ├── images/
 │   ├── icon-192.png
 │   ├── icon-512.png
 │   └── studydesk_lite_logo.svg
 ├── manifest.json
+├── README.md
 └── sw.js
 ```
 
