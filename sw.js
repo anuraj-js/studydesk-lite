@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v15';
+const CACHE = 'sdl-v16';
 const STATIC = [
   './',
   './index.html',
@@ -18,7 +18,9 @@ const STATIC = [
   './js/notes.js',
   './js/calendar.js',  
   './manifest.json',
-  './studydesk_lite_logo.svg' 
+  './images/studydesk_lite_logo.svg',
+  './images/icon-192.png',
+  './images/icon-512.png' 
 ];
 
 self.addEventListener('install', e => {

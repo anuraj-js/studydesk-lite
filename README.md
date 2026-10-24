@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="studydesk_lite_logo.svg" alt="StudyDesk Lite Logo" width="300">
+  <img src="images/studydesk_lite_logo.svg" alt="StudyDesk Lite Logo" width="300">
 </p>
 
 # StudyDesk Lite
@@ -51,11 +51,12 @@ studydesk-lite/
 │   ├── exams.js
 │   ├── notes.js
 │   └── pomodoro.js
+├── images/
+│   ├── icon-192.png              
+│   ├── icon-512.png              
+│   └── studydesk_lite_logo.svg 
 ├── manifest.json
-├── sw.js   
-├── icon-192.png              
-├── icon-512.png              
-└── studydesk_lite_logo.svg 
+└──  sw.js   
 ```
 
 ## Deployment

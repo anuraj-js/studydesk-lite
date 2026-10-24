@@ -55,7 +55,7 @@ function notify(msg) {
   beep();
   if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
   if (Notification.permission === 'granted') {
-    new Notification('StudyDesk Lite', { body: msg, icon: 'icon-192.png' });
+    new Notification('StudyDesk Lite', { body: msg, icon: 'images/icon-192.png' });
   }
 }
 
