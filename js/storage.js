@@ -1,3 +1,9 @@
+// ── Shared utility ─────────────────────────────
+// Single definition used by every page (previously duplicated in 4 files)
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 const Storage = {
   // ── Tasks ──────────────────────────────────────
   getTasks() {
@@ -35,9 +41,9 @@ const Storage = {
     const tasks = this.getTasks();
     const idx = tasks.findIndex(t => t.id === id);
     if (idx !== -1) {
-      tasks[idx].title = title;
+      tasks[idx].title    = title;
       tasks[idx].priority = priority;
-      tasks[idx].dueDate = dueDate;
+      tasks[idx].dueDate  = dueDate;
       this._saveTasks(tasks);
     }
   },
@@ -82,7 +88,7 @@ const Storage = {
   // ── Topics ─────────────────────────────────────
   addTopic(examId, text) {
     const exams = this.getExams();
-    const exam = exams.find(e => e.id === examId);
+    const exam  = exams.find(e => e.id === examId);
     if (!exam) return;
     exam.topics = exam.topics || [];
     exam.topics.push({ id: Date.now().toString(), text, completed: false });
@@ -90,7 +96,7 @@ const Storage = {
   },
   toggleTopic(examId, topicId) {
     const exams = this.getExams();
-    const exam = exams.find(e => e.id === examId);
+    const exam  = exams.find(e => e.id === examId);
     if (!exam) return;
     const topic = (exam.topics || []).find(t => t.id === topicId);
     if (topic) topic.completed = !topic.completed;
@@ -98,7 +104,7 @@ const Storage = {
   },
   deleteTopic(examId, topicId) {
     const exams = this.getExams();
-    const exam = exams.find(e => e.id === examId);
+    const exam  = exams.find(e => e.id === examId);
     if (!exam) return;
     exam.topics = (exam.topics || []).filter(t => t.id !== topicId);
     this._saveExams(exams);
@@ -107,8 +113,6 @@ const Storage = {
   // ── Pomodoro ───────────────────────────────────
   getPomodoroSettings() {
     try {
-      // added workSec, shortSec, longSec to defaults so they are
-      // never undefined when accessed without the || 0 fallback
       const defaults = {
         work: 25, workSec: 0,
         shortBreak: 5, shortSec: 0,
@@ -156,12 +160,12 @@ const Storage = {
   },
   addNote(title, body) {
     const notes = this.getNotes();
-    const note = {
+    const note  = {
       id: Date.now().toString(),
       title: title || 'Untitled Note',
-      body: body || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      body:  body  || '',
+      createdAt:  new Date().toISOString(),
+      updatedAt:  new Date().toISOString()
     };
     notes.unshift(note);
     this._saveNotes(notes);
@@ -169,10 +173,10 @@ const Storage = {
   },
   updateNote(id, title, body) {
     const notes = this.getNotes();
-    const idx = notes.findIndex(n => n.id === id);
+    const idx   = notes.findIndex(n => n.id === id);
     if (idx !== -1) {
-      notes[idx].title = title || 'Untitled Note';
-      notes[idx].body = body;
+      notes[idx].title     = title || 'Untitled Note';
+      notes[idx].body      = body;
       notes[idx].updatedAt = new Date().toISOString();
       this._saveNotes(notes);
     }

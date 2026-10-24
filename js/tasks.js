@@ -1,6 +1,4 @@
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+// NOTE: esc() is defined in storage.js (loaded before this file)
 
 let activeFilter = 'all';
 
@@ -11,7 +9,7 @@ function isOverdue(task) {
 }
 
 function renderTasks() {
-  const all = Storage.getTasks();
+  const all   = Storage.getTasks();
   const today = new Date(); today.setHours(0,0,0,0);
 
   let list;
@@ -24,8 +22,8 @@ function renderTasks() {
   const overdueCount = all.filter(t => isOverdue(t)).length;
   const badge = document.getElementById('overdueCount');
   if (badge) {
-    badge.textContent = overdueCount;
-    badge.style.display = overdueCount > 0 ? 'inline-block' : 'none';
+    badge.textContent    = overdueCount;
+    badge.style.display  = overdueCount > 0 ? 'inline-block' : 'none';
   }
 
   const el = document.getElementById('taskList');
@@ -49,11 +47,11 @@ function renderTasks() {
         </div>
         <div class="task-meta">
           <span class="badge badge-${t.priority}">${t.priority}</span>
-          
+
           <button class="btn btn-ghost btn-sm edit-btn" data-id="${t.id}">
             <i class="fa-solid fa-pen"></i> Edit
           </button>
-          
+
           <button class="btn btn-danger btn-sm delete-btn" data-id="${t.id}">
             <i class="fa-solid fa-trash"></i> Delete
           </button>
@@ -88,12 +86,12 @@ function renderTasks() {
 function openEditTaskModal(id) {
   const task = Storage.getTasks().find(t => t.id === id);
   if (!task) return;
-  
-  document.getElementById('editTaskId').value = task.id;
-  document.getElementById('editTaskTitle').value = task.title;
+
+  document.getElementById('editTaskId').value       = task.id;
+  document.getElementById('editTaskTitle').value    = task.title;
   document.getElementById('editTaskPriority').value = task.priority || 'medium';
-  document.getElementById('editTaskDue').value = task.dueDate || '';
-  
+  document.getElementById('editTaskDue').value      = task.dueDate || '';
+
   document.getElementById('editTaskModal').style.display = 'flex';
 }
 
@@ -114,11 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
       dueDate:  document.getElementById('taskDue').value
     });
     e.target.reset();
-    
+
     // Automatically close the accordion after adding
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
-    
+
     renderTasks();
   });
 
@@ -135,11 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Edit Task Form
   document.getElementById('editTaskForm').addEventListener('submit', e => {
     e.preventDefault();
-    const id = document.getElementById('editTaskId').value;
-    const title = document.getElementById('editTaskTitle').value.trim();
+    const id       = document.getElementById('editTaskId').value;
+    const title    = document.getElementById('editTaskTitle').value.trim();
     const priority = document.getElementById('editTaskPriority').value;
-    const dueDate = document.getElementById('editTaskDue').value;
-    
+    const dueDate  = document.getElementById('editTaskDue').value;
+
     if (!title) return;
     Storage.updateTask(id, { title, priority, dueDate });
     closeEditTaskModal();

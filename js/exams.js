@@ -1,11 +1,9 @@
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+// NOTE: esc() is defined in storage.js (loaded before this file)
 
 // ── Countdown helpers ──────────────────────────
 function getCountdown(dateStr) {
   const now     = new Date();
-  const examEnd = new Date(dateStr + 'T00:00:00'); 
+  const examEnd = new Date(dateStr + 'T00:00:00');
   examEnd.setHours(23, 59, 59, 999);
   const diff = examEnd - now;
 
@@ -17,9 +15,7 @@ function getCountdown(dateStr) {
   const mins  = Math.floor((totalSecs % 3600) / 60);
   const secs  = totalSecs % 60;
 
-  let cls = '';
-  if (days < 3) cls = 'urgent';
-
+  const cls  = days < 3 ? 'urgent' : '';
   const text = `${days}d ${hours}h ${mins}m ${secs}s left`;
   return { text, cls };
 }
@@ -31,7 +27,7 @@ function tickCountdowns() {
     if (!el) return;
     const { text, cls } = getCountdown(e.date);
     el.textContent = text;
-    el.className = 'exam-countdown-live ' + cls;
+    el.className   = 'exam-countdown-live ' + cls;
   });
 }
 
@@ -70,7 +66,7 @@ function renderExams() {
   }
 
   el.innerHTML = exams.map(exam => {
-    const { text, cls }         = getCountdown(exam.date);
+    const { text, cls }                    = getCountdown(exam.date);
     const { topicsHtml, pct, done, total } = renderTopics(exam);
     const dateFormatted = new Date(exam.date + 'T00:00:00').toLocaleDateString('en-US', {
       weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
@@ -173,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!name || !subject || !date) return;
     Storage.addExam({ name, subject, date });
     e.target.reset();
-    // close the accordion after adding, same as tasks page
+    // close the accordion after adding
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
     renderExams();
@@ -200,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderExams();
 
-  // Single delegated listener on #examList handles ALL card interactions.
+  // Single delegated listener on #examList handles ALL card interactions
   const examList = document.getElementById('examList');
 
   examList.addEventListener('click', e => {

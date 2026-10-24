@@ -1,17 +1,15 @@
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+// NOTE: esc() is defined in storage.js (loaded before this file)
 
 let use24 = localStorage.getItem('sdl-clock-24') === '1';
 
 const studyMessages = {
-  lateNight:    ["Still awake?","Night owl mode.","Still grinding?","Late-night session?","You're still here?","Midnight study mode."],
-  earlyMorning: ["Early bird mode.","Up early today?","Fresh day, fresh start.","Morning grind begins.","Coffee first?","Early start. Nice."],
-  morning:      ["Let's get productive.","Time to lock in.","Brain: online.","Ready to cook?","Let's make progress.","Study mode: ON."],
-  afternoon:    ["Still got time.","Keep it rolling.","Back to the grind.","Don't lose momentum.","Time to lock in.","Let's get it done."],
-  evening:      ["Evening grind?","Let's finish strong.","Time to lock in.","One more session?","Study mode: ON.","Let's get this done."],
-  lateEvening:  ["Still grinding?","Night mode activated.","One last push?","Almost there.","Keep going.","Lock in mode."],
-  veryLate:     ["Bro, it's late.","Still here? Respect.","Night owl spotted.","Still studying?","One last session?","Don't forget to sleep."]
+  lateNight:    ['Still awake?','Night owl mode.','Still grinding?','Late-night session?','You\'re still here?','Midnight study mode.'],
+  earlyMorning: ['Early bird mode.','Up early today?','Fresh day, fresh start.','Morning grind begins.','Coffee first?','Early start. Nice.'],
+  morning:      ['Let\'s get productive.','Time to lock in.','Brain: online.','Ready to cook?','Let\'s make progress.','Study mode: ON.'],
+  afternoon:    ['Still got time.','Keep it rolling.','Back to the grind.','Don\'t lose momentum.','Time to lock in.','Let\'s get it done.'],
+  evening:      ['Evening grind?','Let\'s finish strong.','Time to lock in.','One more session?','Study mode: ON.','Let\'s get this done.'],
+  lateEvening:  ['Still grinding?','Night mode activated.','One last push?','Almost there.','Keep going.','Lock in mode.'],
+  veryLate:     ['Bro, it\'s late.','Still here? Respect.','Night owl spotted.','Still studying?','One last session?','Don\'t forget to sleep.']
 };
 
 function getStudyMessage(h) {
@@ -51,8 +49,7 @@ function exportData() {
   a.href     = url;
   a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  // a.click() is async — the download hasn't actually started yet
-  // when the next line runs. Delay the revoke so the browser has time to
+  // a.click() is async — delay the revoke so the browser has time to
   // initiate the download before the object URL is torn down.
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
@@ -64,7 +61,7 @@ function importData(file) {
       const data = JSON.parse(e.target.result);
       const keys = Object.keys(data).filter(k => k.startsWith('sdl-'));
       if (!keys.length) { alert('Invalid backup file.'); return; }
-      if (!confirm(`This will overwrite your current data. Continue?`)) return;
+      if (!confirm('This will overwrite your current data. Continue?')) return;
       keys.forEach(k => localStorage.setItem(k, data[k]));
       alert('Import successful!');
       location.reload();
@@ -127,9 +124,9 @@ function initStats() {
 
   const next = exams.find(e => new Date(e.date + 'T00:00:00') >= today);
   if (next) {
-    // use Math.round instead of Math.ceil — DST transitions can make
-    // the difference a non-integer (e.g. 0.958 days), causing Math.ceil to
-    // return 1 when the correct answer is 0 (today), or 2 when it should be 1.
+    // Math.round instead of Math.ceil — DST transitions can make the difference
+    // a non-integer (e.g. 0.958 days), causing Math.ceil to return 1 when the
+    // correct answer is 0 (today).
     const diff = Math.round((new Date(next.date + 'T00:00:00') - today) / 864e5);
     document.getElementById('statExam').textContent = diff === 0 ? 'Today' : diff + 'd';
   } else {
@@ -162,7 +159,11 @@ function initRecentTasks() {
   el.querySelectorAll('.task-checkbox').forEach(cb => {
     cb.addEventListener('change', () => {
       Storage.toggleTask(cb.dataset.id);
-      setTimeout(() => location.reload(), 250);
+      // FIX: Replace location.reload() with targeted re-renders. The full-page
+      // reload was slow, reset scroll position, and caused a visible flash.
+      // Re-rendering only the affected widgets is instant and seamless.
+      initStats();
+      initRecentTasks();
     });
   });
 }

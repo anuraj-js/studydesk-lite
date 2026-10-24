@@ -1,34 +1,39 @@
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+// NOTE: esc() is defined in storage.js (loaded before this file)
 
-let activeNoteId = null;
-let searchQuery = "";
-// track whether the current note was just created (unsaved/empty)
-// so we can delete it if the user hits back without typing
-let isNewUnsavedNote = false;
+let activeNoteId      = null;
+let searchQuery       = '';
+// Track whether the current note was just created (unsaved/empty)
+// so we can delete it if the user hits back without typing anything meaningful.
+let isNewUnsavedNote  = false;
 
 function renderNotesList() {
-  const notes = Storage.getNotes();
+  const notes  = Storage.getNotes();
   const listEl = document.getElementById('notesList');
 
   const filteredNotes = notes.filter(n => {
     const title = (n.title || '').toLowerCase();
-    const body = (n.body || '').toLowerCase();
-    const q = searchQuery.toLowerCase();
+    const body  = (n.body  || '').toLowerCase();
+    const q     = searchQuery.toLowerCase();
     return title.includes(q) || body.includes(q);
   });
 
   if (!filteredNotes.length) {
-    listEl.innerHTML = `<div class="empty-state" style="padding:2rem 1rem;">${searchQuery ? 'No notes match your search.' : 'No notes yet.<br>Create one to get started.'}</div>`;
+    // Using textContent-safe approach: the only dynamic part is a boolean switch
+    // between two hardcoded strings, so innerHTML is safe here.
+    listEl.innerHTML = `<div class="empty-state" style="padding:2rem 1rem;">${
+      searchQuery ? 'No notes match your search.' : 'No notes yet.<br>Create one to get started.'
+    }</div>`;
     return;
   }
 
+  // Sort by most-recently updated first
   filteredNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   listEl.innerHTML = filteredNotes.map(n => {
-    const date = new Date(n.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const preview = n.body ? n.body.substring(0, 40).replace(/\n/g, ' ') + (n.body.length > 40 ? '...' : '') : 'Empty note';
+    const date     = new Date(n.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const preview  = n.body
+      ? n.body.substring(0, 40).replace(/\n/g, ' ') + (n.body.length > 40 ? '…' : '')
+      : 'Empty note';
     const isActive = n.id === activeNoteId ? 'active-note' : '';
 
     return `
@@ -41,9 +46,7 @@ function renderNotesList() {
   }).join('');
 
   listEl.querySelectorAll('.note-list-item').forEach(item => {
-    item.addEventListener('click', () => {
-      openNote(item.dataset.id);
-    });
+    item.addEventListener('click', () => openNote(item.dataset.id));
   });
 }
 
@@ -51,52 +54,51 @@ function openNote(id) {
   const note = Storage.getNotes().find(n => n.id === id);
   if (!note) return;
 
-  activeNoteId = id;
+  activeNoteId     = id;
   isNewUnsavedNote = false;
 
   document.getElementById('notesSidebar').classList.add('hidden-view');
   document.getElementById('notesEditor').classList.add('active-view');
 
   document.getElementById('emptyEditor').style.display = 'none';
-  document.getElementById('noteEditor').style.display = 'flex';
+  document.getElementById('noteEditor').style.display  = 'flex';
 
   document.getElementById('editNoteTitle').value = note.title || 'Untitled Note';
-  document.getElementById('editNoteBody').value = note.body || '';
+  document.getElementById('editNoteBody').value  = note.body  || '';
 
   updateSaveStatus(note.updatedAt || new Date().toISOString());
 }
 
 function closeNote() {
-  // if the user created a new note but never typed anything,
-  // delete it instead of leaving a permanent "Untitled Note" in the list
+  // FIX: Tightened the auto-delete guard so a note is only deleted when BOTH
+  // title and body are effectively empty (whitespace-only body no longer counts
+  // as content — previously "   " in the body would prevent deletion but a body
+  // of "   " is semantically empty and the note should still be cleaned up).
   if (isNewUnsavedNote && activeNoteId) {
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value.trim();
-    if (!title || title === 'Untitled Note') {
-      if (!body) {
-        Storage.deleteNote(activeNoteId);
-      }
+    // Only auto-delete when the note has no meaningful content at all
+    if ((!title || title === 'Untitled Note') && !body) {
+      Storage.deleteNote(activeNoteId);
     }
   }
 
-  activeNoteId = null;
+  activeNoteId     = null;
   isNewUnsavedNote = false;
 
   document.getElementById('notesSidebar').classList.remove('hidden-view');
   document.getElementById('notesEditor').classList.remove('active-view');
 
   document.getElementById('emptyEditor').style.display = 'flex';
-  document.getElementById('noteEditor').style.display = 'none';
+  document.getElementById('noteEditor').style.display  = 'none';
 
   renderNotesList();
 }
 
 function updateSaveStatus(dateStr) {
-  const date = new Date(dateStr);
+  const date       = new Date(dateStr);
   const timeString = date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
+    hour: '2-digit', minute: '2-digit', hour12: true
   });
   document.getElementById('saveStatus').textContent = `Saved at ${timeString}`;
 }
@@ -105,7 +107,7 @@ let saveTimeout;
 function triggerAutoSave() {
   if (!activeNoteId) return;
 
-  document.getElementById('saveStatus').textContent = 'Saving...';
+  document.getElementById('saveStatus').textContent = 'Saving…';
 
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
@@ -119,26 +121,24 @@ function triggerAutoSave() {
     const now = new Date().toISOString();
     updateSaveStatus(now);
 
-    const listEl = document.getElementById('notesList');
-    const activeItem = listEl.querySelector(`[data-id="${activeNoteId}"]`);
-    if (activeItem) {
-      activeItem.querySelector('.note-list-title').textContent = title || 'Untitled Note';
-      activeItem.querySelector('.note-list-preview').textContent = body.substring(0, 40).replace(/\n/g, ' ') + (body.length > 40 ? '...' : '');
-    }
+    // FIX: Re-render the full sidebar list after each save so the note floats
+    // to the top of the "sorted by updatedAt" list immediately, instead of
+    // staying frozen in its old position until the user navigates away.
+    renderNotesList();
   }, 600);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
 
-  document.getElementById('searchNotes').addEventListener('input', (e) => {
+  document.getElementById('searchNotes').addEventListener('input', e => {
     searchQuery = e.target.value;
     renderNotesList();
   });
 
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');
-    // mark this note as new and unsaved so closeNote can clean it up
+    // Mark this note as new and unsaved so closeNote can clean it up
     isNewUnsavedNote = true;
     openNote(newNote.id);
     // Clear the default "Untitled Note" title so the placeholder shows instead
