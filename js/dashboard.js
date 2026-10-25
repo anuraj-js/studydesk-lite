@@ -129,7 +129,8 @@ function initStats() {
   document.getElementById('statPending').textContent   = tasks.filter(t => !t.completed).length;
   document.getElementById('statCompleted').textContent = tasks.filter(t =>  t.completed).length;
 
-  const next = exams.find(e => new Date(e.date + 'T00:00:00') >= today);
+  const now = new Date();
+  const next = exams.find(e => new Date(e.date + 'T' + (e.time || '23:59')) >= now);
   if (next) {
     const diff = Math.round((new Date(next.date + 'T00:00:00') - today) / 864e5);
     document.getElementById('statExam').textContent = diff === 0 ? 'Today' : diff + 'd';
@@ -174,7 +175,7 @@ function initUpcomingExams() {
   const today = new Date(); today.setHours(0,0,0,0);
 
   const exams = Storage.getExams()
-    .filter(e => new Date(e.date + 'T00:00:00') >= today)
+    .filter(e => new Date(e.date + 'T' + (e.time || '23:59')) >= new Date())
     .slice(0, 4);
 
   if (!exams.length) {

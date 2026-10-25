@@ -167,9 +167,6 @@ function applySettings() {
   cfg.longBreakAfter = parseInt(document.getElementById('setLongAfter').value) || 4;
   Storage.savePomodoroSettings(cfg);
 
-  // FIX: only reset doneWork if the user actually changed the longBreakAfter
-  // value. Previously this reset on *any* setting change, which could skip
-  // the long break if you were 3 sessions in and tweaked the short-break length.
   if (!running) {
     total      = modeSecs();
     left       = total;
