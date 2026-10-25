@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v27';
+const CACHE = 'sdl-v28';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -27,6 +27,7 @@ const STATIC = [
   './images/studydesk_lite_logo.svg',
   './images/icon-192.png',
   './images/icon-512.png',
+  './sound.mp3',
   `${FA_BASE}/css/all.min.css`,
   `${FA_BASE}/webfonts/fa-solid-900.woff2`,
   `${FA_BASE}/webfonts/fa-regular-400.woff2`,
