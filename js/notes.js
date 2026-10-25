@@ -69,14 +69,22 @@ function openNote(id) {
 }
 
 function closeNote() {
-  // FIX: Tightened the auto-delete guard so a note is only deleted when BOTH
-  // title and body are effectively empty (whitespace-only body no longer counts
-  // as content — previously "   " in the body would prevent deletion but a body
-  // of "   " is semantically empty and the note should still be cleaned up).
+  // Flush any pending debounced save immediately before nulling activeNoteId,
+  // so content typed within the 600ms window is not silently lost.
+  if (activeNoteId) {
+    clearTimeout(saveTimeout);
+    const title = document.getElementById('editNoteTitle').value.trim();
+    const body  = document.getElementById('editNoteBody').value;
+    if (title || body.trim()) {
+      Storage.updateNote(activeNoteId, title, body);
+      isNewUnsavedNote = false;
+    }
+  }
+
+  // Auto-delete guard: remove the note if it was newly created and has no meaningful content.
   if (isNewUnsavedNote && activeNoteId) {
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value.trim();
-    // Only auto-delete when the note has no meaningful content at all
     if ((!title || title === 'Untitled Note') && !body) {
       Storage.deleteNote(activeNoteId);
     }

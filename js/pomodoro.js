@@ -232,7 +232,6 @@ function reset() {
 function skip() {
   clearInterval(tick);
   running = false;
-  left    = 0;
 
   // Silently advance mode, no dialog, no alarm
   if (mode === 'work') {
@@ -283,9 +282,10 @@ window.addEventListener('beforeunload', (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  cfg   = Storage.getPomodoroSettings();
-  total = cfg.work * 60 + (cfg.workSec || 0);
-  left  = total;
+  cfg      = Storage.getPomodoroSettings();
+  doneWork = Storage.getTodaySessions();
+  total    = cfg.work * 60 + (cfg.workSec || 0);
+  left     = total;
 
   document.getElementById('startBtn').addEventListener('click', startPause);
   document.getElementById('resetBtn').addEventListener('click', reset);
