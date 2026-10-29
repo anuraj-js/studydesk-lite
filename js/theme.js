@@ -9,13 +9,21 @@ function initTheme() {
 
   function syncBtn() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    btn.innerHTML = isDark
-      ? '<i class="fa-solid fa-sun"></i>'
-      : '<i class="fa-solid fa-moon"></i>';
+
+    // Only inject the knob once, on first call
+    if (!btn.querySelector('.toggle-knob')) {
+      btn.innerHTML = `<span class="toggle-knob"><i class="fa-solid fa-moon"></i></span>`;
+    }
+
+    // Just swap the icon class, never touch the knob element itself
+    const icon = btn.querySelector('.toggle-knob i');
+    icon.className = `fa-solid ${isDark ? 'fa-sun' : 'fa-moon'}`;
+
     btn.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
   }
 
   syncBtn();
+
   btn.addEventListener('click', () => {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);

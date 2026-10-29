@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v29';
+const CACHE = 'sdl-v30';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
