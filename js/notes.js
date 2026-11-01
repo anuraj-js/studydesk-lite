@@ -114,12 +114,11 @@ let saveTimeout;
 function triggerAutoSave() {
   if (!activeNoteId) return;
 
-  document.getElementById('saveStatus').textContent = 'Saving…';
-
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value;
+    document.getElementById('saveStatus').textContent = 'Saving…';
     Storage.updateNote(activeNoteId, title, body);
 
     // Once the user has actually typed something, it's no longer "unsaved new"
@@ -169,4 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('editNoteTitle').addEventListener('input', triggerAutoSave);
   document.getElementById('editNoteBody').addEventListener('input', triggerAutoSave);
+
+   // Ctrl+S / Cmd+S manual save
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      if (!activeNoteId) return;
+
+      clearTimeout(saveTimeout);
+      const title = document.getElementById('editNoteTitle').value.trim();
+      const body  = document.getElementById('editNoteBody').value;
+      Storage.updateNote(activeNoteId, title, body);
+      isNewUnsavedNote = false;
+
+      updateSaveStatus(new Date().toISOString());
+      renderNotesList();
+    }
+  });
 });
