@@ -114,11 +114,12 @@ let saveTimeout;
 function triggerAutoSave() {
   if (!activeNoteId) return;
 
+  document.getElementById('saveStatus').textContent = 'Saving…';
+  
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value;
-    document.getElementById('saveStatus').textContent = 'Saving…';
     Storage.updateNote(activeNoteId, title, body);
 
     // Once the user has actually typed something, it's no longer "unsaved new"
