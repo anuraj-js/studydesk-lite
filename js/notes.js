@@ -69,13 +69,13 @@ function openNote(id) {
 }
 
 function closeNote() {
-  // Flush any pending debounced save immediately before nulling activeNoteId,
-  // so content typed within the 600ms window is not silently lost.
   if (activeNoteId) {
     clearTimeout(saveTimeout);
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value;
-    if (title || body.trim()) {
+    const note  = Storage.getNotes().find(n => n.id === activeNoteId);
+    const changed = note && (title !== (note.title || 'Untitled Note') || body !== (note.body || ''));
+    if (changed) {
       Storage.updateNote(activeNoteId, title, body);
       isNewUnsavedNote = false;
     }
