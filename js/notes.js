@@ -103,11 +103,20 @@ function closeNote() {
 }
 
 function updateSaveStatus(dateStr) {
-  const date       = new Date(dateStr);
+  const date    = new Date(dateStr);
+  const today   = new Date();
+  const isToday = date.toDateString() === today.toDateString();
+
   const timeString = date.toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit', hour12: true
   });
-  document.getElementById('saveStatus').textContent = `Saved at ${timeString}`;
+
+  if (isToday) {
+    document.getElementById('saveStatus').textContent = `Saved at ${timeString}`;
+  } else {
+    const dateString = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    document.getElementById('saveStatus').textContent = `Saved at ${dateString}, ${timeString}`;
+  }
 }
 
 let saveTimeout;
