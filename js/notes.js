@@ -195,4 +195,19 @@ document.addEventListener('DOMContentLoaded', () => {
       renderNotesList();
     }
   });
+
+  document.getElementById('editNoteBody').addEventListener('paste', e => {
+    const titleEl = document.getElementById('editNoteTitle');
+    if (titleEl.value.trim() && titleEl.value.trim() !== 'Untitled Note') return;
+
+    setTimeout(() => {
+      const body  = document.getElementById('editNoteBody').value;
+      const lines = body.split('\n');
+      if (lines.length > 1 && lines[0].trim()) {
+        titleEl.value = lines[0].trim();
+        document.getElementById('editNoteBody').value = lines.slice(1).join('\n').trimStart();
+        triggerAutoSave();
+      }
+    }, 0);
+  });
 });
