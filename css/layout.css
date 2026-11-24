@@ -1,4 +1,18 @@
-/* ── Navbar ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ── Navbar (Desktop) ── */
 .navbar {
   display: flex;
   align-items: center;
@@ -22,27 +36,28 @@
   width: auto;
 }
 
-.hamburger {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  z-index: 102;
-}
-
 .nav-menu {
   display: flex;
   align-items: center;
   flex: 1;
+  justify-content: space-between; /* Pushes links to center, actions to right */
 }
 
 .nav-links {
   display: flex;
   gap: 0.25rem;
-  margin: 0 auto;
+  /* Removed margin: 0 auto; and replaced with absolute centering */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Ensure the actions stay on the right */
+.nav-right-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
 }
 
 .nav-links a {
@@ -66,6 +81,164 @@
   align-items: center;
 }
 
+/* ── Hamburger Button ── */
+.hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  z-index: 1002;
+  margin-left: auto; 
+}
+
+/* ── Mobile Sidebar ── */
+.mobile-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100dvh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.mobile-sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.1rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar-close-btn:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.sidebar-profile {
+  text-align: center;
+  padding: 2.5rem 1rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-avatar {
+  width: 64px;
+  height: 64px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 1rem;
+}
+
+.sidebar-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.sidebar-email {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  word-break: break-all;
+}
+
+.sidebar-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-heading {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.5rem;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover {
+  background: var(--surface2);
+}
+
+.sidebar-link.active {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sidebar-link i {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.sidebar-link.active i {
+  color: var(--accent);
+}
+
+.sidebar-theme-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.sidebar-theme-toggle span {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-theme-toggle i {
+  width: 20px;
+  text-align: center;
+}
+
 /* ── Theme Toggle Button ── */
 .theme-btn {
   position: relative;
@@ -78,12 +251,8 @@
   display: flex;
   align-items: center;
   background: var(--toggle-bg);
-  transition: background 0.5s ease, opacity 0.2s ease;
+  transition: background 0.5s ease;
   flex-shrink: 0;
-}
-
-.theme-btn:hover {
-  opacity: 0.85;
 }
 
 .toggle-knob {
@@ -95,28 +264,26 @@
   align-items: center;
   justify-content: center;
   font-size: 0.7rem;
-  color: var(--toggle-knob-color);
+  color: var(--toggle-knob-color); 
   transition: transform 0.5s ease, color 0.5s ease;
   flex-shrink: 0;
   pointer-events: none;
 }
 
-[data-theme="dark"] .toggle-knob {
-  transform: translateX(0);
+.toggle-knob i {
+  font-size: 13px; 
 }
 
-[data-theme="light"] .toggle-knob {
-  transform: translateX(26px);
-}
+[data-theme="dark"] .toggle-knob { transform: translateX(0); }
+[data-theme="light"] .toggle-knob { transform: translateX(26px); }
 
-/* ── Container ── */
+/* ── Container & Utilities ── */
 .container {
   max-width: 760px;
   margin: 0 auto;
   padding: 1.25rem 1rem;
 }
 
-/* ── Cards ── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -125,7 +292,6 @@
   margin-bottom: 1rem;
 }
 
-/* ── Utility ── */
 .row {
   display: flex;
   justify-content: space-between;
