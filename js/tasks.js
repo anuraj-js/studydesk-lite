@@ -1,6 +1,7 @@
-// NOTE: esc(), isPastDate(), and showToast/showDialog are defined in utils.js and other scripts loaded before this file.
+// NOTE: esc(), isPastDate(), highlightText(), and showToast/showDialog are defined in utils.js and other scripts loaded before this file.
 
 let activeFilter = 'all';
+let searchQuery = '';
 
 function isOverdue(task) {
   if (task.completed || !task.dueDate) return false;
@@ -9,13 +10,20 @@ function isOverdue(task) {
 }
 
 function renderTasks() {
-  const all   = Storage.getTasks();
+  const all = Storage.getTasks();
 
+  // 1. Apply Status Filter
   let list;
   if      (activeFilter === 'active')    list = all.filter(t => !t.completed);
   else if (activeFilter === 'completed') list = all.filter(t =>  t.completed);
   else if (activeFilter === 'overdue')   list = all.filter(t => isOverdue(t));
   else                                   list = all;
+
+  // 2. Apply Search Query
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(t => t.title.toLowerCase().includes(q));
+  }
 
   // Update overdue tab count badge
   const overdueCount = all.filter(t => isOverdue(t)).length;
@@ -28,17 +36,22 @@ function renderTasks() {
   const el = document.getElementById('taskList');
 
   if (!list.length) {
-    el.innerHTML = `<div class="empty-state">${activeFilter === 'overdue' ? 'No overdue tasks' : 'Nothing here'}</div>`;
+    const emptyMsg = searchQuery 
+      ? 'No tasks match your search' 
+      : (activeFilter === 'overdue' ? 'No overdue tasks' : 'Nothing here');
+    el.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
     return;
   }
 
   el.innerHTML = list.map(t => {
     const overdue = isOverdue(t);
+    const highlightedTitle = highlightText(t.title, searchQuery); 
+
     return `
       <div class="task-item ${t.completed ? 'completed' : ''}">
         <input type="checkbox" class="task-checkbox" data-id="${t.id}" ${t.completed ? 'checked' : ''} />
         <div class="task-content">
-          <div class="task-title">${esc(t.title)}</div>
+          <div class="task-title">${highlightedTitle}</div>
           ${t.dueDate ? `<div class="task-due ${overdue ? 'overdue' : ''}">
             <i class="fa-regular fa-calendar"></i> ${t.dueDate}
             ${overdue ? ' &middot; <strong>Overdue</strong>' : ''}
@@ -46,11 +59,9 @@ function renderTasks() {
         </div>
         <div class="task-meta">
           <span class="badge badge-${t.priority}">${t.priority}</span>
-
           <button class="btn btn-ghost btn-sm edit-btn" data-id="${t.id}">
             <i class="fa-solid fa-pen"></i> Edit
           </button>
-
           <button class="btn btn-danger btn-sm delete-btn" data-id="${t.id}">
             <i class="fa-solid fa-trash"></i> Delete
           </button>
@@ -112,6 +123,15 @@ document.addEventListener('DOMContentLoaded', () => {
       input.setAttribute('min', todayStr);
   });
 
+  // Search Input
+  const searchInput = document.getElementById('searchTask');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderTasks();
+    });
+  }
+
   // Add Task Form
   document.getElementById('taskForm').addEventListener('submit', e => {
     e.preventDefault();
@@ -133,9 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
       priority: document.getElementById('taskPriority').value,
       dueDate: dueDate
     });
+    
     e.target.reset();
+    if (searchInput) searchInput.value = '';
+    searchQuery = '';
 
-    // Automatically close the accordion after adding
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
 

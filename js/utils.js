@@ -76,3 +76,16 @@ function isPastDateTime(dateString, timeString) {
     
     return selected < localNowStr;
 }
+
+/**
+ * Escapes text and highlights the matching search query.
+ */
+function highlightText(text, query) {
+    if (!query) return esc(text);
+    
+    const escapedText = esc(text);
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    
+    return escapedText.replace(regex, '<span class="search-highlight">$1</span>');
+}

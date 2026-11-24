@@ -1,4 +1,6 @@
-// NOTE: esc(), isPastDateTime(), and showToast/showDialog are defined in utils.js and other scripts loaded before this file.
+// NOTE: esc(), isPastDateTime(), highlightText(), and showToast/showDialog are defined in utils.js and other scripts loaded before this file.
+
+let searchQuery = '';
 
 // ── Countdown helpers ──────────────────────────
 function getCountdown(dateStr, timeStr) {
@@ -19,7 +21,6 @@ function getCountdown(dateStr, timeStr) {
   return { text, cls };
 }
 
-// ── Tick: update only countdown spans ──────────
 function tickCountdowns() {
   Storage.getExams().forEach(e => {
     const el = document.getElementById('countdown-' + e.id);
@@ -30,7 +31,6 @@ function tickCountdowns() {
   });
 }
 
-// ── Render topic list for one exam ─────────────
 function renderTopics(exam) {
   const topics = exam.topics || [];
   const done   = topics.filter(t => t.completed).length;
@@ -54,18 +54,27 @@ function renderTopics(exam) {
   return { topicsHtml, pct, done, total };
 }
 
-// ── Render all exam cards ──────────────────────
 function renderExams() {
-  const exams = Storage.getExams();
-  const el    = document.getElementById('examList');
+  const allExams = Storage.getExams();
+  const el       = document.getElementById('examList');
+
+  // Apply Search Filter
+  let exams = allExams;
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    exams = exams.filter(e => 
+      e.subject.toLowerCase().includes(q) || 
+      e.name.toLowerCase().includes(q)
+    );
+  }
 
   if (!exams.length) {
-    el.innerHTML = '<div class="empty-state">No exams added yet</div>';
+    el.innerHTML = `<div class="empty-state">${searchQuery ? 'No exams match your search' : 'No exams added yet'}</div>`;
     return;
   }
 
   el.innerHTML = exams.map(exam => {
-    const { text, cls }                    = getCountdown(exam.date, exam.time);
+    const { text, cls } = getCountdown(exam.date, exam.time);
     const { topicsHtml, pct, done, total } = renderTopics(exam);
     
     const dateFormatted = new Date(exam.date + 'T00:00:00').toLocaleDateString('en-US', {
@@ -76,12 +85,15 @@ function renderExams() {
       ? new Date(exam.date + 'T' + exam.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
       : '';
 
+    const highlightedSubject = highlightText(exam.subject, searchQuery);
+    const highlightedName = highlightText(exam.name, searchQuery);
+
     return `
       <div class="card exam-card" data-exam-id="${exam.id}">
         <div class="exam-card-header">
           <div>
-            <div class="exam-subject-title">${esc(exam.subject)}</div>
-            <div class="exam-name-label">${esc(exam.name)} &middot; ${dateFormatted} ${timeFormatted ? 'at ' + timeFormatted : ''}</div>
+            <div class="exam-subject-title">${highlightedSubject}</div>
+            <div class="exam-name-label">${highlightedName} &middot; ${dateFormatted} ${timeFormatted ? 'at ' + timeFormatted : ''}</div>
           </div>
           <div class="exam-actions">
             <button class="btn btn-ghost btn-sm edit-btn" data-id="${exam.id}">
@@ -116,7 +128,6 @@ function renderExams() {
   }).join('');
 }
 
-// ── Refresh topics section without full re-render ──
 function refreshTopics(examId) {
   const exam = Storage.getExams().find(e => e.id === examId);
   if (!exam) return;
@@ -149,7 +160,6 @@ function addTopicFromInput(examId) {
   refreshTopics(examId);
 }
 
-// ── Edit Modal ─────────────────────────────────
 function openEditModal(id) {
   const exam = Storage.getExams().find(e => e.id === id);
   if (!exam) return;
@@ -166,13 +176,20 @@ function closeEditModal() {
   document.getElementById('editExamForm').reset();
 }
 
-// ── Init ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Set the 'min' attribute on all date inputs to today
   const todayStr = new Date().toISOString().split('T')[0];
   document.querySelectorAll('.date-input').forEach(input => {
       input.setAttribute('min', todayStr);
   });
+
+  // Search Input
+  const searchInput = document.getElementById('searchExam');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderExams();
+    });
+  }
 
   document.getElementById('examForm').addEventListener('submit', e => {
     e.preventDefault();
@@ -193,6 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     Storage.addExam({ name, subject, date, time });
     e.target.reset();
+    if (searchInput) searchInput.value = '';
+    searchQuery = '';
+
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
     renderExams();
