@@ -2,9 +2,8 @@
 
 let activeNoteId      = null;
 let searchQuery       = '';
-// Track whether the current note was just created (unsaved/empty)
-// so we can delete it if the user hits back without typing anything meaningful.
 let isNewUnsavedNote  = false;
+let saveTimeout;
 
 function renderNotesList() {
   const notes  = Storage.getNotes();
@@ -25,7 +24,6 @@ function renderNotesList() {
     return;
   }
 
-  // Sort by most-recently updated first
   filteredNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   listEl.innerHTML = filteredNotes.map(n => {
@@ -81,7 +79,6 @@ function closeNote() {
     }
   }
 
-  // Auto-delete guard: remove the note if it was newly created and has no meaningful content.
   if (isNewUnsavedNote && activeNoteId) {
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value.trim();
@@ -119,7 +116,6 @@ function updateSaveStatus(dateStr) {
   }
 }
 
-let saveTimeout;
 function triggerAutoSave() {
   if (!activeNoteId) return;
 
@@ -131,15 +127,8 @@ function triggerAutoSave() {
     const body  = document.getElementById('editNoteBody').value;
     Storage.updateNote(activeNoteId, title, body);
 
-    // Once the user has actually typed something, it's no longer "unsaved new"
     isNewUnsavedNote = false;
-
-    const now = new Date().toISOString();
-    updateSaveStatus(now);
-
-    // FIX: Re-render the full sidebar list after each save so the note floats
-    // to the top of the "sorted by updatedAt" list immediately, instead of
-    // staying frozen in its old position until the user navigates away.
+    updateSaveStatus(new Date().toISOString());
     renderNotesList();
   }, 600);
 }
@@ -147,8 +136,6 @@ function triggerAutoSave() {
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
 
-  // FIX: Clear the pending autosave timer if the user navigates away mid-debounce,
-  // preventing a stale save from firing after the page has begun unloading.
   window.addEventListener('beforeunload', () => clearTimeout(saveTimeout));
 
   document.getElementById('searchNotes').addEventListener('input', e => {
@@ -158,19 +145,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');
-    // Mark this note as new and unsaved so closeNote can clean it up
     isNewUnsavedNote = true;
     openNote(newNote.id);
-    // Clear the default "Untitled Note" title so the placeholder shows instead
     document.getElementById('editNoteTitle').value = '';
     setTimeout(() => document.getElementById('editNoteTitle').focus(), 100);
   });
 
   document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-    if (activeNoteId && confirm('Delete this note permanently?')) {
-      Storage.deleteNote(activeNoteId);
-      isNewUnsavedNote = false;
-      closeNote();
+    if (activeNoteId) {
+      showDialog({
+        title: 'Delete Note',
+        message: 'Delete this note permanently?',
+        confirmText: 'Delete',
+        onConfirm: () => {
+          Storage.deleteNote(activeNoteId);
+          isNewUnsavedNote = false;
+          closeNote();
+          showToast('Note deleted.', 'success');
+        }
+      });
     }
   });
 
@@ -179,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('editNoteTitle').addEventListener('input', triggerAutoSave);
   document.getElementById('editNoteBody').addEventListener('input', triggerAutoSave);
 
-   // Ctrl+S / Cmd+S manual save
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -193,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       updateSaveStatus(new Date().toISOString());
       renderNotesList();
+      showToast('Note saved.', 'success');
     }
   });
 

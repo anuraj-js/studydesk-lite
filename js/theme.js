@@ -4,7 +4,6 @@
 })();
 
 function initTheme() {
-  // Since nav is injected dynamically, we look for both desktop and mobile toggles
   const buttons = [
     document.getElementById('themeToggle'),
     document.getElementById('themeToggleMobile')
@@ -37,7 +36,38 @@ function initTheme() {
   });
 }
 
-// Wait for DOM to load, then wait a tiny bit for nav.js to inject the HTML
+function initReset() {
+  const btn = document.getElementById('resetAll');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    showDialog({
+      title: 'Reset All Data',
+      message: 'This will permanently delete ALL your tasks, exams, and settings. Are you sure?',
+      confirmText: 'Reset Everything',
+      onConfirm: () => {
+        Object.keys(localStorage)
+          .filter(k => k.startsWith('sdl-'))
+          .forEach(k => localStorage.removeItem(k));
+
+        const isSubfolder = window.location.pathname.includes('/html/');
+        location.href = isSubfolder ? '../index.html' : './index.html';
+      }
+    });
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const isSubfolder = window.location.pathname.includes('/html/');
+    const swPath = isSubfolder ? '../sw.js' : './sw.js';
+
+    navigator.serviceWorker.register(swPath).catch((err) => {
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(initTheme, 10); 
+  initReset();
 });

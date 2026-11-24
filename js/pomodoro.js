@@ -1,4 +1,4 @@
-// ── State — all declared here but initialised inside DOMContentLoaded ──────
+// ── State ──────
 let cfg;
 let mode       = 'work';
 let total      = 0;
@@ -7,13 +7,10 @@ let running    = false;
 let tick       = null;
 let doneWork   = 0;
 let beepInterval = null;
-
 let endTime    = null;
 let pausedLeft = null;
 
 const DEFAULT_TITLE = 'Pomodoro · StudyDesk Lite';
-
-// Audio element for the alarm sound
 const alarmAudio = new Audio('../sound.mp3');
 alarmAudio.loop = true;
 
@@ -41,7 +38,6 @@ function render() {
 
   const pct = total > 0 ? ((total - left) / total) * 100 : 0;
   document.getElementById('progressBar').style.width = pct + '%';
-  // Note: document.title is no longer updated here. It only updates when the timer is actively running.
 }
 
 function notify(msg) {
@@ -172,7 +168,6 @@ function onComplete() {
   pausedLeft = null;
   running    = false;
   
-  // Revert the title when the timer finishes
   document.title = DEFAULT_TITLE; 
   render();
 }
@@ -182,12 +177,10 @@ function startPause() {
     clearInterval(tick);
     running    = false;
     pausedLeft = left;
-    
-    // Revert the title when paused
     document.title = DEFAULT_TITLE;
   } else {
     if (total === 0) {
-      alert('Please set a duration greater than 0 seconds before starting.');
+      showToast('Please set a duration greater than 0 seconds.', 'warning');
       return;
     }
 
@@ -208,7 +201,6 @@ function startPause() {
         return;
       }
       
-      // Only update the title while the timer is actively running
       document.title = fmt(left) + ' · StudyDesk Lite';
       render();
     }, 250);
@@ -223,8 +215,6 @@ function reset() {
   left       = total;
   endTime    = null;
   pausedLeft = null;
-  
-  // Revert the title when reset
   document.title = DEFAULT_TITLE;
   render();
 }
@@ -233,7 +223,6 @@ function skip() {
   clearInterval(tick);
   running = false;
 
-  // Silently advance mode, no dialog, no alarm
   if (mode === 'work') {
     doneWork++;
     Storage.recordSession();
@@ -246,8 +235,6 @@ function skip() {
   left       = total;
   endTime    = null;
   pausedLeft = null;
-  
-  // Revert the title when skipped
   document.title = DEFAULT_TITLE;
   render();
 }
@@ -271,13 +258,10 @@ function applySettings() {
   }
 }
 
-// ── Leave Warning Logic ──
-// This triggers ONLY when the timer is running and the user tries to close, refresh, or navigate.
 window.addEventListener('beforeunload', (e) => {
   if (running) {
-    // Modern browsers ignore custom messages, but this is the required standard to trigger the popup
     e.preventDefault();
-    e.returnValue = ''; // Legacy fallback for browsers lacking preventDefault support
+    e.returnValue = '';
   }
 });
 
@@ -300,12 +284,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('setLongAfter').value = cfg.longBreakAfter;
 
   document.getElementById('resetSessions').addEventListener('click', () => {
-    if (confirm('Reset today\'s session count?')) {
-      localStorage.removeItem('sdl-pomo-date');
-      localStorage.removeItem('sdl-pomo-count');
-      doneWork = 0;
-      location.reload();
-    }
+    showDialog({
+      title: 'Reset Sessions',
+      message: 'Are you sure you want to reset today\'s focus session count to 0?',
+      confirmText: 'Reset',
+      onConfirm: () => {
+        localStorage.removeItem('sdl-pomo-date');
+        localStorage.removeItem('sdl-pomo-count');
+        doneWork = 0;
+        location.reload();
+      }
+    });
   });
 
   ['setWork','setWorkSec','setShort','setShortSec','setLong','setLongSec','setLongAfter'].forEach(id => {

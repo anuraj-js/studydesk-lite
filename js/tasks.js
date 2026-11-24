@@ -70,10 +70,16 @@ function renderTasks() {
 
   el.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (confirm('Delete this task?')) {
-        Storage.deleteTask(btn.dataset.id);
-        renderTasks();
-      }
+      showDialog({
+        title: 'Delete Task',
+        message: 'Are you sure you want to delete this task?',
+        confirmText: 'Delete',
+        onConfirm: () => {
+          Storage.deleteTask(btn.dataset.id);
+          renderTasks();
+          showToast('Task deleted.', 'success');
+        }
+      });
     });
   });
 
@@ -105,7 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('taskForm').addEventListener('submit', e => {
     e.preventDefault();
     const title = document.getElementById('taskTitle').value.trim();
-    if (!title) return;
+    if (!title) {
+      showToast('Task title is required.', 'error');
+      return;
+    }
+    
     Storage.addTask({
       title,
       priority: document.getElementById('taskPriority').value,
@@ -118,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (details) details.removeAttribute('open');
 
     renderTasks();
+    showToast('Task added successfully.', 'success');
   });
 
   // Filter Tabs
@@ -138,10 +149,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const priority = document.getElementById('editTaskPriority').value;
     const dueDate  = document.getElementById('editTaskDue').value;
 
-    if (!title) return;
+    if (!title) {
+      showToast('Task title is required.', 'error');
+      return;
+    }
+    
     Storage.updateTask(id, { title, priority, dueDate });
     closeEditTaskModal();
     renderTasks();
+    showToast('Task updated.', 'success');
   });
 
   // Modal Close Buttons

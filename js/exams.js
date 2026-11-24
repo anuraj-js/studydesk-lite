@@ -3,7 +3,6 @@
 // ── Countdown helpers ──────────────────────────
 function getCountdown(dateStr, timeStr) {
   const now     = new Date();
-  // FIX: Combine date and time into one precise local date object
   const examEnd = new Date(dateStr + 'T' + (timeStr || '23:59'));
   const diff = examEnd - now;
 
@@ -25,7 +24,7 @@ function tickCountdowns() {
   Storage.getExams().forEach(e => {
     const el = document.getElementById('countdown-' + e.id);
     if (!el) return;
-    const { text, cls } = getCountdown(e.date, e.time); // <-- Pass time
+    const { text, cls } = getCountdown(e.date, e.time);
     el.textContent = text;
     el.className   = 'exam-countdown-live ' + cls;
   });
@@ -69,12 +68,10 @@ function renderExams() {
     const { text, cls }                    = getCountdown(exam.date, exam.time);
     const { topicsHtml, pct, done, total } = renderTopics(exam);
     
-    // Format date
     const dateFormatted = new Date(exam.date + 'T00:00:00').toLocaleDateString('en-US', {
       weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
     });
 
-    // Format time to 12-hour local format for the display label
     const timeFormatted = exam.time 
       ? new Date(exam.date + 'T' + exam.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
       : '';
@@ -143,7 +140,10 @@ function addTopicFromInput(examId) {
   const input = document.querySelector(`.topic-input[data-exam-id="${examId}"]`);
   if (!input) return;
   const text = input.value.trim();
-  if (!text) return;
+  if (!text) {
+    showToast('Topic text is required.', 'error');
+    return;
+  }
   Storage.addTopic(examId, text);
   input.value = '';
   refreshTopics(examId);
@@ -157,7 +157,7 @@ function openEditModal(id) {
   document.getElementById('editExamName').value    = exam.name;
   document.getElementById('editExamSubject').value = exam.subject;
   document.getElementById('editExamDate').value    = exam.date;
-  document.getElementById('editExamTime').value    = exam.time || '09:00'; // <-- Added time
+  document.getElementById('editExamTime').value    = exam.time || '09:00';
   document.getElementById('editModal').style.display = 'flex';
 }
 
@@ -173,13 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const name    = document.getElementById('examName').value.trim();
     const subject = document.getElementById('examSubject').value.trim();
     const date    = document.getElementById('examDate').value;
-    const time    = document.getElementById('examTime').value; // <-- Added
-    if (!name || !subject || !date || !time) return;
-    Storage.addExam({ name, subject, date, time }); // <-- Added time
+    const time    = document.getElementById('examTime').value;
+    
+    if (!name || !subject || !date || !time) {
+      showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+    
+    Storage.addExam({ name, subject, date, time });
     e.target.reset();
     const details = document.querySelector('.collapsible-card');
     if (details) details.removeAttribute('open');
     renderExams();
+    showToast('Exam created.', 'success');
   });
 
   document.getElementById('editExamForm').addEventListener('submit', e => {
@@ -188,11 +194,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const name    = document.getElementById('editExamName').value.trim();
     const subject = document.getElementById('editExamSubject').value.trim();
     const date    = document.getElementById('editExamDate').value;
-    const time    = document.getElementById('editExamTime').value; // <-- Added
-    if (!name || !subject || !date || !time) return;
-    Storage.updateExam(id, { name, subject, date, time }); // <-- Added time
+    const time    = document.getElementById('editExamTime').value;
+    
+    if (!name || !subject || !date || !time) {
+      showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+    
+    Storage.updateExam(id, { name, subject, date, time });
     closeEditModal();
     renderExams();
+    showToast('Exam updated.', 'success');
   });
 
   document.getElementById('modalClose').addEventListener('click', closeEditModal);
@@ -208,10 +220,16 @@ document.addEventListener('DOMContentLoaded', () => {
   examList.addEventListener('click', e => {
     const deleteBtn = e.target.closest('.delete-btn');
     if (deleteBtn) {
-      if (confirm('Delete this exam and all its topics?')) {
-        Storage.deleteExam(deleteBtn.dataset.id);
-        renderExams();
-      }
+      showDialog({
+        title: 'Delete Exam',
+        message: 'Delete this exam and all its topics?',
+        confirmText: 'Delete',
+        onConfirm: () => {
+          Storage.deleteExam(deleteBtn.dataset.id);
+          renderExams();
+          showToast('Exam deleted.', 'success');
+        }
+      });
       return;
     }
 
@@ -223,10 +241,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const topicDeleteBtn = e.target.closest('.topic-delete');
     if (topicDeleteBtn) {
-      if (confirm('Remove this topic?')) {
-        Storage.deleteTopic(topicDeleteBtn.dataset.examId, topicDeleteBtn.dataset.topicId);
-        refreshTopics(topicDeleteBtn.dataset.examId);
-      }
+      showDialog({
+        title: 'Remove Topic',
+        message: 'Remove this topic?',
+        confirmText: 'Remove',
+        onConfirm: () => {
+          Storage.deleteTopic(topicDeleteBtn.dataset.examId, topicDeleteBtn.dataset.topicId);
+          refreshTopics(topicDeleteBtn.dataset.examId);
+          showToast('Topic removed.', 'success');
+        }
+      });
       return;
     }
 
