@@ -184,6 +184,16 @@ function startPause() {
       return;
     }
 
+    // Unlock audio context
+    if (alarmAudio.paused) {
+      alarmAudio.volume = 0;
+      alarmAudio.play().then(() => {
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+        alarmAudio.volume = 1;
+      }).catch(() => {});
+    }
+
     const secondsToRun = pausedLeft !== null ? pausedLeft : total;
     left       = secondsToRun;
     pausedLeft = null;
@@ -239,7 +249,36 @@ function skip() {
   render();
 }
 
+function validateSettings() {
+  const inputs = {
+    work: document.getElementById('setWork'),
+    workSec: document.getElementById('setWorkSec'),
+    short: document.getElementById('setShort'),
+    shortSec: document.getElementById('setShortSec'),
+    long: document.getElementById('setLong'),
+    longSec: document.getElementById('setLongSec'),
+    longAfter: document.getElementById('setLongAfter')
+  };
+
+  if (inputs.work.value < 0) inputs.work.value = 0;
+  if (inputs.work.value > 90) inputs.work.value = 90;
+  if (inputs.short.value < 0) inputs.short.value = 0;
+  if (inputs.short.value > 30) inputs.short.value = 30;
+  if (inputs.long.value < 0) inputs.long.value = 0;
+  if (inputs.long.value > 60) inputs.long.value = 60;
+
+  [inputs.workSec, inputs.shortSec, inputs.longSec].forEach(input => {
+    if (input.value < 0) input.value = 0;
+    if (input.value > 59) input.value = 59;
+  });
+
+  if (inputs.longAfter.value < 1) inputs.longAfter.value = 1;
+  if (inputs.longAfter.value > 10) inputs.longAfter.value = 10;
+}
+
 function applySettings() {
+  validateSettings();
+
   cfg.work           = parseInt(document.getElementById('setWork').value)      || 0;
   cfg.workSec        = parseInt(document.getElementById('setWorkSec').value)   || 0;
   cfg.shortBreak     = parseInt(document.getElementById('setShort').value)     || 0;
@@ -247,6 +286,7 @@ function applySettings() {
   cfg.longBreak      = parseInt(document.getElementById('setLong').value)      || 0;
   cfg.longSec        = parseInt(document.getElementById('setLongSec').value)   || 0;
   cfg.longBreakAfter = parseInt(document.getElementById('setLongAfter').value) || 4;
+  
   Storage.savePomodoroSettings(cfg);
 
   if (!running) {
@@ -256,6 +296,29 @@ function applySettings() {
     endTime    = null;
     render();
   }
+
+  // Reset the Amber button back to Blue
+  if (window.resetProfileSaveBtn) window.resetProfileSaveBtn();
+  showToast('Settings saved.', 'success');
+}
+
+function resetToDefault() {
+  showDialog({
+    title: 'Reset Settings',
+    message: 'Are you sure you want to reset all Pomodoro settings to their original defaults?',
+    confirmText: 'Reset',
+    onConfirm: () => {
+      document.getElementById('setWork').value = 25;
+      document.getElementById('setWorkSec').value = 0;
+      document.getElementById('setShort').value = 5;
+      document.getElementById('setShortSec').value = 0;
+      document.getElementById('setLong').value = 15;
+      document.getElementById('setLongSec').value = 0;
+      document.getElementById('setLongAfter').value = 4;
+
+      applySettings();
+    }
+  });
 }
 
 window.addEventListener('beforeunload', (e) => {
@@ -283,6 +346,30 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('setLongSec').value   = cfg.longSec  || 0;
   document.getElementById('setLongAfter').value = cfg.longBreakAfter;
 
+  // Initialize the Amber Button Tracker
+  if (window.initUnsavedChangesTracker) {
+    initUnsavedChangesTracker(
+      ['setWork', 'setWorkSec', 'setShort', 'setShortSec', 'setLong', 'setLongSec', 'setLongAfter'],
+      'saveSettingsBtn',
+      'saveSettingsBtnText'
+    );
+  }
+
+  // Save Settings Button
+  document.getElementById('saveSettingsBtn').addEventListener('click', applySettings);
+
+  // Reset Settings Button
+  document.getElementById('resetSettingsBtn').addEventListener('click', resetToDefault);
+
+  // Settings input listeners (only validate & mark dirty, do not auto-save)
+  ['setWork','setWorkSec','setShort','setShortSec','setLong','setLongSec','setLongAfter'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', validateSettings);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === '-' || e.key === 'e') e.preventDefault();
+    });
+  });
+
   document.getElementById('resetSessions').addEventListener('click', () => {
     showDialog({
       title: 'Reset Sessions',
@@ -295,10 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
       }
     });
-  });
-
-  ['setWork','setWorkSec','setShort','setShortSec','setLong','setLongSec','setLongAfter'].forEach(id => {
-    document.getElementById(id).addEventListener('change', applySettings);
   });
 
   render();

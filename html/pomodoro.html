@@ -52,33 +52,42 @@
         <div class="settings-row">
           <label>Focus</label>
           <div class="settings-time-inputs">
-            <input type="number" id="setWork" min="0" max="90" />
+            <input type="number" id="setWork" min="0" max="90" class="pomo-setting" />
             <span class="settings-time-sep">min</span>
-            <input type="number" id="setWorkSec" min="0" max="59" />
+            <input type="number" id="setWorkSec" min="0" max="59" class="pomo-setting" />
             <span class="settings-time-sep">sec</span>
           </div>
         </div>
         <div class="settings-row">
           <label>Short Break</label>
           <div class="settings-time-inputs">
-            <input type="number" id="setShort" min="0" max="30" />
+            <input type="number" id="setShort" min="0" max="30" class="pomo-setting" />
             <span class="settings-time-sep">min</span>
-            <input type="number" id="setShortSec" min="0" max="59" />
+            <input type="number" id="setShortSec" min="0" max="59" class="pomo-setting" />
             <span class="settings-time-sep">sec</span>
           </div>
         </div>
         <div class="settings-row">
           <label>Long Break</label>
           <div class="settings-time-inputs">
-            <input type="number" id="setLong" min="0" max="60" />
+            <input type="number" id="setLong" min="0" max="60" class="pomo-setting" />
             <span class="settings-time-sep">min</span>
-            <input type="number" id="setLongSec" min="0" max="59" />
+            <input type="number" id="setLongSec" min="0" max="59" class="pomo-setting" />
             <span class="settings-time-sep">sec</span>
           </div>
         </div>
         <div class="settings-row">
           <label>Long Break After (focus sessions)</label>
-          <input type="number" id="setLongAfter" min="1" max="10" />
+          <input type="number" id="setLongAfter" min="1" max="10" class="pomo-setting" />
+        </div>
+        
+        <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn-ghost btn-sm" id="resetSettingsBtn">
+            <i class="fa-solid fa-rotate-left"></i> Reset to Default
+          </button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn" style="transition: all 0.3s;">
+            <i class="fa-solid fa-floppy-disk"></i> <span id="saveSettingsBtnText">Save Settings</span>
+          </button>
         </div>
       </div>
     </details>
