@@ -89,39 +89,9 @@
       </div>
       <div id="upcomingExams"></div>
     </div>
-
-    <details class="card collapsible-card">
-      <summary class="section-title">
-        <i class="fa-solid fa-gear"></i> Settings
-      </summary>
-      <div>
-        <div class="form-group">
-          <label for="usernameInput">Display Name</label>
-          <div style="display:flex;gap:.5rem">
-            <input type="text" id="usernameInput" placeholder="Enter your name" />
-            <button class="btn btn-primary" id="saveUsername">
-              <i class="fa-solid fa-floppy-disk"></i> Save
-            </button>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label>Data Backup</label>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-            <button class="btn btn-ghost" id="importBtn">
-              <i class="fa-solid fa-upload"></i> Import
-            </button>
-            <button class="btn btn-ghost" id="exportBtn">
-              <i class="fa-solid fa-download"></i> Export
-            </button>
-            <input type="file" id="importInput" accept=".json" style="display:none" />
-          </div>
-        </div>
-      </div>
-    </details>
-
   </div>
 
-  <!-- Day Events Modal -->
+  <!-- Day Events Modal (REQUIRED FOR CALENDAR) -->
   <div class="modal-overlay" id="dayModal" style="display:none">
     <div class="modal">
       <div class="modal-header">

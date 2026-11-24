@@ -1,3 +1,5 @@
+// NOTE: esc() is defined in utils.js (loaded before this file)
+
 let use24 = false;
 
 const studyMessages = {
@@ -33,48 +35,6 @@ function updateGreeting() {
   const userName = localStorage.getItem('sdl-username') || 'Student';
   document.getElementById('greeting').textContent     = `${getGreeting(h)}, ${userName}!`;
   document.getElementById('studyMessage').textContent = getStudyMessage(h);
-}
-
-function exportData() {
-  const data = {};
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('sdl-'))
-    .forEach(k => data[k] = localStorage.getItem(k));
-
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
-
-  // FIX (Firefox download): Firefox does not reliably trigger a
-  // download on a detached <a> element. Appending it to the DOM before
-  // clicking and removing it after makes the click count as a real user
-  // navigation, so the download starts reliably across all browsers.
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  setTimeout(() => URL.revokeObjectURL(url), 100);
-}
-
-function importData(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      const keys = Object.keys(data).filter(k => k.startsWith('sdl-'));
-      if (!keys.length) { alert('Invalid backup file.'); return; }
-      if (!confirm('This will overwrite your current data. Continue?')) return;
-      keys.forEach(k => localStorage.setItem(k, data[k]));
-      alert('Import successful!');
-      location.reload();
-    } catch {
-      alert('Invalid backup file.');
-    }
-  };
-  reader.readAsText(file);
 }
 
 function initClock() {
@@ -209,25 +169,4 @@ document.addEventListener('DOMContentLoaded', () => {
   initStats();
   initRecentTasks();
   initUpcomingExams();
-
-  const usernameInput = document.getElementById('usernameInput');
-  if (usernameInput) {
-    usernameInput.value = localStorage.getItem('sdl-username') || '';
-    document.getElementById('saveUsername').addEventListener('click', () => {
-      const val = usernameInput.value.trim();
-      if (!val) return;
-      localStorage.setItem('sdl-username', val);
-      updateGreeting();
-    });
-  }
-
-  document.getElementById('exportBtn').addEventListener('click', exportData);
-
-  document.getElementById('importBtn').addEventListener('click', () => {
-    document.getElementById('importInput').click();
-  });
-
-  document.getElementById('importInput').addEventListener('change', e => {
-    if (e.target.files[0]) importData(e.target.files[0]);
-  });
 });
