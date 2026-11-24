@@ -13,11 +13,117 @@
   <script src="../js/theme.js"></script>
 </head>
 <body>
+
   <div id="appShell"></div>
+
   <div class="container" style="padding-top: 2rem;">
-    <h1 class="section-title">Help & Support</h1>
-    <p style="color: var(--text-muted);">Help page will be built in Phase 3.</p>
+    
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h2 class="section-title" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-circle-question" style="color: var(--accent);"></i> Welcome to StudyDesk Lite</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+        StudyDesk Lite is your lightweight, offline-first academic dashboard. Here is a quick guide to help you get the most out of the app.
+      </p>
+    </div>
+
+    <div id="helpAccordion">
+
+      <!-- Module 1: Home Dashboard -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-house" style="color: var(--accent);"></i> Home Dashboard
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Dynamic Greeting:</strong> A motivational message that changes based on the time of day.</li>
+            <li><strong>Live Clock:</strong> Toggle between 12-hour and 24-hour formats.</li>
+            <li><strong>Stats Grid:</strong> See your pending tasks, completed tasks, next exam countdown, and today's focus sessions.</li>
+            <li><strong>Calendar Widget:</strong> Click on any highlighted day to see the tasks and exams due on that date.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Module 2: Task Manager -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-list-check" style="color: var(--warning);"></i> Task Manager
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Adding Tasks:</strong> Enter a title, choose a priority, and optionally set a future due date.</li>
+            <li><strong>Filtering:</strong> Filter tasks by All, Active, Completed, or Overdue.</li>
+            <li><strong>Search:</strong> Use the search bar to find tasks by title instantly.</li>
+            <li><strong>Quick Actions:</strong> Check the box to mark a task complete, or use the Edit/Delete buttons to manage your list.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Module 3: Exam Planner -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-book-open" style="color: var(--danger);"></i> Exam Planner
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Live Countdown:</strong> Each exam card shows a live, second-by-second countdown.</li>
+            <li><strong>Topic Tracking:</strong> Break down your exam preparation by adding specific topics and checking them off as you study.</li>
+            <li><strong>Search:</strong> Filter your exams by subject or name.</li>
+            <li><strong>Cascading Delete:</strong> Deleting an exam also permanently deletes all its associated topics.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Module 4: Pomodoro Timer -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-clock" style="color: var(--success);"></i> Pomodoro Timer
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Timer:</strong> Start, pause, or reset the focus timer. The browser tab title will update with the remaining time.</li>
+            <li><strong>Custom Settings:</strong> Change the duration of Focus, Short Break, and Long Break sessions. Click <strong>Save Settings</strong> to apply them.</li>
+            <li><strong>Session Counter:</strong> The app automatically counts your completed focus sessions for the day.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Module 5: Notes -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-note-sticky" style="color: var(--accent);"></i> Notes
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Auto-Save:</strong> Notes save automatically 600ms after you stop typing.</li>
+            <li><strong>Search:</strong> Find notes by title or body content in the sidebar.</li>
+            <li><strong>Safe Deletion:</strong> Delete notes via a custom confirmation dialog to prevent accidental data loss.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Module 6: Settings & Data -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-user-shield" style="color: var(--text);"></i> Settings & Data
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>Display Name:</strong> Change the name shown in the greeting and sidebar.</li>
+            <li><strong>Data Backup:</strong> Export all your data to a JSON file to move it to another device, or Import a previous backup.</li>
+            <li><strong>Danger Zone:</strong> Permanently wipe all data from the app.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
   </div>
+
+  <script src="../js/utils.js"></script>
   <script src="../js/storage.js"></script>
   <script src="../js/nav.js"></script>
 </body>

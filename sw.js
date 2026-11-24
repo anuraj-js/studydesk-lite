@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v37';
+const CACHE = 'sdl-v38'; 
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -9,6 +9,8 @@ const STATIC = [
   './html/exams.html',
   './html/pomodoro.html',
   './html/notes.html',
+  './html/settings.html',  
+  './html/help.html',      
   './css/variables.css',
   './css/layout.css',
   './css/components.css',
@@ -16,7 +18,11 @@ const STATIC = [
   './css/responsive.css',
   './js/theme.js',
   './js/nav.js',
+  './js/utils.js',         
+  './js/toast.js',         
+  './js/dialog.js',        
   './js/storage.js',
+  './js/settings.js',      
   './js/dashboard.js',
   './js/tasks.js',
   './js/exams.js',
