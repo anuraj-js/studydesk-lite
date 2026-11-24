@@ -1,3 +1,5 @@
+// NOTE: esc(), isPastDateTime(), and showToast/showDialog are defined in utils.js and other scripts loaded before this file.
+
 // ── Countdown helpers ──────────────────────────
 function getCountdown(dateStr, timeStr) {
   const now     = new Date();
@@ -166,6 +168,12 @@ function closeEditModal() {
 
 // ── Init ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Set the 'min' attribute on all date inputs to today
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.date-input').forEach(input => {
+      input.setAttribute('min', todayStr);
+  });
+
   document.getElementById('examForm').addEventListener('submit', e => {
     e.preventDefault();
     const name    = document.getElementById('examName').value.trim();
@@ -175,6 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (!name || !subject || !date || !time) {
       showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+
+    if (isPastDateTime(date, time)) {
+      showToast('Exam date and time cannot be in the past.', 'error');
       return;
     }
     
@@ -196,6 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (!name || !subject || !date || !time) {
       showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+
+    if (isPastDateTime(date, time)) {
+      showToast('Exam date and time cannot be in the past.', 'error');
       return;
     }
     

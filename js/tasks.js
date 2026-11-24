@@ -1,3 +1,5 @@
+// NOTE: esc(), isPastDate(), and showToast/showDialog are defined in utils.js and other scripts loaded before this file.
+
 let activeFilter = 'all';
 
 function isOverdue(task) {
@@ -8,7 +10,6 @@ function isOverdue(task) {
 
 function renderTasks() {
   const all   = Storage.getTasks();
-  const today = new Date(); today.setHours(0,0,0,0);
 
   let list;
   if      (activeFilter === 'active')    list = all.filter(t => !t.completed);
@@ -105,19 +106,32 @@ function closeEditTaskModal() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Set the 'min' attribute on all date inputs to today
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.date-input').forEach(input => {
+      input.setAttribute('min', todayStr);
+  });
+
   // Add Task Form
   document.getElementById('taskForm').addEventListener('submit', e => {
     e.preventDefault();
     const title = document.getElementById('taskTitle').value.trim();
+    const dueDate = document.getElementById('taskDue').value;
+
     if (!title) {
       showToast('Task title is required.', 'error');
+      return;
+    }
+
+    if (dueDate && isPastDate(dueDate)) {
+      showToast('Due date cannot be in the past.', 'error');
       return;
     }
     
     Storage.addTask({
       title,
       priority: document.getElementById('taskPriority').value,
-      dueDate:  document.getElementById('taskDue').value
+      dueDate: dueDate
     });
     e.target.reset();
 
@@ -149,6 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!title) {
       showToast('Task title is required.', 'error');
+      return;
+    }
+
+    if (dueDate && isPastDate(dueDate)) {
+      showToast('Due date cannot be in the past.', 'error');
       return;
     }
     

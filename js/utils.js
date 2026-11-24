@@ -51,3 +51,28 @@ function initUnsavedChangesTracker(inputIds, btnId, textSpanId) {
     // Expose a way to reset the button when saved successfully
     window.resetProfileSaveBtn = resetBtn;
 }
+
+/**
+ * Validation Helpers (Added for Phase 5)
+ */
+function isPastDate(dateString) {
+    const selectedDate = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selectedDate < today;
+}
+
+function isPastDateTime(dateString, timeString) {
+    if (!dateString || !timeString) return false;
+    
+    const now = new Date();
+    const localNowStr = now.getFullYear() + '-' + 
+                        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(now.getDate()).padStart(2, '0') + ' ' + 
+                        String(now.getHours()).padStart(2, '0') + ':' + 
+                        String(now.getMinutes()).padStart(2, '0');
+
+    const selected = dateString + ' ' + timeString.substring(0, 5);
+    
+    return selected < localNowStr;
+}
