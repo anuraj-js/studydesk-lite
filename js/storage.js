@@ -1,8 +1,3 @@
-// ── Shared utility ─────────────────────────────
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
 const Storage = {
   // ── Tasks ──────────────────────────────────────
   getTasks() {
@@ -67,7 +62,6 @@ const Storage = {
       topics: []
     };
     exams.push(exam);
-    // Sort by date AND time
     exams.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
     this._saveExams(exams);
     return exam;
@@ -76,7 +70,6 @@ const Storage = {
     const exams = this.getExams();
     const idx = exams.findIndex(e => e.id === id);
     if (idx === -1) return;
-    // Spread existing first so topics are preserved, add time
     exams[idx] = { ...exams[idx], name, subject, date, time }; 
     exams.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
     this._saveExams(exams);

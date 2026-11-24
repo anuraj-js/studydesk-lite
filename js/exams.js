@@ -1,5 +1,3 @@
-// NOTE: esc() is defined in storage.js (loaded before this file)
-
 // ── Countdown helpers ──────────────────────────
 function getCountdown(dateStr, timeStr) {
   const now     = new Date();

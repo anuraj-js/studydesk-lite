@@ -1,5 +1,3 @@
-// NOTE: esc() is defined in storage.js (loaded before this file)
-
 let use24 = false;
 
 const studyMessages = {
