@@ -41,6 +41,24 @@ const Storage = {
       this._saveTasks(tasks);
     }
   },
+  reorderTasks(visibleOrderedIds) {
+    const allTasks = this.getTasks();
+    // We need to map the new visible order back into the full list,
+    // keeping hidden tasks in their exact original positions.
+    
+    const visibleSet = new Set(visibleOrderedIds);
+    const reorderedVisible = visibleOrderedIds.map(id => allTasks.find(t => t.id === id)).filter(Boolean);
+    
+    let vIndex = 0;
+    const newAllTasks = allTasks.map(t => {
+      if (visibleSet.has(t.id)) {
+        return reorderedVisible[vIndex++];
+      }
+      return t;
+    });
+    
+    this._saveTasks(newAllTasks);
+  },
 
   // ── Exams ──────────────────────────────────────
   getExams() {
@@ -101,6 +119,29 @@ const Storage = {
     const exam  = exams.find(e => e.id === examId);
     if (!exam) return;
     exam.topics = (exam.topics || []).filter(t => t.id !== topicId);
+    this._saveExams(exams);
+  },
+  updateTopic(examId, topicId, text) {
+    const exams = this.getExams();
+    const exam  = exams.find(e => e.id === examId);
+    if (!exam) return;
+    const topic = (exam.topics || []).find(t => t.id === topicId);
+    if (!topic) return;
+    topic.text = text;
+    this._saveExams(exams);
+  },
+  reorderTopics(examId, orderedIds) {
+    const exams = this.getExams();
+    const exam  = exams.find(e => e.id === examId);
+    if (!exam) return;
+    const byId = {};
+    (exam.topics || []).forEach(t => { byId[t.id] = t; });
+    const reordered = orderedIds.map(id => byId[id]).filter(Boolean);
+    // Append any topics not in orderedIds (shouldn't happen, but safe)
+    (exam.topics || []).forEach(t => {
+      if (!orderedIds.includes(t.id)) reordered.push(t);
+    });
+    exam.topics = reordered;
     this._saveExams(exams);
   },
 

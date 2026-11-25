@@ -2,12 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Username with Amber Button Tracker
     const usernameInput = document.getElementById('usernameInput');
     if (usernameInput) {
-        usernameInput.value = localStorage.getItem('sdl-username') || 'Student';
+        const savedName = localStorage.getItem('sdl-username') || 'Student';
+        usernameInput.value = savedName;
         
         // Initialize the tracker from utils.js
-        initUnsavedChangesTracker(['usernameInput'], 'saveUsernameBtn', 'saveUsernameBtnText');
+        const resetTracker = initUnsavedChangesTracker(['usernameInput'], 'saveUsernameBtn', 'saveUsernameBtnText');
 
-        document.getElementById('saveUsernameBtn').addEventListener('click', () => {
+        const saveUsername = () => {
             const val = usernameInput.value.trim();
             if (!val) {
                 showToast('Name cannot be empty.', 'error');
@@ -19,9 +20,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof renderNav === 'function') renderNav();
             
             // Reset button color
-            window.resetProfileSaveBtn();
+            resetTracker();
             
             showToast('Display name saved.', 'success');
+        };
+
+        document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
+
+        // Keyboard support
+        usernameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveUsername();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                usernameInput.value = localStorage.getItem('sdl-username') || 'Student';
+                resetTracker();
+            }
         });
     }
 

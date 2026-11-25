@@ -2,109 +2,192 @@
   <img src="images/studydesk_lite_logo.svg" alt="StudyDesk Lite Logo" width="300">
 </p>
 
-# StudyDesk Lite
+<h1 align="center">StudyDesk Lite</h1>
 
-A lightweight, fully frontend personal study dashboard built with vanilla HTML, CSS, and JavaScript. No frameworks, no build step, no backend — just open and use.
+<p align="center">
+  A lightweight, offline-first personal study dashboard designed to help you manage tasks, track exam preparation, take notes, and maintain focus.
+</p>
 
-Live at: https://anuraj-js.github.io/studydesk-lite
+<p align="center">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white" alt="CSS3">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black" alt="JavaScript">
+  <img src="https://img.shields.io/badge/PWA-5A0FC8?style=flat-square&logo=pwa&logoColor=white" alt="PWA">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License: MIT">
+</p>
 
 ---
 
-## Features
+## ✨ Features
 
-- **Dashboard** — Live clock with 12/24-hour toggle, daily stats summary, quick view of pending tasks and upcoming exams
-- **Task Manager** — Add tasks with priority and due date, filter by All / Active / Completed / Overdue, edit and delete, overdue highlighting
-- **Exam Planner** — Per-exam topic tracking with progress bar, live countdown timer, full CRUD
-- **Notes** — Clean Master-Detail interface (list view → full editor) with real-time search and auto-save
-- **Pomodoro Timer** — Configurable focus/break intervals, session counter, browser notifications
-- **Themes** — Dark and light mode, persisted across pages
-- **PWA** — Installable on phone via home screen, works offline
+### 👨‍🎓 Study Dashboard
 
-## Tech Stack
+| Feature | Description |
+|---|---|
+| 🏠 **Home Dashboard** | Real-time stats, interactive calendar, upcoming exams, and pending tasks |
+| ✅ **Task Manager** | Create, update, delete, and toggle tasks. Filter by active, completed, or overdue. **Drag-and-drop** to reorder tasks. |
+| 📅 **Exam Planner** | Schedule exams with live countdown timers. Add, edit, delete, and **drag-and-drop** study topics. |
+| ⏱️ **Pomodoro Timer** | Focus timer with custom settings, audio alarms, and automatic session tracking |
+| 📝 **Notes** | Auto-saving master-detail editor with search and manual save (Ctrl+S) |
+| 👤 **Settings** | Update your display name with keyboard support (Enter to save, Escape to cancel) |
+| ❓ **Help Center** | Detailed, easy-to-understand built-in guides for every feature |
+| 🎨 **Themes** | Dark and light mode, persisted across page reloads |
 
-- HTML, CSS, JavaScript — no frameworks
-- `localStorage` for all data persistence
-- Font Awesome 6 for icons
-- Service Worker for offline support
+### 🛡️ Core Capabilities
 
-## Data
+| Feature | Description |
+|---|---|
+| 📱 **PWA & Offline** | Installable on your phone's home screen. Works 100% offline. |
+| 💾 **Local Storage** | No backend required. All data is saved securely in your browser. |
+| 📤 **Data Backup** | Export and import your data as a JSON file to move between devices. |
+| 🔒 **Smart Buttons** | Save buttons automatically disable when no changes are made, and turn amber when you make an edit. |
 
-All data lives in `localStorage` under `sdl-*` keys. An import/export system is included to back up and restore data as JSON, and to move data between devices.
+---
 
-## Project Structure
+## 🛠️ Tech Stack
 
-```
-studydesk-lite/
-├── index.html              # Dashboard
-├── html/
-│   ├── tasks.html
-│   ├── exams.html
-│   ├── notes.html
-│   └── pomodoro.html
-├── css/
-│   ├── variables.css       # CSS custom properties (colours, spacing, etc.)
-│   ├── layout.css          # Page shell, navbar, container and card layout
-│   ├── components.css      # Reusable UI components (forms, buttons, badges, modals…)
-│   ├── features.css        # Page-specific feature styles (tasks, exams, pomodoro, notes, calendar)
-│   └── responsive.css      # Breakpoints and mobile overrides
-├── js/
-│   ├── theme.js            # Theme toggle (dark/light) and persistence
-│   ├── nav.js              # Mobile hamburger menu (open/close, backdrop, icon toggle)
-│   ├── storage.js          # All localStorage read/write, shared esc() utility
-│   ├── calendar.js         # Calendar widget and day-events modal
-│   ├── dashboard.js        # Dashboard clock, stats, recent tasks, upcoming exams
-│   ├── tasks.js            # Task list, filters, add/edit/delete
-│   ├── exams.js            # Exam cards, topic tracking, live countdown
-│   ├── notes.js            # Notes list, editor, auto-save, search
-│   └── pomodoro.js         # Pomodoro timer, settings, session tracking
-├── images/
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── studydesk_lite_logo.svg
-├── manifest.json
-├── README.md
-└── sw.js
-```
+| Layer | Technology |
+|---|---|
+| **Frontend** | HTML5, CSS3, Vanilla JavaScript (ES6+) |
+| **Storage** | Browser `localStorage` |
+| **Architecture** | Static Multi-Page App (no build step, no frameworks) |
+| **Offline Support** | Service Worker (Cache API) |
 
-## Deployment
+---
 
-Hosted via GitHub Pages. To deploy your own copy:
+## 🔒 Privacy & Security Highlights
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/anuraj-js/studydesk-lite.git
-   cd studydesk-lite
-   ```
+- 🔐 **No Backend:** Your data never leaves your device. There are no servers, trackers, or databases.
+- 🛡️ **XSS Protection:** All user input rendered to the DOM is strictly escaped using a custom helper function (`esc()`).
+- 💾 **Data Ownership:** You own your data. You can export it to JSON or permanently wipe it at any time via the Settings page.
 
-2. Create a new repository on your GitHub account, then point the remote to it
-   ```bash
-   git remote set-url origin https://github.com/<your-username>/studydesk-lite.git
-   git push -u origin main
-   ```
+---
 
-3. Go to your repo on GitHub → **Settings → Pages**
-4. Set source to `main` branch, root folder, click **Save**
-5. Your site will be live at `https://<your-username>.github.io/studydesk-lite` in a minute or two
+## 🚀 How to Run Locally
 
-## Local Development
+### Prerequisites
 
-No build tools or dependencies required. Just clone and open:
+- Any modern web browser (Chrome, Safari, Firefox, Edge)
+- *Optional:* Python or Node.js installed on your computer (only needed if the double-click method doesn't work)
+
+### Step 1 — Download the Project
+
+Open your terminal (Command Prompt / PowerShell on Windows, or Terminal on Mac/Linux) and run these commands one by one:
 
 ```bash
 git clone https://github.com/anuraj-js/studydesk-lite.git
 cd studydesk-lite
 ```
 
-Then open `index.html` in your browser by double-clicking it. This works fine for the dashboard — but because the other pages live inside the `html/` subfolder, some browsers may block them when opened as a local file (`file:///`) due to a security rule called CORS. If that happens, run a tiny local server instead:
+> If you don't have Git installed, you can also click the green **Code** button on the GitHub page, choose **Download ZIP**, and extract the folder.
 
-```bash
-# Python (pre-installed on most Macs and Linux)
-python3 -m http.server 3000
+### Step 2 — Run Locally
 
-# Node (if you have Node.js installed)
-npx serve .
+Because this app is built entirely with plain HTML, CSS, and JavaScript, there is no installation or build step required.
+
+**The easiest way (no tools needed):**
+
+1. Open the `studydesk-lite` folder you just downloaded.
+2. Double-click the `index.html` file.
+3. It will open in your web browser and the dashboard will load.
+
+**If pages won't load (using a local server):**
+
+Sometimes web browsers block websites from loading other files when you open them directly from your hard drive (a security rule called CORS). If you click a link to the Tasks or Notes page and it shows a blank screen or an error, use one of these simple commands to start a local server.
+
+- **If you have Python installed:**
+
+  ```bash
+  # Open your terminal inside the studydesk-lite folder and run:
+  python3 -m http.server 3000
+  ```
+
+  *(On Windows, you might need to type `python` instead of `python3`.)*
+
+- **If you have Node.js installed:**
+
+  ```bash
+  # Open your terminal inside the studydesk-lite folder and run:
+  npx serve .
+  ```
+
+Once the server is running, open your browser and go to `http://localhost:3000`. Everything will work perfectly.
+
+### Step 3 — Deploy to GitHub Pages (Free Hosting)
+
+If you want to put your own version of this app on the internet for free:
+
+1. Make sure your code is pushed to a repository on your GitHub account.
+2. Go to your repository page on GitHub and click the **Settings** tab at the top.
+3. On the left sidebar, scroll down and click **Pages**.
+4. Under **Build and deployment**, set the **Source** dropdown to **Deploy from a branch**.
+5. Under **Branch**, select `main` (or `master`) and leave the folder as `/ (root)`.
+6. Click **Save**.
+7. Wait 1–2 minutes, then refresh the page. GitHub will give you a live link (usually `https://<your-username>.github.io/studydesk-lite/`) that you can share with anyone.
+
+---
+
+## 📁 Project Structure
+
+```text
+studydesk-lite/
+│
+├── css/
+│   ├── components.css
+│   ├── features.css
+│   ├── layout.css
+│   ├── responsive.css
+│   └── variables.css
+│
+├── html/
+│   ├── exams.html
+│   ├── help.html
+│   ├── notes.html
+│   ├── pomodoro.html
+│   ├── settings.html
+│   └── tasks.html
+│
+├── images/
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── studydesk_lite_logo.svg
+│
+├── js/
+│   ├── calendar.js
+│   ├── dashboard.js
+│   ├── dialog.js
+│   ├── exams.js
+│   ├── nav.js
+│   ├── notes.js
+│   ├── pomodoro.js
+│   ├── settings.js
+│   ├── storage.js
+│   ├── tasks.js
+│   ├── theme.js
+│   ├── toast.js
+│   └── utils.js
+│
+├── index.html
+├── LICENSE
+├── manifest.json
+├── README.md
+├── sound.mp3
+└── sw.js
 ```
 
-Then visit `http://localhost:3000` — the whole project will work exactly like the live GitHub Pages version.
+---
 
-> If double-clicking `index.html` works fine and all pages load, you don't need any of this.
+## 📄 License
+
+This project is licensed under the MIT License — you are free to use, modify, and distribute this project for personal or commercial purposes, as long as the original license and copyright notice are included.
+
+See the [LICENSE](LICENSE) file for full details.
+
+---
+
+## 📬 Contact
+
+**Anuraj Singh**
+
+- 🐙 GitHub: [@anuraj-js](https://github.com/anuraj-js)
+- 📧 Email: [anuraj1q@gmail.com](mailto:anuraj1q@gmail.com)

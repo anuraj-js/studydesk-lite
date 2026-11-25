@@ -83,8 +83,32 @@
         </div>
         <div style="display:flex;gap:.5rem">
           <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
-          <button type="submit" class="btn btn-primary" style="flex:1">
-            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+          <button type="submit" class="btn btn-primary" id="saveExamBtn" style="flex:1">
+            <i class="fa-solid fa-floppy-disk"></i> <span id="saveExamBtnText">Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Topic Modal -->
+  <div class="modal-overlay" id="editTopicModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-pen"></i> Edit Topic</h3>
+        <button class="modal-close" id="editTopicModalClose"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="editTopicForm">
+        <input type="hidden" id="editTopicId" />
+        <input type="hidden" id="editTopicExamId" />
+        <div class="form-group">
+          <label for="editTopicText">Topic <span class="required">*</span></label>
+          <input type="text" id="editTopicText" required />
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button type="button" class="btn btn-ghost" id="editTopicModalCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTopicBtn" style="flex:1">
+            <i class="fa-solid fa-floppy-disk"></i> <span id="saveTopicBtnText">Save Changes</span>
           </button>
         </div>
       </form>

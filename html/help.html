@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../css/components.css" />
   <link rel="stylesheet" href="../css/features.css" />
   <link rel="stylesheet" href="../css/responsive.css" />
+  <link rel="icon" href="data:,">
   <script src="../js/theme.js"></script>
 </head>
 <body>
@@ -21,7 +22,7 @@
     <div class="card" style="margin-bottom: 1.5rem;">
       <h2 class="section-title" style="margin-bottom: 0.5rem;"><i class="fa-solid fa-circle-question" style="color: var(--accent);"></i> Welcome to StudyDesk Lite</h2>
       <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-        StudyDesk Lite is your lightweight, offline-first academic dashboard. Here is a quick guide to help you get the most out of the app.
+        StudyDesk Lite is your personal study dashboard. It works perfectly without an internet connection and keeps all your data safely on your device. Here is a simple guide to help you use every feature.
       </p>
     </div>
 
@@ -35,10 +36,9 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Dynamic Greeting:</strong> A motivational message that changes based on the time of day.</li>
-            <li><strong>Live Clock:</strong> Toggle between 12-hour and 24-hour formats.</li>
-            <li><strong>Stats Grid:</strong> See your pending tasks, completed tasks, next exam countdown, and today's focus sessions.</li>
-            <li><strong>Calendar Widget:</strong> Click on any highlighted day to see the tasks and exams due on that date.</li>
+            <li><strong>Greeting & Clock:</strong> See a motivational message based on the time of day and a live clock. You can click the button under the clock to switch between 12-hour and 24-hour time.</li>
+            <li><strong>Your Stats:</strong> Quickly see how many tasks you have left, how many you've finished, and the days remaining until your next exam.</li>
+            <li><strong>Calendar:</strong> See your tasks and exams laid out on a calendar. Click any highlighted day to see exactly what is due, and use the arrows to look at future months.</li>
           </ul>
         </div>
       </div>
@@ -51,10 +51,10 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Adding Tasks:</strong> Enter a title, choose a priority, and optionally set a future due date.</li>
-            <li><strong>Filtering:</strong> Filter tasks by All, Active, Completed, or Overdue.</li>
-            <li><strong>Search:</strong> Use the search bar to find tasks by title instantly.</li>
-            <li><strong>Quick Actions:</strong> Check the box to mark a task complete, or use the Edit/Delete buttons to manage your list.</li>
+            <li><strong>Adding Tasks:</strong> Click "Add Task" to enter what you need to do. You can set a priority level and a due date so you never forget it.</li>
+            <li><strong>Managing Tasks:</strong> Check the box to mark a task as done. Use the Edit button to change details or the Delete button to remove it.</li>
+            <li><strong>Finding Tasks:</strong> Use the tabs to filter by Active, Completed, or Overdue. You can also type in the search bar to instantly find a specific task.</li>
+            <li><strong>Reordering:</strong> You can change the order of your tasks. Just click and hold the six-dot handle on the left side of a task, then drag it up or down.</li>
           </ul>
         </div>
       </div>
@@ -67,10 +67,10 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Live Countdown:</strong> Each exam card shows a live, second-by-second countdown.</li>
-            <li><strong>Topic Tracking:</strong> Break down your exam preparation by adding specific topics and checking them off as you study.</li>
-            <li><strong>Search:</strong> Filter your exams by subject or name.</li>
-            <li><strong>Cascading Delete:</strong> Deleting an exam also permanently deletes all its associated topics.</li>
+            <li><strong>Adding Exams:</strong> Create an exam plan by entering the subject, name, date, and time.</li>
+            <li><strong>Live Countdown:</strong> Every exam card shows exactly how many days, hours, and minutes are left until the exam starts.</li>
+            <li><strong>Topic Tracking:</strong> Break your studying into smaller topics. Add a topic, then check it off when you've studied it. The progress bar will fill up automatically.</li>
+            <li><strong>Managing Topics:</strong> Just like tasks, you can use the pencil icon to edit a topic's name, the X icon to delete it, or the six-dot handle to drag and reorder them.</li>
           </ul>
         </div>
       </div>
@@ -83,9 +83,9 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Timer:</strong> Start, pause, or reset the focus timer. The browser tab title will update with the remaining time.</li>
-            <li><strong>Custom Settings:</strong> Change the duration of Focus, Short Break, and Long Break sessions. Click <strong>Save Settings</strong> to apply them.</li>
-            <li><strong>Session Counter:</strong> The app automatically counts your completed focus sessions for the day.</li>
+            <li><strong>Focus Sessions:</strong> Use the timer to focus on studying. Click Start to begin, and the app will automatically count your completed sessions.</li>
+            <li><strong>Customizing Time:</strong> Open the settings menu to change how long you want to focus and how long your breaks should be. Click "Save Settings" to apply your changes.</li>
+            <li><strong>Alerts:</strong> When the timer finishes, the app will play a sound and flash the screen to let you know it's time for a break (or time to get back to work).</li>
           </ul>
         </div>
       </div>
@@ -98,9 +98,10 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Auto-Save:</strong> Notes save automatically 600ms after you stop typing.</li>
-            <li><strong>Search:</strong> Find notes by title or body content in the sidebar.</li>
-            <li><strong>Safe Deletion:</strong> Delete notes via a custom confirmation dialog to prevent accidental data loss.</li>
+            <li><strong>Writing Notes:</strong> Create a new note, give it a title, and start typing. The app saves your notes automatically as you type, so you never lose your work.</li>
+            <li><strong>Finding Notes:</strong> Use the search bar in the sidebar to find notes by their title or the text inside them.</li>
+            <li><strong>Quick Save:</strong> If you want to save manually, just press <strong>Ctrl + S</strong> (or <strong>Cmd + S</strong> on Mac).</li>
+            <li><strong>Deleting:</strong> When you delete a note, a popup will appear first to make sure you don't delete it by accident.</li>
           </ul>
         </div>
       </div>
@@ -108,14 +109,29 @@
       <!-- Module 6: Settings & Data -->
       <div class="card help-card">
         <button type="button" class="help-toggle-btn">
-          <i class="fa-solid fa-user-shield" style="color: var(--text);"></i> Settings & Data
+          <i class="fa-solid fa-user-shield" style="color: var(--text);"></i> Settings
           <i class="fa-solid fa-chevron-down help-chevron"></i>
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Display Name:</strong> Change the name shown in the greeting and sidebar.</li>
-            <li><strong>Data Backup:</strong> Export all your data to a JSON file to move it to another device, or Import a previous backup.</li>
-            <li><strong>Danger Zone:</strong> Permanently wipe all data from the app.</li>
+            <li><strong>Display Name:</strong> Change the name used in your greeting. Press <strong>Enter</strong> on your keyboard to save it, or <strong>Escape</strong> to cancel.</li>
+            <li><strong>Data Backup:</strong> You can save a copy of all your data to a file on your computer (Export), or load a previous copy (Import). This is useful if you want to move your data to a new device.</li>
+            <li><strong>Danger Zone:</strong> If you want a fresh start, this button will permanently erase all your tasks, exams, and notes.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Module 7: Offline & PWA -->
+      <div class="card help-card">
+        <button type="button" class="help-toggle-btn">
+          <i class="fa-solid fa-wifi" style="color: var(--accent);"></i> Offline Use & Phone App
+          <i class="fa-solid fa-chevron-down help-chevron"></i>
+        </button>
+        <div class="help-content" style="display: none;">
+          <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
+            <li><strong>No Internet Needed:</strong> You can use StudyDesk Lite anywhere, even on a plane or without Wi-Fi, because everything is saved directly on your device.</li>
+            <li><strong>Install on Phone:</strong> If you are using a phone, you can add StudyDesk to your home screen. Tap your browser's menu and select "Add to Home Screen" so it feels like a real app.</li>
+            <li><strong>Keep Your Data Safe:</strong> All your data is saved inside your web browser. If you clear your browser history or cache, you might lose your tasks and notes. To be safe, use the Export button in Settings to save a backup file occasionally.</li>
           </ul>
         </div>
       </div>

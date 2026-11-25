@@ -1,35 +1,48 @@
+
 /* ── Large desktops ── */
 @media (max-width: 1400px) {
-  .container { max-width: 900px; }
-}
-
-/* ── Regular desktops ── */
-@media (max-width: 1200px) {
-  .container { max-width: 800px; }
-}
-
-/* ── Small desktops / Tablets landscape ── */
-@media (max-width: 992px) {
-  .nav-links { gap: 0.1rem; }
-  .nav-links a {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.8rem;
+  .container {
+    max-width: 900px;
   }
 }
 
-/* ── Tablets portrait / Mobile ── */
-@media (max-width: 768px) {
-  /* Hide the entire desktop menu on mobile */
+/* ── Regular desktops ── */
+@media (max-width: 1250px) {
+  .nav-links {
+    right: 45px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    max-width: 800px;
+  }
+
+  .nav-links {
+    right: 15px;
+  }
+
+  .nav-links a {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.87rem;
+  }
+}
+
+@media (max-width: 1080px) {
+  /* Hide desktop navigation */
   .nav-menu {
     display: none !important;
   }
 
-  /* Show hamburger and push to right */
+  /* Show hamburger */
   .hamburger {
     display: block;
     margin-left: auto;
   }
+}
 
+/* ── Tablets landscape / Smaller desktops ── */
+@media (max-width: 992px) {
   /* Backdrop */
   .nav-backdrop {
     position: fixed;
@@ -50,31 +63,82 @@
     visibility: visible;
   }
 
+  #saveUsernameBtn {
+    font-size: 0.9rem;
+  }
+}
+
+/* ── Tablets portrait / Mobile ── */
+@media (max-width: 768px) {
   /* Notes layout adjustments */
   .notes-container {
     height: calc(100dvh - 70px);
     padding: 0;
   }
-  .notes-sidebar, .notes-editor {
+
+  .notes-sidebar,
+  .notes-editor {
     border: none;
     border-radius: 0;
     margin-bottom: 0;
+  }
+
+  #saveUsernameBtn {
+    font-size: 0.8rem;
+    min-width: 120px;
   }
 }
 
 /* ── Large phones ── */
 @media (max-width: 576px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .timer-display { font-size: 4.25rem; }
-  .clock { font-size: 2.25rem; }
-  .timer-controls .btn { padding: 0.55rem 0.85rem; font-size: 0.82rem; }
-  .card { padding: 1rem; }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .timer-display {
+    font-size: 4.25rem;
+  }
+
+  .clock {
+    font-size: 2.25rem;
+  }
+
+  .timer-controls .btn {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  #saveUsernameBtn {
+    font-size: 0.7rem;
+  }
 }
 
 /* ── Small phones ── */
 @media (max-width: 480px) {
-  .clock { font-size: 2rem; }
-  .date-str { font-size: 0.75rem; }
-  .grid-2 { grid-template-columns: 1fr; gap: 0; }
-  .settings-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .clock {
+    font-size: 2rem;
+  }
+
+  .date-str {
+    font-size: 0.75rem;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  #saveUsernameBtn {
+    min-width: 130px;
+  }
 }

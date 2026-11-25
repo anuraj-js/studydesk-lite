@@ -86,29 +86,67 @@
 /* ── Task items ── */
 .task-item {
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  align-items: center; /* Fixed: vertically centered */
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
   margin-bottom: 0.5rem;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, border-color 0.2s, background 0.2s;
+  position: relative;
 }
 
 .task-item.completed { opacity: 0.45; }
 .task-item.completed .task-title { text-decoration: line-through; }
 
+.task-drag-handle {
+  color: var(--text-muted);
+  cursor: grab;
+  font-size: 1rem;
+  padding: 0.4rem 0.2rem;
+  flex-shrink: 0;
+  touch-action: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-drag-handle:hover { color: var(--accent); }
+.task-drag-handle:active { cursor: grabbing; }
+
+.task-item.dragging { opacity: 0.4; }
+
+.task-item.drag-over {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.task-item.drag-insert-before::before,
+.task-item.drag-insert-after::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 3px;
+  z-index: 10;
+}
+
+.task-item.drag-insert-before::before { top: -4px; }
+.task-item.drag-insert-after::after   { bottom: -4px; }
+
 .task-checkbox {
-  width: 17px;
-  height: 17px;
-  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
   accent-color: var(--accent);
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.task-content { flex: 1; min-width: 0; }
+.task-content { flex: 1; min-width: 0; padding: 0 0.25rem; }
 .task-title { font-size: 0.9rem; word-break: break-word; }
 .task-due { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
 
@@ -251,11 +289,13 @@
 .topic-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.35rem 0;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  position: relative;
+  transition: opacity 0.2s, border-color 0.2s, background 0.2s;
 }
 
-.topic-text { font-size: 0.875rem; flex: 1; }
+.topic-text { font-size: 0.9rem; flex: 1; }
 .topic-text.done { text-decoration: line-through; opacity: 0.45; }
 
 .topic-delete {
@@ -263,17 +303,75 @@
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.1rem 0.25rem;
-  border-radius: 3px;
+  font-size: 1.2rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
   transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .topic-delete:hover { color: var(--danger); }
+
+.topic-edit {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.topic-edit:hover { color: var(--accent); }
+
+.topic-drag-handle {
+  color: var(--text-muted);
+  cursor: grab;
+  font-size: 1rem;
+  padding: 0.2rem 0.2rem;
+  flex-shrink: 0;
+  touch-action: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.topic-drag-handle:hover { color: var(--accent); }
+.topic-drag-handle:active { cursor: grabbing; }
+
+.topic-item.dragging { opacity: 0.4; }
+
+.topic-item.drag-over {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 4px;
+}
+
+.topic-item.drag-insert-before::before,
+.topic-item.drag-insert-after::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 3px;
+  z-index: 10;
+}
+
+.topic-item.drag-insert-before::before { top: -4px; }
+.topic-item.drag-insert-after::after   { bottom: -4px; }
 
 .topic-input-row {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.65rem;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
 }
 .topic-input-row input { flex: 1; }
 
@@ -367,8 +465,6 @@
 
 /* ── Notes (Master-Detail Layout) ── */
 .notes-container {
-  /* use dvh instead of vh so the notes editor isn't clipped by the
-     browser chrome (address bar) on mobile Safari */
   height: calc(100dvh - 140px);
   position: relative;
 }

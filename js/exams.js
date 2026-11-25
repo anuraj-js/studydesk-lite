@@ -40,10 +40,16 @@ function renderTopics(exam) {
   const topicsHtml = topics.length
     ? topics.map(t => `
         <div class="topic-item" data-topic-id="${t.id}">
+          <span class="topic-drag-handle" data-exam-id="${exam.id}" data-topic-id="${t.id}" title="Drag to reorder">
+            <i class="fa-solid fa-grip-vertical"></i>
+          </span>
           <input type="checkbox" class="task-checkbox topic-check"
             data-exam-id="${exam.id}" data-topic-id="${t.id}"
             ${t.completed ? 'checked' : ''} />
           <span class="topic-text ${t.completed ? 'done' : ''}">${esc(t.text)}</span>
+          <button class="topic-edit" data-exam-id="${exam.id}" data-topic-id="${t.id}" title="Edit">
+            <i class="fa-solid fa-pen"></i>
+          </button>
           <button class="topic-delete" data-exam-id="${exam.id}" data-topic-id="${t.id}" title="Remove">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -55,6 +61,12 @@ function renderTopics(exam) {
 }
 
 function renderExams() {
+  // Silent-cancel any in-progress drag on full re-render
+  if (topicDrag) {
+    clearDragIndicators(topicDrag.listEl);
+    topicDrag = null;
+  }
+
   const allExams = Storage.getExams();
   const el       = document.getElementById('examList');
 
@@ -160,6 +172,116 @@ function addTopicFromInput(examId) {
   refreshTopics(examId);
 }
 
+// ── Topic drag-and-drop (pointer-based) ────────
+let topicDrag = null; // { examId, topicId, listEl, startRow }
+
+function getTopicListEl(examId) {
+  return document.getElementById('topics-' + examId);
+}
+
+function clearDragIndicators(listEl) {
+  if (!listEl) return;
+  listEl.querySelectorAll('.topic-item').forEach(el => {
+    el.classList.remove('dragging', 'drag-over', 'drag-insert-before', 'drag-insert-after');
+  });
+}
+
+function startTopicDrag(e, handle) {
+  const examId  = handle.dataset.examId;
+  const topicId = handle.dataset.topicId;
+  const listEl  = getTopicListEl(examId);
+  if (!listEl) return;
+
+  const startRow = handle.closest('.topic-item');
+  if (!startRow) return;
+
+  e.preventDefault();
+
+  topicDrag = { examId, topicId, listEl, startRow, pointerId: e.pointerId, handle };
+  startRow.classList.add('dragging');
+
+  try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+
+  const onMove = (ev) => onTopicDragMove(ev);
+  const onUp   = (ev) => {
+    endTopicDrag(ev, true);
+    cleanup();
+  };
+  const onCancel = (ev) => {
+    endTopicDrag(ev, false);
+    cleanup();
+  };
+  const cleanup = () => {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onCancel);
+    try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+  };
+
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onCancel);
+}
+
+function onTopicDragMove(e) {
+  if (!topicDrag) return;
+  const { listEl, startRow } = topicDrag;
+  const rows = Array.from(listEl.querySelectorAll('.topic-item')).filter(r => r !== startRow);
+
+  // Clear previous indicators
+  rows.forEach(r => r.classList.remove('drag-over', 'drag-insert-before', 'drag-insert-after'));
+
+  const target = rows.find(r => {
+    const rect = r.getBoundingClientRect();
+    return e.clientY >= rect.top && e.clientY <= rect.bottom;
+  });
+
+  if (!target) return;
+
+  const rect = target.getBoundingClientRect();
+  const insertAfter = e.clientY > rect.top + rect.height / 2;
+
+  target.classList.add('drag-over');
+  target.classList.add(insertAfter ? 'drag-insert-after' : 'drag-insert-before');
+}
+
+function endTopicDrag(e, commit) {
+  if (!topicDrag) return;
+  const { examId, topicId, listEl, startRow } = topicDrag;
+  topicDrag = null;
+
+  const rows = Array.from(listEl.querySelectorAll('.topic-item'));
+
+  if (!commit) {
+    clearDragIndicators(listEl);
+    return;
+  }
+
+  // Find the target row (the one with an insert class)
+  const target = rows.find(r => r !== startRow &&
+    (r.classList.contains('drag-insert-before') || r.classList.contains('drag-insert-after')));
+
+  if (!target) {
+    clearDragIndicators(listEl);
+    return;
+  }
+
+  const insertAfter = target.classList.contains('drag-insert-after');
+
+  // Build new order of ids
+  const currentIds = rows.map(r => r.dataset.topicId);
+  const withoutDragged = currentIds.filter(id => id !== topicId);
+
+  const targetId = target.dataset.topicId;
+  let targetIdx = withoutDragged.indexOf(targetId);
+  if (insertAfter) targetIdx++;
+  withoutDragged.splice(targetIdx, 0, topicId);
+
+  Storage.reorderTopics(examId, withoutDragged);
+  clearDragIndicators(listEl);
+  refreshTopics(examId);
+}
+
 function openEditModal(id) {
   const exam = Storage.getExams().find(e => e.id === id);
   if (!exam) return;
@@ -168,6 +290,7 @@ function openEditModal(id) {
   document.getElementById('editExamSubject').value = exam.subject;
   document.getElementById('editExamDate').value    = exam.date;
   document.getElementById('editExamTime').value    = exam.time || '09:00';
+  if (window.resetExamSaveBtn) window.resetExamSaveBtn();
   document.getElementById('editModal').style.display = 'flex';
 }
 
@@ -176,11 +299,26 @@ function closeEditModal() {
   document.getElementById('editExamForm').reset();
 }
 
+function openTopicEditModal(examId, topicId) {
+  const exam = Storage.getExams().find(e => e.id === examId);
+  if (!exam) return;
+  const topic = (exam.topics || []).find(t => t.id === topicId);
+  if (!topic) return;
+
+  document.getElementById('editTopicExamId').value = examId;
+  document.getElementById('editTopicId').value     = topicId;
+  document.getElementById('editTopicText').value   = topic.text;
+  if (window.resetTopicSaveBtn) window.resetTopicSaveBtn();
+  document.getElementById('editTopicModal').style.display = 'flex';
+}
+
+function closeTopicEditModal() {
+  document.getElementById('editTopicModal').style.display = 'none';
+  document.getElementById('editTopicForm').reset();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  const todayStr = new Date().toISOString().split('T')[0];
-  document.querySelectorAll('.date-input').forEach(input => {
-      input.setAttribute('min', todayStr);
-  });
+  initDateInputsMinToday();
 
   // Search Input
   const searchInput = document.getElementById('searchExam');
@@ -238,6 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     Storage.updateExam(id, { name, subject, date, time });
+    if (window.resetExamSaveBtn) window.resetExamSaveBtn();
     closeEditModal();
     renderExams();
     showToast('Exam updated.', 'success');
@@ -251,7 +390,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderExams();
 
+  // Init amber + disabled tracker for exam edit modal Save
+  window.resetExamSaveBtn = initUnsavedChangesTracker(
+    ['editExamName', 'editExamSubject', 'editExamDate', 'editExamTime'],
+    'saveExamBtn',
+    'saveExamBtnText'
+  );
+
+  // Edit Topic Modal wiring
+  const editTopicForm = document.getElementById('editTopicForm');
+  if (editTopicForm) {
+    editTopicForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const examId  = document.getElementById('editTopicExamId').value;
+      const topicId = document.getElementById('editTopicId').value;
+      const text    = document.getElementById('editTopicText').value.trim();
+
+      if (!text) {
+        showToast('Topic text is required.', 'error');
+        return;
+      }
+
+      Storage.updateTopic(examId, topicId, text);
+      if (window.resetTopicSaveBtn) window.resetTopicSaveBtn();
+      closeTopicEditModal();
+      refreshTopics(examId);
+      showToast('Topic updated.', 'success');
+    });
+
+    document.getElementById('editTopicModalClose').addEventListener('click', closeTopicEditModal);
+    document.getElementById('editTopicModalCancel').addEventListener('click', closeTopicEditModal);
+    document.getElementById('editTopicModal').addEventListener('click', e => {
+      if (e.target.id === 'editTopicModal') closeTopicEditModal();
+    });
+
+    window.resetTopicSaveBtn = initUnsavedChangesTracker(
+      ['editTopicText'],
+      'saveTopicBtn',
+      'saveTopicBtnText'
+    );
+  }
+
   const examList = document.getElementById('examList');
+
+  // Pointer-down on a topic drag handle → start drag
+  examList.addEventListener('pointerdown', e => {
+    const handle = e.target.closest('.topic-drag-handle');
+    if (!handle) return;
+    startTopicDrag(e, handle);
+  });
 
   examList.addEventListener('click', e => {
     const deleteBtn = e.target.closest('.delete-btn');
@@ -272,6 +459,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const editBtn = e.target.closest('.edit-btn');
     if (editBtn) {
       openEditModal(editBtn.dataset.id);
+      return;
+    }
+
+    const topicEditBtn = e.target.closest('.topic-edit');
+    if (topicEditBtn) {
+      openTopicEditModal(topicEditBtn.dataset.examId, topicEditBtn.dataset.topicId);
       return;
     }
 

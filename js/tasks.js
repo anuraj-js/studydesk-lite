@@ -10,6 +10,12 @@ function isOverdue(task) {
 }
 
 function renderTasks() {
+  // Silent-cancel any in-progress drag on full re-render
+  if (taskDrag) {
+    clearTaskDragIndicators();
+    taskDrag = null;
+  }
+
   const all = Storage.getTasks();
 
   // 1. Apply Status Filter
@@ -48,7 +54,10 @@ function renderTasks() {
     const highlightedTitle = highlightText(t.title, searchQuery); 
 
     return `
-      <div class="task-item ${t.completed ? 'completed' : ''}">
+      <div class="task-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
+        <span class="task-drag-handle" data-id="${t.id}" title="Drag to reorder">
+          <i class="fa-solid fa-grip-vertical"></i>
+        </span>
         <input type="checkbox" class="task-checkbox" data-id="${t.id}" ${t.completed ? 'checked' : ''} />
         <div class="task-content">
           <div class="task-title">${highlightedTitle}</div>
@@ -98,6 +107,113 @@ function renderTasks() {
   });
 }
 
+// ── Task drag-and-drop (pointer-based) ────────
+let taskDrag = null;
+
+function getTaskListEl() {
+  return document.getElementById('taskList');
+}
+
+function clearTaskDragIndicators() {
+  const listEl = getTaskListEl();
+  if (!listEl) return;
+  listEl.querySelectorAll('.task-item').forEach(el => {
+    el.classList.remove('dragging', 'drag-over', 'drag-insert-before', 'drag-insert-after');
+  });
+}
+
+function startTaskDrag(e, handle) {
+  const taskId = handle.dataset.id;
+  const listEl = getTaskListEl();
+  if (!listEl) return;
+
+  const startRow = handle.closest('.task-item');
+  if (!startRow) return;
+
+  e.preventDefault();
+
+  taskDrag = { taskId, listEl, startRow, pointerId: e.pointerId, handle };
+  startRow.classList.add('dragging');
+
+  try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+
+  const onMove = (ev) => onTaskDragMove(ev);
+  const onUp   = (ev) => {
+    endTaskDrag(ev, true);
+    cleanup();
+  };
+  const onCancel = (ev) => {
+    endTaskDrag(ev, false);
+    cleanup();
+  };
+  const cleanup = () => {
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onCancel);
+    try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+  };
+
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onCancel);
+}
+
+function onTaskDragMove(e) {
+  if (!taskDrag) return;
+  const { listEl, startRow } = taskDrag;
+  const rows = Array.from(listEl.querySelectorAll('.task-item')).filter(r => r !== startRow);
+
+  rows.forEach(r => r.classList.remove('drag-over', 'drag-insert-before', 'drag-insert-after'));
+
+  const target = rows.find(r => {
+    const rect = r.getBoundingClientRect();
+    return e.clientY >= rect.top && e.clientY <= rect.bottom;
+  });
+
+  if (!target) return;
+
+  const rect = target.getBoundingClientRect();
+  const insertAfter = e.clientY > rect.top + rect.height / 2;
+
+  target.classList.add('drag-over');
+  target.classList.add(insertAfter ? 'drag-insert-after' : 'drag-insert-before');
+}
+
+function endTaskDrag(e, commit) {
+  if (!taskDrag) return;
+  const { taskId, listEl, startRow } = taskDrag;
+  taskDrag = null;
+
+  const rows = Array.from(listEl.querySelectorAll('.task-item'));
+
+  if (!commit) {
+    clearTaskDragIndicators();
+    return;
+  }
+
+  const target = rows.find(r => r !== startRow &&
+    (r.classList.contains('drag-insert-before') || r.classList.contains('drag-insert-after')));
+
+  if (!target) {
+    clearTaskDragIndicators();
+    return;
+  }
+
+  const insertAfter = target.classList.contains('drag-insert-after');
+
+  const currentIds = rows.map(r => r.dataset.id);
+  const withoutDragged = currentIds.filter(id => id !== taskId);
+
+  const targetId = target.dataset.id;
+  let targetIdx = withoutDragged.indexOf(targetId);
+  if (insertAfter) targetIdx++;
+  withoutDragged.splice(targetIdx, 0, taskId);
+
+  Storage.reorderTasks(withoutDragged);
+  clearTaskDragIndicators();
+  renderTasks();
+}
+
 // ── Edit Task Modal Logic ──
 function openEditTaskModal(id) {
   const task = Storage.getTasks().find(t => t.id === id);
@@ -108,6 +224,7 @@ function openEditTaskModal(id) {
   document.getElementById('editTaskPriority').value = task.priority || 'medium';
   document.getElementById('editTaskDue').value      = task.dueDate || '';
 
+  if (window.resetTaskSaveBtn) window.resetTaskSaveBtn();
   document.getElementById('editTaskModal').style.display = 'flex';
 }
 
@@ -118,10 +235,7 @@ function closeEditTaskModal() {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Set the 'min' attribute on all date inputs to today
-  const todayStr = new Date().toISOString().split('T')[0];
-  document.querySelectorAll('.date-input').forEach(input => {
-      input.setAttribute('min', todayStr);
-  });
+  initDateInputsMinToday();
 
   // Search Input
   const searchInput = document.getElementById('searchTask');
@@ -194,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     Storage.updateTask(id, { title, priority, dueDate });
+    if (window.resetTaskSaveBtn) window.resetTaskSaveBtn();
     closeEditTaskModal();
     renderTasks();
     showToast('Task updated.', 'success');
@@ -207,4 +322,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderTasks();
+
+  // Init amber + disabled tracker for task edit modal Save
+  window.resetTaskSaveBtn = initUnsavedChangesTracker(
+    ['editTaskTitle', 'editTaskPriority', 'editTaskDue'],
+    'saveTaskBtn',
+    'saveTaskBtnText'
+  );
+
+  // Pointer-down on a task drag handle → start drag
+  document.getElementById('taskList').addEventListener('pointerdown', e => {
+    const handle = e.target.closest('.task-drag-handle');
+    if (!handle) return;
+    startTaskDrag(e, handle);
+  });
 });

@@ -12,29 +12,31 @@ function esc(str) {
 }
 
 /**
- * Tracks changes on form inputs and visually marks the submit button.
- * @param {string[]} inputIds - Array of input/select IDs to watch.
- * @param {string} btnId - The ID of the submit button.
- * @param {string} textSpanId - The ID of the span inside the button that holds the text.
+ * Tracks changes on form inputs and marks the submit button as dirty.
+ * The button is disabled when clean, enabled + amber when dirty.
+ * Returns a reset function so callers can reset the button independently.
+ * For backward compatibility, also exposes the latest reset via
+ * window.resetProfileSaveBtn (preserving existing behavior).
  */
 function initUnsavedChangesTracker(inputIds, btnId, textSpanId) {
     const btn = document.getElementById(btnId);
     const btnText = document.getElementById(textSpanId);
-    if (!btn || !btnText) return;
+    if (!btn || !btnText) return () => {};
 
     const markDirty = () => {
+        btn.disabled = false;
         btn.style.background = 'var(--warning)';
         btn.style.borderColor = 'var(--warning)';
         btnText.textContent = 'Save Changes *';
     };
 
     const resetBtn = () => {
+        btn.disabled = true;
         btn.style.background = 'var(--accent)';
         btn.style.borderColor = 'var(--accent)';
         btnText.textContent = 'Save Changes';
     };
 
-    // Listen to text inputs, selects, and radio buttons
     inputIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -43,13 +45,10 @@ function initUnsavedChangesTracker(inputIds, btnId, textSpanId) {
         }
     });
 
-    // Handle radio buttons (they share a name, not a single ID)
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-        radio.addEventListener('change', markDirty);
-    });
-
-    // Expose a way to reset the button when saved successfully
+    resetBtn(); // start disabled
     window.resetProfileSaveBtn = resetBtn;
+
+    return resetBtn;
 }
 
 /**
@@ -104,11 +103,9 @@ function initHelpAccordion() {
             const chevron = btn.querySelector('.help-chevron');
             const isOpen = content.style.display === 'block';
 
-            // Close all other open sections
             document.querySelectorAll('.help-content').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.help-chevron').forEach(el => el.style.transform = 'rotate(0deg)');
 
-            // If it was closed, open it now
             if (!isOpen) {
                 content.style.display = 'block';
                 chevron.style.transform = 'rotate(180deg)';
@@ -117,5 +114,11 @@ function initHelpAccordion() {
     });
 }
 
-// Automatically initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', initHelpAccordion);
+
+function initDateInputsMinToday() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('.date-input').forEach(input => {
+        input.setAttribute('min', todayStr);
+    });
+}

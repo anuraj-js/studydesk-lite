@@ -72,20 +72,6 @@ textarea {
 .btn-full { width: 100%; }
 .btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
 
-/* ── Reset button ── */
-.reset-btn {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 0.4rem 0.65rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  line-height: 1;
-  transition: all 0.2s;
-}
-.reset-btn:hover { border-color: var(--danger); color: var(--danger); }
-
 /* ── Badges ── */
 .badge {
   padding: 0.18rem 0.5rem;
@@ -284,4 +270,9 @@ textarea {
 .help-content p {
     font-size: 0.95rem;
     margin-bottom: 0.5rem;
+}
+
+/* ── Profile Save Button Width ── */
+#saveUsernameBtn {
+  min-width: 170px;
 }
