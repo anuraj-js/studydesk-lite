@@ -62,14 +62,10 @@
     opacity: 1;
     visibility: visible;
   }
-
-  #saveUsernameBtn {
-    font-size: 0.9rem;
-  }
 }
 
 /* ── Tablets portrait / Mobile ── */
-@media (max-width: 768px) {
+@media (max-width: 770px) {
   /* Notes layout adjustments */
   .notes-container {
     height: calc(100dvh - 70px);
@@ -84,8 +80,44 @@
   }
 
   #saveUsernameBtn {
-    font-size: 0.8rem;
-    min-width: 120px;
+    max-width: 120px;
+    font-size: 0.85rem;
+  }
+
+  .profile-name-editor {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .task-page-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .task-main-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 0.5rem;
+  }
+
+  .task-drag-handle,
+  .task-checkbox {
+    flex-shrink: 0;
+  }
+
+  .task-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .task-meta {
+    justify-content: flex-end;
+    width: 100%;
   }
 }
 
@@ -111,10 +143,6 @@
   .card {
     padding: 1rem;
   }
-
-  #saveUsernameBtn {
-    font-size: 0.7rem;
-  }
 }
 
 /* ── Small phones ── */
@@ -137,8 +165,11 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
+}
 
-  #saveUsernameBtn {
-    min-width: 130px;
+@media (max-width: 395px) {
+  .settings-action-bar {
+    flex-direction: column-reverse;
+    row-gap: 30px;
   }
 }

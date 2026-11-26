@@ -23,8 +23,11 @@ function showDialog({ title, message, confirmText = 'Confirm', cancelText = 'Can
 
     document.body.appendChild(overlay);
 
-    // 1. Instantly focus the Cancel button so the Enter key has a target.
     const cancelBtn = overlay.querySelector('#dialogCancelBtn');
+    const confirmBtn = overlay.querySelector('#dialogConfirmBtn');
+    const closeBtn = overlay.querySelector('#dialogCloseBtn');
+
+    // Focus the Cancel button by default so Enter doesn't instantly delete things
     cancelBtn.focus();
 
     const closeDialog = () => {
@@ -33,34 +36,39 @@ function showDialog({ title, message, confirmText = 'Confirm', cancelText = 'Can
         }
         overlay.remove();
     };
-
+    
     const handleConfirm = (e) => { 
         if (e) e.preventDefault();
         closeDialog(); 
         if (onConfirm) onConfirm(); 
     };
+    
     const handleCancel = (e) => { 
         if (e) e.preventDefault();
         closeDialog(); 
         if (onCancel) onCancel(); 
     };
 
-    overlay.querySelector('#dialogConfirmBtn').addEventListener('click', handleConfirm);
+    confirmBtn.addEventListener('click', handleConfirm);
     cancelBtn.addEventListener('click', handleCancel);
-    overlay.querySelector('#dialogCloseBtn').addEventListener('click', handleCancel);
+    closeBtn.addEventListener('click', handleCancel);
     
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) handleCancel(e);
     });
 
-    // 2. Kill any Enter/Space keystrokes inside the dialog so they don't trigger page shortcuts.
+    // Handle Enter key if the confirm button is explicitly focused
     overlay.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             e.stopPropagation();
-            // If user pressed Enter, let's act like they clicked Confirm
-            if (e.key === 'Enter' && document.activeElement === cancelBtn) {
-               // Do nothing, cancel is focused, let click handle it 
+            
+            if (e.key === 'Enter') {
+                if (document.activeElement === confirmBtn) {
+                    handleConfirm();
+                } else if (document.activeElement === cancelBtn || document.activeElement === closeBtn) {
+                    handleCancel();
+                }
             }
         }
     });

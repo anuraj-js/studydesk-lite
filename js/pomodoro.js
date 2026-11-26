@@ -298,7 +298,7 @@ function applySettings() {
   }
 
   // Reset the Amber button back to Blue
-  if (window.resetProfileSaveBtn) window.resetProfileSaveBtn();
+  if (window.resetUnsavedTracker) window.resetUnsavedTracker();
   showToast('Settings saved.', 'success');
 }
 

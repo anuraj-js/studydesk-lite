@@ -46,7 +46,7 @@ function initUnsavedChangesTracker(inputIds, btnId, textSpanId) {
     });
 
     resetBtn(); // start disabled
-    window.resetProfileSaveBtn = resetBtn;
+    window.resetUnsavedTracker = resetBtn;
 
     return resetBtn;
 }

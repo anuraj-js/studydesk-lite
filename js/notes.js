@@ -69,19 +69,16 @@ function closeNote() {
     clearTimeout(saveTimeout);
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value;
-    const note  = Storage.getNotes().find(n => n.id === activeNoteId);
-    const changed = note && (title !== (note.title || 'Untitled Note') || body !== (note.body || ''));
-    if (changed) {
-      Storage.updateNote(activeNoteId, title, body);
-      isNewUnsavedNote = false;
-    }
-  }
-
-  if (isNewUnsavedNote && activeNoteId) {
-    const title = document.getElementById('editNoteTitle').value.trim();
-    const body  = document.getElementById('editNoteBody').value.trim();
-    if ((!title || title === 'Untitled Note') && !body) {
+    
+    // Check for blank new note FIRST, before any save logic can overwrite it
+    if (isNewUnsavedNote && (!title || title === 'Untitled Note') && !body.trim()) {
       Storage.deleteNote(activeNoteId);
+    } else {
+      const note = Storage.getNotes().find(n => n.id === activeNoteId);
+      const changed = note && (title !== (note.title || 'Untitled Note') || body !== (note.body || ''));
+      if (changed) {
+        Storage.updateNote(activeNoteId, title, body);
+      }
     }
   }
 
@@ -189,14 +186,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('editNoteBody').addEventListener('paste', e => {
     const titleEl = document.getElementById('editNoteTitle');
+
     if (titleEl.value.trim() && titleEl.value.trim() !== 'Untitled Note') return;
 
     setTimeout(() => {
-      const body  = document.getElementById('editNoteBody').value;
-      const lines = body.split('\n');
+      const bodyEl = document.getElementById('editNoteBody');
+      const lines = bodyEl.value.split('\n');
+
       if (lines.length > 1 && lines[0].trim()) {
         titleEl.value = lines[0].trim();
-        document.getElementById('editNoteBody').value = lines.slice(1).join('\n').trimStart();
+        bodyEl.value = lines.slice(1).join('\n').trimStart();
+
         triggerAutoSave();
       }
     }, 0);

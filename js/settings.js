@@ -16,8 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             localStorage.setItem('sdl-username', val);
             
-            // Re-render navbar to update the sidebar name
-            if (typeof renderNav === 'function') renderNav();
+            // Re-render navbar and reinitialize mobile menu
+            if (typeof renderNav === 'function') {
+                renderNav();
+                initMobileMenu();
+            }
             
             // Reset button color
             resetTracker();
@@ -51,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
         a.href     = url;
-        a.download = `studydesk-backup-${new Date().toISOString().slice(0,10)}.json`;
+        a.download = `studydesk-backup-${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}.json`
 
         a.style.display = 'none';
         document.body.appendChild(a);

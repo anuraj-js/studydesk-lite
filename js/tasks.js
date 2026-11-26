@@ -53,12 +53,16 @@ function renderTasks() {
     const overdue = isOverdue(t);
     const highlightedTitle = highlightText(t.title, searchQuery); 
 
-    return `
-      <div class="task-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
+  return `
+    <div class="task-item task-page-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
+
+      <div class="task-main-content">
         <span class="task-drag-handle" data-id="${t.id}" title="Drag to reorder">
           <i class="fa-solid fa-grip-vertical"></i>
         </span>
+
         <input type="checkbox" class="task-checkbox" data-id="${t.id}" ${t.completed ? 'checked' : ''} />
+
         <div class="task-content">
           <div class="task-title">${highlightedTitle}</div>
           ${t.dueDate ? `<div class="task-due ${overdue ? 'overdue' : ''}">
@@ -66,17 +70,20 @@ function renderTasks() {
             ${overdue ? ' &middot; <strong>Overdue</strong>' : ''}
           </div>` : ''}
         </div>
-        <div class="task-meta">
-          <span class="badge badge-${t.priority}">${t.priority}</span>
-          <button class="btn btn-ghost btn-sm edit-btn" data-id="${t.id}">
-            <i class="fa-solid fa-pen"></i> Edit
-          </button>
-          <button class="btn btn-danger btn-sm delete-btn" data-id="${t.id}">
-            <i class="fa-solid fa-trash"></i> Delete
-          </button>
-        </div>
       </div>
-    `;
+
+      <div class="task-meta">
+        <span class="badge badge-${t.priority}">${t.priority}</span>
+        <button class="btn btn-ghost btn-sm edit-btn" data-id="${t.id}">
+          <i class="fa-solid fa-pen"></i> Edit
+        </button>
+        <button class="btn btn-danger btn-sm delete-btn" data-id="${t.id}">
+          <i class="fa-solid fa-trash"></i> Delete
+        </button>
+      </div>
+
+    </div>
+  `;
   }).join('');
 
   // Attach Event Listeners
