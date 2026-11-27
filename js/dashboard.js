@@ -159,7 +159,7 @@ function initUpcomingExams() {
   el.innerHTML = exams.map(e => {
     const diff   = Math.round((new Date(e.date + 'T00:00:00') - today) / 864e5);
     const urgent = diff <= 3;
-    const label  = diff === 0 ? 'Today!' : diff + ' days';
+    const label  = diff === 0 ? 'Today!' : diff === 1 ? '1 day' : diff + ' days';
     return `
       <div class="exam-item">
         <div>
