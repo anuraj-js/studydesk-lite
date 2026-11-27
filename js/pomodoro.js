@@ -14,6 +14,18 @@ const DEFAULT_TITLE = 'Pomodoro · StudyDesk Lite';
 const alarmAudio = new Audio('../sound.mp3');
 alarmAudio.loop = true;
 
+// Maps each settings input id to its key in Storage.POMODORO_LIMITS / POMODORO_DEFAULTS.
+// The limits and defaults themselves live only in storage.js.
+const SETTING_FIELDS = {
+  setWork:      'work',
+  setWorkSec:   'workSec',
+  setShort:     'shortBreak',
+  setShortSec:  'shortSec',
+  setLong:      'longBreak',
+  setLongSec:   'longSec',
+  setLongAfter: 'longBreakAfter'
+};
+
 function modeLabel() { return { work: 'Focus Time', short: 'Short Break', long: 'Long Break' }[mode]; }
 function modeSecs() {
   return {
@@ -229,15 +241,17 @@ function reset() {
   render();
 }
 
+
 function skip() {
   clearInterval(tick);
   running = false;
 
   if (mode === 'work') {
-    doneWork++;
-    Storage.recordSession();
-    mode = (doneWork % cfg.longBreakAfter === 0) ? 'long' : 'short';
+    // Skipped focus sessions must not count as completed.
+    // Move to a short break without updating session statistics.
+    mode = 'short';
   } else {
+    // Skipping a break returns to focus time.
     mode = 'work';
   }
 
@@ -249,44 +263,30 @@ function skip() {
   render();
 }
 
+
+// Clamp every settings input to the limits defined in Storage.POMODORO_LIMITS.
 function validateSettings() {
-  const inputs = {
-    work: document.getElementById('setWork'),
-    workSec: document.getElementById('setWorkSec'),
-    short: document.getElementById('setShort'),
-    shortSec: document.getElementById('setShortSec'),
-    long: document.getElementById('setLong'),
-    longSec: document.getElementById('setLongSec'),
-    longAfter: document.getElementById('setLongAfter')
-  };
+  Object.entries(SETTING_FIELDS).forEach(([id, key]) => {
+    const input = document.getElementById(id);
+    const [min, max] = Storage.POMODORO_LIMITS[key];
 
-  if (inputs.work.value < 0) inputs.work.value = 0;
-  if (inputs.work.value > 90) inputs.work.value = 90;
-  if (inputs.short.value < 0) inputs.short.value = 0;
-  if (inputs.short.value > 30) inputs.short.value = 30;
-  if (inputs.long.value < 0) inputs.long.value = 0;
-  if (inputs.long.value > 60) inputs.long.value = 60;
-
-  [inputs.workSec, inputs.shortSec, inputs.longSec].forEach(input => {
-    if (input.value < 0) input.value = 0;
-    if (input.value > 59) input.value = 59;
+    if (input.value < min) input.value = min;
+    if (input.value > max) input.value = max;
   });
-
-  if (inputs.longAfter.value < 1) inputs.longAfter.value = 1;
-  if (inputs.longAfter.value > 10) inputs.longAfter.value = 10;
 }
 
 function applySettings() {
   validateSettings();
 
-  cfg.work           = parseInt(document.getElementById('setWork').value)      || 0;
-  cfg.workSec        = parseInt(document.getElementById('setWorkSec').value)   || 0;
-  cfg.shortBreak     = parseInt(document.getElementById('setShort').value)     || 0;
-  cfg.shortSec       = parseInt(document.getElementById('setShortSec').value)  || 0;
-  cfg.longBreak      = parseInt(document.getElementById('setLong').value)      || 0;
-  cfg.longSec        = parseInt(document.getElementById('setLongSec').value)   || 0;
-  cfg.longBreakAfter = parseInt(document.getElementById('setLongAfter').value) || 4;
-  
+  const values = {};
+  Object.entries(SETTING_FIELDS).forEach(([id, key]) => {
+    const parsed = parseInt(document.getElementById(id).value, 10);
+    // An empty field falls back to the lowest allowed value for that setting.
+    values[key] = Number.isNaN(parsed) ? Storage.POMODORO_LIMITS[key][0] : parsed;
+  });
+
+  Object.assign(cfg, values);
+
   Storage.savePomodoroSettings(cfg);
 
   if (!running) {
@@ -308,13 +308,9 @@ function resetToDefault() {
     message: 'Are you sure you want to reset all Pomodoro settings to their original defaults?',
     confirmText: 'Reset',
     onConfirm: () => {
-      document.getElementById('setWork').value = 25;
-      document.getElementById('setWorkSec').value = 0;
-      document.getElementById('setShort').value = 5;
-      document.getElementById('setShortSec').value = 0;
-      document.getElementById('setLong').value = 15;
-      document.getElementById('setLongSec').value = 0;
-      document.getElementById('setLongAfter').value = 4;
+      Object.entries(SETTING_FIELDS).forEach(([id, key]) => {
+        document.getElementById(id).value = Storage.POMODORO_DEFAULTS[key];
+      });
 
       applySettings();
     }
@@ -338,18 +334,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('resetBtn').addEventListener('click', reset);
   document.getElementById('skipBtn').addEventListener('click', skip);
 
-  document.getElementById('setWork').value      = cfg.work;
-  document.getElementById('setWorkSec').value   = cfg.workSec  || 0;
-  document.getElementById('setShort').value     = cfg.shortBreak;
-  document.getElementById('setShortSec').value  = cfg.shortSec || 0;
-  document.getElementById('setLong').value      = cfg.longBreak;
-  document.getElementById('setLongSec').value   = cfg.longSec  || 0;
-  document.getElementById('setLongAfter').value = cfg.longBreakAfter;
+  // Fill the settings inputs and keep their min/max attributes in sync with Storage.
+  Object.entries(SETTING_FIELDS).forEach(([id, key]) => {
+    const input = document.getElementById(id);
+    const [min, max] = Storage.POMODORO_LIMITS[key];
+
+    input.min   = min;
+    input.max   = max;
+    input.value = cfg[key];
+  });
 
   // Initialize the Amber Button Tracker
   if (window.initUnsavedChangesTracker) {
     initUnsavedChangesTracker(
-      ['setWork', 'setWorkSec', 'setShort', 'setShortSec', 'setLong', 'setLongSec', 'setLongAfter'],
+      Object.keys(SETTING_FIELDS),
       'saveSettingsBtn',
       'saveSettingsBtnText'
     );
@@ -362,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('resetSettingsBtn').addEventListener('click', resetToDefault);
 
   // Settings input listeners (only validate & mark dirty, do not auto-save)
-  ['setWork','setWorkSec','setShort','setShortSec','setLong','setLongSec','setLongAfter'].forEach(id => {
+  Object.keys(SETTING_FIELDS).forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener('input', validateSettings);
     el.addEventListener('keydown', (e) => {

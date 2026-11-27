@@ -32,7 +32,7 @@ function renderNotesList() {
     const isActive = n.id === activeNoteId ? 'active-note' : '';
 
     return `
-      <div class="note-list-item ${isActive}" data-id="${n.id}">
+      <div class="note-list-item ${isActive}" data-id="${esc(n.id)}">
         <div class="note-list-title">${esc(n.title || 'Untitled Note')}</div>
         <div class="note-list-preview">${esc(preview)}</div>
         <div class="note-list-date">${date}</div>
@@ -45,12 +45,12 @@ function renderNotesList() {
   });
 }
 
-function openNote(id) {
+function openNote(id, isNew = false) {
   const note = Storage.getNotes().find(n => n.id === id);
   if (!note) return;
 
   activeNoteId     = id;
-  isNewUnsavedNote = false;
+  isNewUnsavedNote = isNew;
 
   document.getElementById('notesSidebar').classList.add('hidden-view');
   document.getElementById('notesEditor').classList.add('active-view');
@@ -65,22 +65,8 @@ function openNote(id) {
 }
 
 function closeNote() {
-  if (activeNoteId) {
-    clearTimeout(saveTimeout);
-    const title = document.getElementById('editNoteTitle').value.trim();
-    const body  = document.getElementById('editNoteBody').value;
-    
-    // Check for blank new note FIRST, before any save logic can overwrite it
-    if (isNewUnsavedNote && (!title || title === 'Untitled Note') && !body.trim()) {
-      Storage.deleteNote(activeNoteId);
-    } else {
-      const note = Storage.getNotes().find(n => n.id === activeNoteId);
-      const changed = note && (title !== (note.title || 'Untitled Note') || body !== (note.body || ''));
-      if (changed) {
-        Storage.updateNote(activeNoteId, title, body);
-      }
-    }
-  }
+  // Saves pending changes, or deletes a new note that is still empty.
+  flushActiveNote();
 
   activeNoteId     = null;
   isNewUnsavedNote = false;
@@ -115,23 +101,65 @@ function triggerAutoSave() {
   if (!activeNoteId) return;
 
   document.getElementById('saveStatus').textContent = 'Saving…';
-  
+
   clearTimeout(saveTimeout);
+
   saveTimeout = setTimeout(() => {
     const title = document.getElementById('editNoteTitle').value.trim();
     const body  = document.getElementById('editNoteBody').value;
+
     Storage.updateNote(activeNoteId, title, body);
 
     isNewUnsavedNote = false;
+
     updateSaveStatus(new Date().toISOString());
     renderNotesList();
   }, 600);
 }
 
+function flushActiveNote() {
+  clearTimeout(saveTimeout);
+
+  if (!activeNoteId) return;
+
+  const title = document.getElementById('editNoteTitle').value.trim();
+  const body  = document.getElementById('editNoteBody').value;
+
+  // Delete newly created notes that are still completely empty.
+  if (
+    isNewUnsavedNote &&
+    (!title || title === 'Untitled Note') &&
+    !body.trim()
+  ) {
+    Storage.deleteNote(activeNoteId);
+    return;
+  }
+
+  const note = Storage.getNotes().find(n => n.id === activeNoteId);
+
+  if (!note) return;
+
+  const changed =
+    title !== (note.title || 'Untitled Note') ||
+    body !== (note.body || '');
+
+  if (changed) {
+    Storage.updateNote(activeNoteId, title, body);
+  }
+
+  isNewUnsavedNote = false;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderNotesList();
 
-  window.addEventListener('beforeunload', () => clearTimeout(saveTimeout));
+  window.addEventListener('pagehide', flushActiveNote);
+
+  // If the browser restores this page from the back/forward cache, reload it so the
+  // editor can't show a note that pagehide already deleted.
+  window.addEventListener('pageshow', e => {
+    if (e.persisted) location.reload();
+  });
 
   document.getElementById('searchNotes').addEventListener('input', e => {
     searchQuery = e.target.value;
@@ -140,9 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');
-    isNewUnsavedNote = true;
-    openNote(newNote.id);
+
+    // Pass true so openNote() preserves the new-note status.
+    openNote(newNote.id, true);
+
     document.getElementById('editNoteTitle').value = '';
+
     setTimeout(() => document.getElementById('editNoteTitle').focus(), 100);
   });
 
@@ -173,13 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!activeNoteId) return;
 
       clearTimeout(saveTimeout);
+
       const title = document.getElementById('editNoteTitle').value.trim();
       const body  = document.getElementById('editNoteBody').value;
+
       Storage.updateNote(activeNoteId, title, body);
       isNewUnsavedNote = false;
 
       updateSaveStatus(new Date().toISOString());
       renderNotesList();
+
       showToast('Note saved.', 'success');
     }
   });

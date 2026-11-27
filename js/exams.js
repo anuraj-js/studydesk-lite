@@ -285,11 +285,18 @@ function endTopicDrag(e, commit) {
 function openEditModal(id) {
   const exam = Storage.getExams().find(e => e.id === id);
   if (!exam) return;
+  const dateInput = document.getElementById('editExamDate');
+  const timeInput = document.getElementById('editExamTime');
+  const shownTime = exam.time || '09:00';
+
   document.getElementById('editExamId').value      = exam.id;
   document.getElementById('editExamName').value    = exam.name;
   document.getElementById('editExamSubject').value = exam.subject;
-  document.getElementById('editExamDate').value    = exam.date;
-  document.getElementById('editExamTime').value    = exam.time || '09:00';
+  dateInput.value                                  = exam.date;
+  timeInput.value                                  = shownTime;
+  // Store originals exactly as displayed so the submit handler can detect real changes
+  dateInput.dataset.originalDate                   = exam.date;
+  timeInput.dataset.originalTime                   = shownTime;
   if (window.resetExamSaveBtn) window.resetExamSaveBtn();
   document.getElementById('editModal').style.display = 'flex';
 }
@@ -359,22 +366,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('editExamForm').addEventListener('submit', e => {
     e.preventDefault();
-    const id      = document.getElementById('editExamId').value;
-    const name    = document.getElementById('editExamName').value.trim();
-    const subject = document.getElementById('editExamSubject').value.trim();
-    const date    = document.getElementById('editExamDate').value;
-    const time    = document.getElementById('editExamTime').value;
-    
+    const id        = document.getElementById('editExamId').value;
+    const name      = document.getElementById('editExamName').value.trim();
+    const subject   = document.getElementById('editExamSubject').value.trim();
+    const dateInput = document.getElementById('editExamDate');
+    const timeInput = document.getElementById('editExamTime');
+    const date      = dateInput.value;
+    const time      = timeInput.value;
+    const originalDate = dateInput.dataset.originalDate || '';
+    const originalTime = timeInput.dataset.originalTime || '';
+
     if (!name || !subject || !date || !time) {
       showToast('Please fill in all required fields.', 'error');
       return;
     }
 
-    if (isPastDateTime(date, time)) {
+    // Only reject a past date/time if either value was actually changed.
+    // This allows editing name or subject of an exam that already has a past date.
+    const dateTimeChanged = date !== originalDate || time !== originalTime;
+    if (dateTimeChanged && isPastDateTime(date, time)) {
       showToast('Exam date and time cannot be in the past.', 'error');
       return;
     }
-    
+
     Storage.updateExam(id, { name, subject, date, time });
     if (window.resetExamSaveBtn) window.resetExamSaveBtn();
     closeEditModal();

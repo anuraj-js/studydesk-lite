@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../css/components.css" />
   <link rel="stylesheet" href="../css/features.css" />
   <link rel="stylesheet" href="../css/responsive.css" />
+  <link rel="manifest" href="../manifest.json" />
   <link rel="icon" href="data:,">
   <script src="../js/theme.js"></script>
 </head>
@@ -52,7 +53,7 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Adding Tasks:</strong> Click "Add Task" to enter what you need to do. You can set a priority level and a due date so you never forget it.</li>
+            <li><strong>Adding Tasks:</strong> Click "Add Task" to enter what you need to do. You can set a priority level and a due date so you never forget it. New tasks can't have a due date in the past, but you can still edit older tasks without changing their date.</li>
             <li><strong>Managing Tasks:</strong> Check the box to mark a task as done. Use the Edit button to change details or the Delete button to remove it.</li>
             <li><strong>Finding Tasks:</strong> Use the tabs to filter by Active, Completed, or Overdue. You can also type in the search bar to instantly find a specific task.</li>
             <li><strong>Reordering:</strong> You can change the order of your tasks. Just click and hold the six-dot handle on the left side of a task, then drag it up or down.</li>
@@ -69,7 +70,7 @@
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
             <li><strong>Adding Exams:</strong> Create an exam plan by entering the subject, name, date, and time.</li>
-            <li><strong>Live Countdown:</strong> Every exam card shows exactly how many days, hours, and minutes are left until the exam starts.</li>
+            <li><strong>Live Countdown:</strong> Every exam card shows exactly how many days, hours, minutes, and seconds are left until the exam starts.</li>
             <li><strong>Topic Tracking:</strong> Break your studying into smaller topics. Add a topic, then check it off when you've studied it. The progress bar will fill up automatically.</li>
             <li><strong>Managing Topics:</strong> Just like tasks, you can use the pencil icon to edit a topic's name, the X icon to delete it, or the six-dot handle to drag and reorder them.</li>
           </ul>
@@ -84,8 +85,8 @@
         </button>
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
-            <li><strong>Focus Sessions:</strong> Use the timer to focus on studying. Click Start to begin, and the app will automatically count your completed sessions.</li>
-            <li><strong>Customizing Time:</strong> Open the settings menu to change how long you want to focus and how long your breaks should be. Click "Save Settings" to apply your changes.</li>
+            <li><strong>Focus Sessions:</strong> Use the timer to focus on studying. Click Start to begin, and the app will automatically count your completed sessions. Skipping a session does not count it as completed.</li>
+            <li><strong>Customizing Time:</strong> Open the settings menu to change how long you want to focus and how long your breaks should be. Click "Save Changes" to apply your changes, or "Reset to Default" to go back to the original times.</li>
             <li><strong>Alerts:</strong> When the timer finishes, the app will play a sound and flash the screen to let you know it's time for a break (or time to get back to work).</li>
           </ul>
         </div>
@@ -116,8 +117,8 @@
         <div class="help-content" style="display: none;">
           <ul style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted); line-height: 1.6;">
             <li><strong>Display Name:</strong> Change the name used in your greeting. Press <strong>Enter</strong> on your keyboard to save it, or <strong>Escape</strong> to cancel.</li>
-            <li><strong>Data Backup:</strong> You can save a copy of all your data to a file on your computer (Export), or load a previous copy (Import). This is useful if you want to move your data to a new device.</li>
-            <li><strong>Danger Zone:</strong> If you want a fresh start, this button will permanently erase all your tasks, exams, and notes.</li>
+            <li><strong>Data Backup:</strong> You can save a copy of all your data to a file on your computer (Export), or load a previous copy (Import). Invalid or damaged backup files are rejected. This is useful if you want to move your data to a new device.</li>
+            <li><strong>Danger Zone:</strong> If you want a fresh start, this button will permanently erase all your tasks, exams, notes, and settings.</li>
           </ul>
         </div>
       </div>

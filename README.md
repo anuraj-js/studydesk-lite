@@ -27,7 +27,7 @@
 | 🏠 **Home Dashboard** | Real-time stats, interactive calendar, upcoming exams, and pending tasks |
 | ✅ **Task Manager** | Create, update, delete, and toggle tasks. Filter by active, completed, or overdue. **Drag-and-drop** to reorder tasks. |
 | 📅 **Exam Planner** | Schedule exams with live countdown timers. Add, edit, delete, and **drag-and-drop** study topics. |
-| ⏱️ **Pomodoro Timer** | Focus timer with custom settings, audio alarms, and automatic session tracking |
+| ⏱️ **Pomodoro Timer** | Focus timer with custom settings, audio alarms, and automatic session tracking (skipped sessions are not counted) |
 | 📝 **Notes** | Auto-saving master-detail editor with search and manual save (Ctrl+S) |
 | 👤 **Settings** | Update your display name with keyboard support (Enter to save, Escape to cancel) |
 | ❓ **Help Center** | Detailed, easy-to-understand built-in guides for every feature |
@@ -39,7 +39,7 @@
 |---|---|
 | 📱 **PWA & Offline** | Installable on your phone's home screen. Works 100% offline. |
 | 💾 **Local Storage** | No backend required. All data is saved securely in your browser. |
-| 📤 **Data Backup** | Export and import your data as a JSON file to move between devices. |
+| 📤 **Data Backup** | Export and import your data as a JSON file to move between devices. Backups are validated before import, and invalid files are rejected. |
 | 🔒 **Smart Buttons** | Save buttons automatically disable when no changes are made, and turn amber when you make an edit. |
 
 ---
@@ -58,7 +58,7 @@
 ## 🔒 Privacy & Security Highlights
 
 - 🔐 **No Backend:** Your data never leaves your device. There are no servers, trackers, or databases.
-- 🛡️ **XSS Protection:** All user input rendered to the DOM is strictly escaped using a custom helper function (`esc()`).
+- 🛡️ **XSS Protection:** User-entered text is escaped with a custom helper (`esc()`) before it is rendered, and imported backups are validated before they are saved.
 - 💾 **Data Ownership:** You own your data. You can export it to JSON or permanently wipe it at any time via the Settings page.
 
 ---

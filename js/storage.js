@@ -1,4 +1,20 @@
 const Storage = {
+  // ── IDs ────────────────────────────────────────
+  // crypto.randomUUID() only exists in secure contexts (HTTPS / localhost),
+  // so fall back to other methods when it is unavailable.
+  _newId() {
+    const c = globalThis.crypto;
+    if (c && typeof c.randomUUID === 'function') return c.randomUUID();
+    if (c && typeof c.getRandomValues === 'function') {
+      const b = c.getRandomValues(new Uint8Array(16));
+      b[6] = (b[6] & 0x0f) | 0x40;
+      b[8] = (b[8] & 0x3f) | 0x80;
+      const h = Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+      return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+    }
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  },
+
   // ── Tasks ──────────────────────────────────────
   getTasks() {
     try {
@@ -11,7 +27,7 @@ const Storage = {
   addTask({ title, priority, dueDate }) {
     const tasks = this.getTasks();
     const task = {
-      id: Date.now().toString(),
+      id: this._newId(),
       title,
       priority: priority || 'medium',
       dueDate: dueDate || '',
@@ -43,20 +59,13 @@ const Storage = {
   },
   reorderTasks(visibleOrderedIds) {
     const allTasks = this.getTasks();
-    // We need to map the new visible order back into the full list,
-    // keeping hidden tasks in their exact original positions.
-    
     const visibleSet = new Set(visibleOrderedIds);
     const reorderedVisible = visibleOrderedIds.map(id => allTasks.find(t => t.id === id)).filter(Boolean);
-    
     let vIndex = 0;
     const newAllTasks = allTasks.map(t => {
-      if (visibleSet.has(t.id)) {
-        return reorderedVisible[vIndex++];
-      }
+      if (visibleSet.has(t.id)) return reorderedVisible[vIndex++];
       return t;
     });
-    
     this._saveTasks(newAllTasks);
   },
 
@@ -69,18 +78,22 @@ const Storage = {
   _saveExams(exams) {
     localStorage.setItem('sdl-exams', JSON.stringify(exams));
   },
+  // Exams without a time sort as end-of-day.
+  _examTs(e) {
+    return new Date(e.date + 'T' + (e.time || '23:59'));
+  },
   addExam({ name, subject, date, time }) {
     const exams = this.getExams();
     const exam = {
-      id: Date.now().toString(),
+      id: this._newId(),
       name,
       subject,
       date,
-      time, 
+      time,
       topics: []
     };
     exams.push(exam);
-    exams.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+    exams.sort((a, b) => this._examTs(a) - this._examTs(b));
     this._saveExams(exams);
     return exam;
   },
@@ -88,10 +101,10 @@ const Storage = {
     const exams = this.getExams();
     const idx = exams.findIndex(e => e.id === id);
     if (idx === -1) return;
-    exams[idx] = { ...exams[idx], name, subject, date, time }; 
-    exams.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+    exams[idx] = { ...exams[idx], name, subject, date, time };
+    exams.sort((a, b) => this._examTs(a) - this._examTs(b));
     this._saveExams(exams);
-    return exams[idx];
+    return exams.find(e => e.id === id);
   },
   deleteExam(id) {
     this._saveExams(this.getExams().filter(e => e.id !== id));
@@ -103,7 +116,7 @@ const Storage = {
     const exam  = exams.find(e => e.id === examId);
     if (!exam) return;
     exam.topics = exam.topics || [];
-    exam.topics.push({ id: Date.now().toString(), text, completed: false });
+    exam.topics.push({ id: this._newId(), text, completed: false });
     this._saveExams(exams);
   },
   toggleTopic(examId, topicId) {
@@ -137,7 +150,6 @@ const Storage = {
     const byId = {};
     (exam.topics || []).forEach(t => { byId[t.id] = t; });
     const reordered = orderedIds.map(id => byId[id]).filter(Boolean);
-    // Append any topics not in orderedIds (shouldn't happen, but safe)
     (exam.topics || []).forEach(t => {
       if (!orderedIds.includes(t.id)) reordered.push(t);
     });
@@ -146,26 +158,42 @@ const Storage = {
   },
 
   // ── Pomodoro ───────────────────────────────────
+  POMODORO_DEFAULTS: {
+    work: 25, workSec: 0,
+    shortBreak: 5, shortSec: 0,
+    longBreak: 15, longSec: 0,
+    longBreakAfter: 4
+  },
+
+  // [min, max] for each setting. These match the inputs on the Pomodoro page.
+  POMODORO_LIMITS: {
+    work: [0, 180],       workSec: [0, 59],
+    shortBreak: [0, 30], shortSec: [0, 59],
+    longBreak: [0, 60],  longSec: [0, 59],
+    longBreakAfter: [1, 10]
+  },
+
+  _validatePomodoroSettings(s) {
+    const result = {};
+    for (const key of Object.keys(this.POMODORO_DEFAULTS)) {
+      const [min, max] = this.POMODORO_LIMITS[key];
+      const value = s ? s[key] : undefined;
+      result[key] = (Number.isInteger(value) && value >= min && value <= max)
+        ? value
+        : this.POMODORO_DEFAULTS[key];
+    }
+    return result;
+  },
   getPomodoroSettings() {
     try {
-      const defaults = {
-        work: 25, workSec: 0,
-        shortBreak: 5, shortSec: 0,
-        longBreak: 15, longSec: 0,
-        longBreakAfter: 4
-      };
-      return Object.assign(defaults, JSON.parse(localStorage.getItem('sdl-pomo-settings') || '{}'));
+      const raw = JSON.parse(localStorage.getItem('sdl-pomo-settings') || '{}');
+      return this._validatePomodoroSettings(raw);
     } catch {
-      return {
-        work: 25, workSec: 0,
-        shortBreak: 5, shortSec: 0,
-        longBreak: 15, longSec: 0,
-        longBreakAfter: 4
-      };
+      return { ...this.POMODORO_DEFAULTS };
     }
   },
   savePomodoroSettings(s) {
-    localStorage.setItem('sdl-pomo-settings', JSON.stringify(s));
+    localStorage.setItem('sdl-pomo-settings', JSON.stringify(this._validatePomodoroSettings(s)));
   },
   getTodaySessions() {
     const today = new Date().toDateString();
@@ -196,7 +224,7 @@ const Storage = {
   addNote(title, body) {
     const notes = this.getNotes();
     const note  = {
-      id: Date.now().toString(),
+      id: this._newId(),
       title: title || 'Untitled Note',
       body:  body  || '',
       createdAt:  new Date().toISOString(),

@@ -81,14 +81,18 @@ function initClock() {
 
 function initStats() {
   const tasks = Storage.getTasks();
-  const exams = Storage.getExams();
   const today = new Date(); today.setHours(0,0,0,0);
 
   document.getElementById('statPending').textContent   = tasks.filter(t => !t.completed).length;
   document.getElementById('statCompleted').textContent = tasks.filter(t =>  t.completed).length;
 
-  const now = new Date();
-  const next = exams.find(e => new Date(e.date + 'T' + (e.time || '23:59')) >= now);
+  const now  = new Date();
+  // Sort before find so imported/unsorted data doesn't surface the wrong exam
+  const next = Storage.getExams()
+    .slice()
+    .sort((a, b) => new Date(a.date + 'T' + (a.time || '23:59')) - new Date(b.date + 'T' + (b.time || '23:59')))
+    .find(e => new Date(e.date + 'T' + (e.time || '23:59')) >= now);
+
   if (next) {
     const diff = Math.round((new Date(next.date + 'T00:00:00') - today) / 864e5);
     document.getElementById('statExam').textContent = diff === 0 ? 'Today' : diff + 'd';
@@ -108,16 +112,24 @@ function initRecentTasks() {
     return;
   }
 
-  el.innerHTML = tasks.map(t => `
-    <div class="task-item">
-      <input type="checkbox" class="task-checkbox" data-id="${t.id}" />
-      <div class="task-content">
-        <div class="task-title">${esc(t.title)}</div>
-        ${t.dueDate ? `<div class="task-due"><i class="fa-regular fa-calendar"></i> ${t.dueDate}</div>` : ''}
+  el.innerHTML = tasks.map(t => {
+    const safeId = esc(t.id);
+    const safeDueDate = esc(t.dueDate || '');
+    const safePriority = ['low', 'medium', 'high'].includes(t.priority)
+      ? t.priority
+      : 'medium';
+
+    return `
+      <div class="task-item">
+        <input type="checkbox" class="task-checkbox" data-id="${safeId}" />
+        <div class="task-content">
+          <div class="task-title">${esc(t.title)}</div>
+          ${t.dueDate ? `<div class="task-due"><i class="fa-regular fa-calendar"></i> ${safeDueDate}</div>` : ''}
+        </div>
+        <span class="badge badge-${safePriority}">${esc(safePriority)}</span>
       </div>
-      <span class="badge badge-${t.priority}">${t.priority}</span>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   el.querySelectorAll('.task-checkbox').forEach(cb => {
     cb.addEventListener('change', () => {
@@ -132,7 +144,10 @@ function initUpcomingExams() {
   const el    = document.getElementById('upcomingExams');
   const today = new Date(); today.setHours(0,0,0,0);
 
+  // Sort before filtering so imported/unsorted data appears in correct order
   const exams = Storage.getExams()
+    .slice()
+    .sort((a, b) => new Date(a.date + 'T' + (a.time || '23:59')) - new Date(b.date + 'T' + (b.time || '23:59')))
     .filter(e => new Date(e.date + 'T' + (e.time || '23:59')) >= new Date())
     .slice(0, 4);
 

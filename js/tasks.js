@@ -51,39 +51,44 @@ function renderTasks() {
 
   el.innerHTML = list.map(t => {
     const overdue = isOverdue(t);
-    const highlightedTitle = highlightText(t.title, searchQuery); 
+    const highlightedTitle = highlightText(t.title, searchQuery);
+    const safeId = esc(t.id);
+    const safeDueDate = esc(t.dueDate || '');
+    const safePriority = ['low', 'medium', 'high'].includes(t.priority)
+      ? t.priority
+      : 'medium';
 
-  return `
-    <div class="task-item task-page-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
+    return `
+      <div class="task-item task-page-item ${t.completed ? 'completed' : ''}" data-id="${safeId}">
 
-      <div class="task-main-content">
-        <span class="task-drag-handle" data-id="${t.id}" title="Drag to reorder">
-          <i class="fa-solid fa-grip-vertical"></i>
-        </span>
+        <div class="task-main-content">
+          <span class="task-drag-handle" data-id="${safeId}" title="Drag to reorder">
+            <i class="fa-solid fa-grip-vertical"></i>
+          </span>
 
-        <input type="checkbox" class="task-checkbox" data-id="${t.id}" ${t.completed ? 'checked' : ''} />
+          <input type="checkbox" class="task-checkbox" data-id="${safeId}" ${t.completed ? 'checked' : ''} />
 
-        <div class="task-content">
-          <div class="task-title">${highlightedTitle}</div>
-          ${t.dueDate ? `<div class="task-due ${overdue ? 'overdue' : ''}">
-            <i class="fa-regular fa-calendar"></i> ${t.dueDate}
-            ${overdue ? ' &middot; <strong>Overdue</strong>' : ''}
-          </div>` : ''}
+          <div class="task-content">
+            <div class="task-title">${highlightedTitle}</div>
+            ${t.dueDate ? `<div class="task-due ${overdue ? 'overdue' : ''}">
+              <i class="fa-regular fa-calendar"></i> ${safeDueDate}
+              ${overdue ? ' &middot; <strong>Overdue</strong>' : ''}
+            </div>` : ''}
+          </div>
         </div>
-      </div>
 
-      <div class="task-meta">
-        <span class="badge badge-${t.priority}">${t.priority}</span>
-        <button class="btn btn-ghost btn-sm edit-btn" data-id="${t.id}">
-          <i class="fa-solid fa-pen"></i> Edit
-        </button>
-        <button class="btn btn-danger btn-sm delete-btn" data-id="${t.id}">
-          <i class="fa-solid fa-trash"></i> Delete
-        </button>
-      </div>
+        <div class="task-meta">
+          <span class="badge badge-${safePriority}">${esc(safePriority)}</span>
+          <button class="btn btn-ghost btn-sm edit-btn" data-id="${safeId}">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <button class="btn btn-danger btn-sm delete-btn" data-id="${safeId}">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
 
-    </div>
-  `;
+      </div>
+    `;
   }).join('');
 
   // Attach Event Listeners
@@ -226,10 +231,13 @@ function openEditTaskModal(id) {
   const task = Storage.getTasks().find(t => t.id === id);
   if (!task) return;
 
+  const dueDateInput = document.getElementById('editTaskDue');
   document.getElementById('editTaskId').value       = task.id;
   document.getElementById('editTaskTitle').value    = task.title;
   document.getElementById('editTaskPriority').value = task.priority || 'medium';
-  document.getElementById('editTaskDue').value      = task.dueDate || '';
+  dueDateInput.value                                = task.dueDate || '';
+  // Store the original due date so the submit handler can tell whether it changed
+  dueDateInput.dataset.originalDue                  = task.dueDate || '';
 
   if (window.resetTaskSaveBtn) window.resetTaskSaveBtn();
   document.getElementById('editTaskModal').style.display = 'flex';
@@ -268,13 +276,13 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Due date cannot be in the past.', 'error');
       return;
     }
-    
+
     Storage.addTask({
       title,
       priority: document.getElementById('taskPriority').value,
       dueDate: dueDate
     });
-    
+
     e.target.reset();
     if (searchInput) searchInput.value = '';
     searchQuery = '';
@@ -299,21 +307,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // Edit Task Form
   document.getElementById('editTaskForm').addEventListener('submit', e => {
     e.preventDefault();
-    const id       = document.getElementById('editTaskId').value;
-    const title    = document.getElementById('editTaskTitle').value.trim();
-    const priority = document.getElementById('editTaskPriority').value;
-    const dueDate  = document.getElementById('editTaskDue').value;
+    const id          = document.getElementById('editTaskId').value;
+    const title       = document.getElementById('editTaskTitle').value.trim();
+    const priority    = document.getElementById('editTaskPriority').value;
+    const dueDateInput = document.getElementById('editTaskDue');
+    const dueDate     = dueDateInput.value;
+    const originalDue = dueDateInput.dataset.originalDue || '';
 
     if (!title) {
       showToast('Task title is required.', 'error');
       return;
     }
 
-    if (dueDate && isPastDate(dueDate)) {
+    // Only reject a past date if it was actually changed from the original value.
+    // This allows editing other fields on tasks that already have a past due date.
+    if (dueDate && dueDate !== originalDue && isPastDate(dueDate)) {
       showToast('Due date cannot be in the past.', 'error');
       return;
     }
-    
+
     Storage.updateTask(id, { title, priority, dueDate });
     if (window.resetTaskSaveBtn) window.resetTaskSaveBtn();
     closeEditTaskModal();

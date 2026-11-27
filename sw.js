@@ -1,4 +1,4 @@
-const CACHE = 'sdl-v40';
+const CACHE = 'sdl-v41';
 
 const FA_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0';
 
@@ -56,8 +56,8 @@ self.addEventListener('install', e => {
     (async () => {
       const cache = await caches.open(CACHE);
 
-      // Required local files
-      await cache.addAll(STATIC);
+      // 'reload' bypasses the browser HTTP cache so fresh files are stored
+      await cache.addAll(STATIC.map(url => new Request(url, { cache: 'reload' })));
 
       // Optional external resources
       await Promise.allSettled(
@@ -112,31 +112,44 @@ self.addEventListener('fetch', e => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+  const sameOrigin = url.origin === self.location.origin;
 
-  // Navigation: network first, cache fallback
-  if (
-    request.mode === 'navigate' ||
-    url.pathname.endsWith('.html') ||
-    url.pathname === '/'
-  ) {
+  const isAppCode =
+    sameOrigin &&
+    (
+      request.mode === 'navigate' ||
+      url.pathname === '/' ||
+      url.pathname.endsWith('/') ||
+      /\.(html|js|css|json)$/.test(url.pathname)
+    );
+
+  // App code (HTML, JS, CSS, manifest): network first, cache fallback.
+  // Keeps JS in sync with HTML and still works offline.
+  if (isAppCode) {
     e.respondWith(
-      fetch(request)
-        .then(response => {
+      (async () => {
+        try {
+          const req = request.mode === 'navigate'
+            ? request
+            : new Request(request, { cache: 'no-cache' });
+
+          const response = await fetch(req);
+
           if (response.ok) {
             e.waitUntil(cachePut(request, response.clone()));
           }
 
           return response;
-        })
-        .catch(async () => {
-          return await caches.match(request) || Response.error();
-        })
+        } catch {
+          return (await caches.match(request)) || Response.error();
+        }
+      })()
     );
 
     return;
   }
 
-  // Static resources: cache first, network fallback
+  // Everything else (images, audio, fonts, external CSS): cache first, network fallback
   e.respondWith(
     (async () => {
       const cached = await caches.match(request);
@@ -145,9 +158,7 @@ self.addEventListener('fetch', e => {
 
       try {
         const response = await fetch(request);
-
         await cachePut(request, response.clone());
-
         return response;
       } catch {
         return Response.error();

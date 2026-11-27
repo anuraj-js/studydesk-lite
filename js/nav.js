@@ -28,7 +28,7 @@ function renderNav() {
     const activeClass = (page) => activePage === page ? 'active' : '';
 
     // Get username for the sidebar profile
-    const userName = localStorage.getItem('sdl-username') || 'Student';
+    const userName = esc(localStorage.getItem('sdl-username') || 'Student');
 
     const navHTML = `
     <nav class="navbar">

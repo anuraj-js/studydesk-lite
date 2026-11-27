@@ -121,7 +121,7 @@ function openDayModal(dateStr) {
           <i class="fa-solid fa-list-check" style="color:var(--warning);"></i>
           <div>
             <div style="font-weight:600;">${esc(t.title)}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">Priority: ${t.priority}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Priority: ${esc(t.priority)}</div>
           </div>
         </div>
       `).join('');
