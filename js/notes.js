@@ -1,3 +1,5 @@
+const PREVIEW_LENGTH = 40;
+const SNIPPET_LEAD   = 10;   // characters of context shown before a match
 const DEFAULT_TITLE        = 'Untitled Note';
 const NON_PASTE_INPUT_TYPES = ['historyUndo', 'historyRedo', 'insertReplacementText'];
 
@@ -23,6 +25,26 @@ function setEditorOpen(isOpen) {
   document.getElementById('noteEditor').style.display  = isOpen ? 'flex' : 'none';
 }
 
+function buildPreview(body, query) {
+  if (!body) return 'Empty note';
+
+  const flat = body.replace(/\n/g, ' ');
+  const idx  = query ? flat.toLowerCase().indexOf(query.toLowerCase()) : -1;
+
+  // Not searching, no body match, or the match is already inside the normal preview.
+  if (idx === -1 || idx + query.length <= PREVIEW_LENGTH) {
+    return flat.substring(0, PREVIEW_LENGTH) + (flat.length > PREVIEW_LENGTH ? '…' : '');
+  }
+
+  // Otherwise show a window of text starting a little before the match.
+  const start = Math.max(0, idx - SNIPPET_LEAD);
+  const end   = start + PREVIEW_LENGTH;
+
+  return (start > 0 ? '…' : '') +
+         flat.substring(start, end) +
+         (end < flat.length ? '…' : '');
+}
+
 function renderNotesList() {
   const notes  = Storage.getNotes();
   const listEl = document.getElementById('notesList');
@@ -42,27 +64,31 @@ function renderNotesList() {
     return;
   }
 
-  filteredNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  // Pinned notes first, then newest first within each group.
+  filteredNotes.sort((a, b) =>
+    Boolean(b.pinned) - Boolean(a.pinned) ||
+    new Date(b.updatedAt) - new Date(a.updatedAt)
+  );
 
   listEl.innerHTML = filteredNotes.map(n => {
-    const date     = new Date(n.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const preview  = n.body
-      ? n.body.substring(0, 40).replace(/\n/g, ' ') + (n.body.length > 40 ? '…' : '')
-      : 'Empty note';
-    const isActive = n.id === activeNoteId ? 'active-note' : '';
+    const date    = new Date(n.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const preview = buildPreview(n.body, searchQuery);
 
     return `
-      <div class="note-list-item ${isActive}" data-id="${esc(n.id)}">
-        <div class="note-list-title">${esc(n.title || DEFAULT_TITLE)}</div>
-        <div class="note-list-preview">${esc(preview)}</div>
-        <div class="note-list-date">${date}</div>
+      <div class="note-list-item${n.pinned ? ' pinned-note' : ''}" data-id="${esc(n.id)}">
+        <div class="note-list-text">
+          <div class="note-list-title">${highlightText(n.title || DEFAULT_TITLE, searchQuery)}</div>
+          <div class="note-list-preview">${highlightText(preview, searchQuery)}</div>
+          <div class="note-list-date">${date}</div>
+        </div>
+        <button type="button" class="note-pin-btn${n.pinned ? ' pinned' : ''}"
+                aria-label="Pin note" aria-pressed="${n.pinned ? 'true' : 'false'}"
+                title="${n.pinned ? 'Unpin note' : 'Pin note'}">
+          <i class="fa-solid fa-thumbtack"></i>
+        </button>
       </div>
     `;
   }).join('');
-
-  listEl.querySelectorAll('.note-list-item').forEach(item => {
-    item.addEventListener('click', () => openNote(item.dataset.id));
-  });
 }
 
 function openNote(id, isNew = false) {
@@ -78,6 +104,7 @@ function openNote(id, isNew = false) {
   document.getElementById('editNoteBody').value  = note.body  || '';
   lastBodyLength = (note.body || '').length;
 
+  renderWordCount();
   updateSaveStatus(note.updatedAt || new Date().toISOString());
 }
 
@@ -91,6 +118,14 @@ function closeNote() {
   setEditorOpen(false);
 
   renderNotesList();
+}
+
+function renderWordCount() {
+  const text  = document.getElementById('editNoteBody').value;
+  const count = (text.match(/\S+/g) || []).length;
+
+  document.getElementById('wordCount').textContent =
+    `${count.toLocaleString('en-US')} ${count === 1 ? 'word' : 'words'}`;
 }
 
 function updateSaveStatus(dateStr) {
@@ -185,6 +220,25 @@ document.addEventListener('DOMContentLoaded', () => {
     renderNotesList();
   });
 
+  // One delegated listener: the pin button toggles the pin, anything else opens the note.
+  document.getElementById('notesList').addEventListener('click', e => {
+    const item = e.target.closest('.note-list-item');
+    if (!item) return;
+
+    if (e.target.closest('.note-pin-btn')) {
+      const isPinned = Storage.togglePin(item.dataset.id);
+      renderNotesList();
+
+      // undefined means the note no longer exists (e.g. deleted in another tab).
+      if (isPinned === undefined) return;
+
+      showToast(isPinned ? 'Note pinned.' : 'Note unpinned.', 'success');
+      return;
+    }
+
+    openNote(item.dataset.id);
+  });
+
   document.getElementById('newNoteBtn').addEventListener('click', () => {
     const newNote = Storage.addNote('', '');
 
@@ -230,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isBulkInsert) autoTitleFromBody(titleEl, bodyEl);
 
+    renderWordCount();
     triggerAutoSave();
   });
 

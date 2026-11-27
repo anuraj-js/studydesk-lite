@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isValidId(note.id) &&
             typeof note.title === 'string' &&
             typeof note.body === 'string' &&
+            (note.pinned === undefined || typeof note.pinned === 'boolean') &&
             isValidTimestamp(note.createdAt) &&
             isValidTimestamp(note.updatedAt);
     }

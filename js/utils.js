@@ -102,15 +102,23 @@ function isPastDateTime(dateString, timeString) {
 
 /**
  * Escapes text and highlights the matching search query.
+ * Splits the raw text first, then escapes each piece, so the query
+ * can never match inside an HTML entity such as &amp; or &lt;.
  */
 function highlightText(text, query) {
-    if (!query) return esc(text);
+    const str = String(text ?? '');
+    if (!query) return esc(str);
 
-    const escapedText = esc(text);
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedQuery})`, 'gi');
 
-    return escapedText.replace(regex, '<span class="search-highlight">$1</span>');
+    // With a capture group, split() puts the matches at the odd indexes.
+    return str
+        .split(regex)
+        .map((part, i) => i % 2
+            ? `<span class="search-highlight">${esc(part)}</span>`
+            : esc(part))
+        .join('');
 }
 
 /**

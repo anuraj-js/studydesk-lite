@@ -28,7 +28,7 @@
 | ✅ **Task Manager** | Create, update, delete, and toggle tasks. Filter by active, completed, or overdue. **Drag-and-drop** to reorder tasks. |
 | 📅 **Exam Planner** | Schedule exams with live countdown timers. Add, edit, delete, and **drag-and-drop** study topics. |
 | ⏱️ **Pomodoro Timer** | Focus timer with custom settings, audio alarms, and automatic session tracking (skipped sessions are not counted) |
-| 📝 **Notes** | Auto-saving master-detail editor with search and manual save (Ctrl+S) |
+| 📝 **Notes** | Auto-saving master-detail editor with pinned notes, search with highlighted matches, word count, and manual save (Ctrl+S) |
 | 👤 **Settings** | Update your display name with keyboard support (Enter to save, Escape to cancel) |
 | ❓ **Help Center** | Detailed, easy-to-understand built-in guides for every feature |
 | 🎨 **Themes** | Dark and light mode, persisted across page reloads |

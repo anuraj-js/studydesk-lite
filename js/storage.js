@@ -227,6 +227,7 @@ const Storage = {
       id: this._newId(),
       title: title || 'Untitled Note',
       body:  body  || '',
+      pinned: false,
       createdAt:  new Date().toISOString(),
       updatedAt:  new Date().toISOString()
     };
@@ -243,6 +244,14 @@ const Storage = {
       notes[idx].updatedAt = new Date().toISOString();
       this._saveNotes(notes);
     }
+  },
+  togglePin(id) {
+    const notes = this.getNotes();
+    const note  = notes.find(n => n.id === id);
+    if (!note) return;
+    note.pinned = !note.pinned;
+    this._saveNotes(notes);
+    return note.pinned;
   },
   deleteNote(id) {
     this._saveNotes(this.getNotes().filter(n => n.id !== id));

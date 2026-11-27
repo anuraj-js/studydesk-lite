@@ -314,13 +314,14 @@
   color: var(--text-muted);
   cursor: pointer;
   font-size: 1.2rem;
-  padding: 0.2rem 0.4rem;
+  padding: 5px 7px;
   border-radius: 4px;
   transition: color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
+  margin: 3px;
 }
 .topic-delete:hover { color: var(--danger); background: rgba(239,68,68,.15); border-color: var(--danger); }
 
@@ -330,15 +331,16 @@
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.95rem;
-  padding: 0.35rem 0.4rem;
+  padding: 7px;
   border-radius: 4px;
   transition: color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
+  margin: 3px;
 }
-.topic-edit:hover { color: var(--accent); border-color: var(--accent); }
+.topic-edit:hover { color: var(--accent); background: rgba(59, 130, 246, .15); border-color: var(--accent); }
 
 .topic-drag-handle {
   color: var(--text-muted);
@@ -504,14 +506,43 @@
 }
 
 .note-list-item {
-  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1rem 1rem calc(1rem - 3px);
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .note-list-item:hover { background: var(--surface2); }
-.note-list-item.active-note { background: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--accent); }
+.note-list-item.pinned-note { background: rgba(59, 130, 246, 0.1); border-left-color: var(--accent); }
+.note-list-item.pinned-note:hover { background: rgba(59, 130, 246, 0.16); }
+
+.note-list-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.note-pin-btn {
+  flex-shrink: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.note-pin-btn:hover { color: var(--accent); background: rgba(59, 130, 246, .15); border-color: var(--accent); }
+.note-pin-btn.pinned { color: var(--accent); }
 
 .note-list-title {
   font-weight: 600;
@@ -601,10 +632,12 @@
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--border);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.save-status {
+.save-status,
+.word-count {
   font-size: 0.75rem;
   color: var(--text-muted);
 }
