@@ -1,7 +1,27 @@
+const DEFAULT_TITLE        = 'Untitled Note';
+const NON_PASTE_INPUT_TYPES = ['historyUndo', 'historyRedo', 'insertReplacementText'];
+
 let activeNoteId      = null;
 let searchQuery       = '';
 let isNewUnsavedNote  = false;
 let saveTimeout;
+let lastBodyLength    = 0;
+
+const isDefaultTitle = t => !t.trim() || t.trim() === DEFAULT_TITLE;
+
+function readEditor() {
+  return {
+    title: document.getElementById('editNoteTitle').value.trim(),
+    body:  document.getElementById('editNoteBody').value
+  };
+}
+
+function setEditorOpen(isOpen) {
+  document.getElementById('notesSidebar').classList.toggle('hidden-view', isOpen);
+  document.getElementById('notesEditor').classList.toggle('active-view', isOpen);
+  document.getElementById('emptyEditor').style.display = isOpen ? 'none' : 'flex';
+  document.getElementById('noteEditor').style.display  = isOpen ? 'flex' : 'none';
+}
 
 function renderNotesList() {
   const notes  = Storage.getNotes();
@@ -33,7 +53,7 @@ function renderNotesList() {
 
     return `
       <div class="note-list-item ${isActive}" data-id="${esc(n.id)}">
-        <div class="note-list-title">${esc(n.title || 'Untitled Note')}</div>
+        <div class="note-list-title">${esc(n.title || DEFAULT_TITLE)}</div>
         <div class="note-list-preview">${esc(preview)}</div>
         <div class="note-list-date">${date}</div>
       </div>
@@ -52,14 +72,11 @@ function openNote(id, isNew = false) {
   activeNoteId     = id;
   isNewUnsavedNote = isNew;
 
-  document.getElementById('notesSidebar').classList.add('hidden-view');
-  document.getElementById('notesEditor').classList.add('active-view');
+  setEditorOpen(true);
 
-  document.getElementById('emptyEditor').style.display = 'none';
-  document.getElementById('noteEditor').style.display  = 'flex';
-
-  document.getElementById('editNoteTitle').value = note.title || 'Untitled Note';
+  document.getElementById('editNoteTitle').value = note.title || DEFAULT_TITLE;
   document.getElementById('editNoteBody').value  = note.body  || '';
+  lastBodyLength = (note.body || '').length;
 
   updateSaveStatus(note.updatedAt || new Date().toISOString());
 }
@@ -71,11 +88,7 @@ function closeNote() {
   activeNoteId     = null;
   isNewUnsavedNote = false;
 
-  document.getElementById('notesSidebar').classList.remove('hidden-view');
-  document.getElementById('notesEditor').classList.remove('active-view');
-
-  document.getElementById('emptyEditor').style.display = 'flex';
-  document.getElementById('noteEditor').style.display  = 'none';
+  setEditorOpen(false);
 
   renderNotesList();
 }
@@ -97,24 +110,23 @@ function updateSaveStatus(dateStr) {
   }
 }
 
+function saveActiveNote() {
+  const { title, body } = readEditor();
+
+  Storage.updateNote(activeNoteId, title, body);
+  isNewUnsavedNote = false;
+
+  updateSaveStatus(new Date().toISOString());
+  renderNotesList();
+}
+
 function triggerAutoSave() {
   if (!activeNoteId) return;
 
   document.getElementById('saveStatus').textContent = 'Saving…';
 
   clearTimeout(saveTimeout);
-
-  saveTimeout = setTimeout(() => {
-    const title = document.getElementById('editNoteTitle').value.trim();
-    const body  = document.getElementById('editNoteBody').value;
-
-    Storage.updateNote(activeNoteId, title, body);
-
-    isNewUnsavedNote = false;
-
-    updateSaveStatus(new Date().toISOString());
-    renderNotesList();
-  }, 600);
+  saveTimeout = setTimeout(saveActiveNote, 600);
 }
 
 function flushActiveNote() {
@@ -122,32 +134,39 @@ function flushActiveNote() {
 
   if (!activeNoteId) return;
 
-  const title = document.getElementById('editNoteTitle').value.trim();
-  const body  = document.getElementById('editNoteBody').value;
+  const { title, body } = readEditor();
 
   // Delete newly created notes that are still completely empty.
-  if (
-    isNewUnsavedNote &&
-    (!title || title === 'Untitled Note') &&
-    !body.trim()
-  ) {
+  if (isNewUnsavedNote && isDefaultTitle(title) && !body.trim()) {
     Storage.deleteNote(activeNoteId);
     return;
   }
 
   const note = Storage.getNotes().find(n => n.id === activeNoteId);
-
   if (!note) return;
 
   const changed =
-    title !== (note.title || 'Untitled Note') ||
-    body !== (note.body || '');
+    title !== (note.title || DEFAULT_TITLE) ||
+    body  !== (note.body  || '');
 
   if (changed) {
     Storage.updateNote(activeNoteId, title, body);
   }
 
   isNewUnsavedNote = false;
+}
+
+// If the title is empty/default, moves the first line of the body into the title.
+function autoTitleFromBody(titleEl, bodyEl) {
+  if (!isDefaultTitle(titleEl.value)) return;
+
+  const lines = bodyEl.value.split('\n');
+
+  if (lines.length > 1 && lines[0].trim()) {
+    titleEl.value  = lines[0].trim();
+    bodyEl.value   = lines.slice(1).join('\n').trimStart();
+    lastBodyLength = bodyEl.value.length;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -196,7 +215,23 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('backToListBtn').addEventListener('click', closeNote);
 
   document.getElementById('editNoteTitle').addEventListener('input', triggerAutoSave);
-  document.getElementById('editNoteBody').addEventListener('input', triggerAutoSave);
+
+  document.getElementById('editNoteBody').addEventListener('input', e => {
+    const bodyEl  = e.target;
+    const titleEl = document.getElementById('editNoteTitle');
+
+    const inserted = bodyEl.value.length - lastBodyLength;
+    lastBodyLength = bodyEl.value.length;
+
+    // Ctrl+V, the paste menu, or the keyboard clipboard strip all add many characters at once.
+    const isBulkInsert =
+      e.inputType === 'insertFromPaste' ||
+      (!NON_PASTE_INPUT_TYPES.includes(e.inputType) && inserted > 1 && !e.isComposing);
+
+    if (isBulkInsert) autoTitleFromBody(titleEl, bodyEl);
+
+    triggerAutoSave();
+  });
 
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -204,35 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!activeNoteId) return;
 
       clearTimeout(saveTimeout);
-
-      const title = document.getElementById('editNoteTitle').value.trim();
-      const body  = document.getElementById('editNoteBody').value;
-
-      Storage.updateNote(activeNoteId, title, body);
-      isNewUnsavedNote = false;
-
-      updateSaveStatus(new Date().toISOString());
-      renderNotesList();
-
+      saveActiveNote();
       showToast('Note saved.', 'success');
     }
-  });
-
-  document.getElementById('editNoteBody').addEventListener('paste', e => {
-    const titleEl = document.getElementById('editNoteTitle');
-
-    if (titleEl.value.trim() && titleEl.value.trim() !== 'Untitled Note') return;
-
-    setTimeout(() => {
-      const bodyEl = document.getElementById('editNoteBody');
-      const lines = bodyEl.value.split('\n');
-
-      if (lines.length > 1 && lines[0].trim()) {
-        titleEl.value = lines[0].trim();
-        bodyEl.value = lines.slice(1).join('\n').trimStart();
-
-        triggerAutoSave();
-      }
-    }, 0);
   });
 });
